@@ -40,7 +40,7 @@
 
         class Context : ScenarioContext
         {
-            public MetricReport Report { get; set; }
+            public MetricReportWithHeaders Report { get; set; }
             public RawDataProvider RawDataProvider { get; set; }
         }
 

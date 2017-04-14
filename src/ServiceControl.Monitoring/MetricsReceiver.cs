@@ -16,11 +16,11 @@
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
-            var monitor = new PublisherConsumer<MetricReport>();
+            var monitor = new PublisherConsumer<MetricReportWithHeaders>();
             context.Container.RegisterSingleton(monitor);
             context.RegisterStartupTask(RunMonitor(monitor));
 
-            List<Action<MetricReport>> actions;
+            List<Action<MetricReportWithHeaders>> actions;
             if (context.Settings.TryGet(out actions))
             {
                 foreach (var action in actions)
@@ -38,18 +38,18 @@
             // monitor.Add();
         }
 
-        FeatureStartupTask RunMonitor(PublisherConsumer<MetricReport> monitor)
+        FeatureStartupTask RunMonitor(PublisherConsumer<MetricReportWithHeaders> monitor)
         {
             return new MonitorRunner(monitor);
         }
 
         class MonitorRunner : FeatureStartupTask
         {
-            readonly PublisherConsumer<MetricReport> monitor;
+            readonly PublisherConsumer<MetricReportWithHeaders> monitor;
             CancellationTokenSource cancellationTokenSource;
             Task task;
 
-            public MonitorRunner(PublisherConsumer<MetricReport> monitor)
+            public MonitorRunner(PublisherConsumer<MetricReportWithHeaders> monitor)
             {
                 this.monitor = monitor;
             }

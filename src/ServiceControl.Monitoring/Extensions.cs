@@ -8,9 +8,9 @@
 
     public static class Extensions
     {
-        public static EndpointConfiguration AddActionOnMetricsReceived(this EndpointConfiguration config, Action<MetricReport> action)
+        public static EndpointConfiguration AddActionOnMetricsReceived(this EndpointConfiguration config, Action<MetricReportWithHeaders> action)
         {
-            config.GetSettings().GetOrCreate<List<Action<MetricReport>>>().Add(action);
+            config.GetSettings().GetOrCreate<List<Action<MetricReportWithHeaders>>>().Add(action);
             return config;
         }
     }

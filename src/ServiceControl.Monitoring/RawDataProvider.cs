@@ -3,6 +3,7 @@
     using System.Collections.Concurrent;
     using System.Linq;
     using Newtonsoft.Json.Linq;
+    using NServiceBus;
     using NServiceBus.Metrics;
 
     public class RawDataProvider
@@ -21,10 +22,13 @@
             }
         }
 
-        internal void Consume(MetricReport report)
+        internal void Consume(MetricReportWithHeaders report)
         {
             var data = report.Data;
-            var name = data["Context"].Value<string>();
+
+            string name;
+            report.Headers.TryGetValue(Headers.OriginatingEndpoint, out name);
+            name = name ?? "";
             contexts.AddOrUpdate(name, data, (context, currentData) => data);
         }
 
