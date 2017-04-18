@@ -33,9 +33,6 @@
             context.Container.RegisterSingleton(provider);
 
             monitor.Add(provider.Consume);
-            
-            //TODO: register HTTP endpoint here with monitorContext
-            // monitor.Add();
         }
 
         FeatureStartupTask RunMonitor(PublisherConsumer<MetricReportWithHeaders> monitor)

@@ -1,16 +1,15 @@
-﻿namespace ServiceControl.Monitoring
-{
-    using System;
-    using System.ComponentModel;
-    using System.ServiceProcess;
-    using System.Threading.Tasks;
-    using NServiceBus;
+﻿using System;
+using System.ComponentModel;
+using System.ServiceProcess;
+using System.Threading.Tasks;
+using NServiceBus;
 
+namespace ServiceControl.Monitoring
+{
     [DesignerCategory("Code")]
     class ProgramService : ServiceBase
     {
         IEndpointInstance endpointInstance;
-
         static void Main()
         {
             using (var service = new ProgramService())

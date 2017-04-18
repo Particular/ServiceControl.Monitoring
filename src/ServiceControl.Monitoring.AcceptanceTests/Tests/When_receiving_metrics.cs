@@ -4,6 +4,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Features;
+    using global::Newtonsoft.Json;
     using global::Newtonsoft.Json.Linq;
     using NServiceBus.AcceptanceTests;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -11,15 +12,16 @@
     using ObjectBuilder;
     using ServiceControl.Monitoring;
 
-    public class When_receiving_messages : NServiceBusAcceptanceTest
+    public class When_receiving_metrics : NServiceBusAcceptanceTest
     {
         static readonly JObject Data = JObject.Parse("{Context: \"a\"}");
+        static readonly string EndpointName = Conventions.EndpointNamingConvention(typeof(Receiver));
 
         [Test]
         public async Task Should_properly_dispatch_metrics()
         {
             var sendOptions = new SendOptions();
-            sendOptions.SetDestination(Conventions.EndpointNamingConvention(typeof(Receiver)));
+            sendOptions.SetDestination(EndpointName);
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Receiver>(r => r.When(c => c.Send(new MetricReport { Data = Data }, sendOptions))).Done(c => c.Report != null)
@@ -32,10 +34,15 @@
 
             var expected = new JObject
             {
-                {"NServiceBus.Endpoints", new JArray(Data)}
+                {
+                    "NServiceBus.Endpoints", new JObject
+                    {
+                        {EndpointName, Data}
+                    }
+                }
             };
 
-            Assert.True(JToken.DeepEquals(expected, context.RawDataProvider.CurrentRawData));
+            Assert.AreEqual(expected.ToString(Formatting.None), context.RawDataProvider.CurrentRawData.ToString(Formatting.None));
         }
 
         class Context : ScenarioContext

@@ -76,7 +76,8 @@
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="ScenarioDescriptors\EnvironmentHelper.cs" />
     <Compile Include="ScenarioDescriptors\TypeScanner.cs" />
-    <Compile Include="Tests\When_receiving_messages.cs" />
+    <Compile Include="Tests\Endpoint_using_metrics_provider.cs" />
+    <Compile Include="Tests\When_receiving_metrics.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

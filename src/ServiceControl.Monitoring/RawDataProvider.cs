@@ -6,23 +6,38 @@
     using NServiceBus;
     using NServiceBus.Metrics;
 
+    /// <summary>
+    /// The raw endpoint data provider, consuming data with <see cref="Consume"/> and providing them with <see cref="CurrentRawData"/>.
+    /// </summary>
     public class RawDataProvider
     {
+        /// <summary>
+        /// The endpoints property name for <see cref="CurrentRawData"/>.
+        /// </summary>
+        public const string EndpointsKey = "NServiceBus.Endpoints";
+
+        /// <summary>
+        /// The recent snapshot of data.
+        /// </summary>
         public JObject CurrentRawData
         {
             get
             {
-                var properties = contexts.Select(pair => pair.Value).ToList();
-                var endpoints = new JArray(properties);
+                var properties = contexts.Select(pair => new JProperty(pair.Key, pair.Value));
+                var endpoints = new JObject(properties);
 
                 return new JObject
                 {
-                    {"NServiceBus.Endpoints", endpoints}
+                    {EndpointsKey, endpoints}
                 };
             }
         }
 
-        internal void Consume(MetricReportWithHeaders report)
+        /// <summary>
+        /// Consumes a new portion of data.
+        /// </summary>
+        /// <param name="report"></param>
+        public void Consume(MetricReportWithHeaders report)
         {
             var data = report.Data;
 

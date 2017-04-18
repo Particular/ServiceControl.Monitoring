@@ -1,6 +1,7 @@
 ﻿namespace ServiceControl.Monitoring
 {
     using System.Threading.Tasks;
+    using Http;
     using NServiceBus;
     using NServiceBus.Features;
 
@@ -32,6 +33,7 @@
             config.LimitMessageProcessingConcurrencyTo(1);
             config.DisableFeature<AutoSubscribe>();
             config.EnableFeature<MetricsReceiver>();
+            config.EnableFeature<HttpEndpoint>();
         }
     }
 }
