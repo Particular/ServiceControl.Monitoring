@@ -27,13 +27,19 @@ namespace ServiceControl.Monitoring.Http
             var host = MetricsApiModule.DefaultHost;
             var hostname = GetValue(AppConfigHostnameKey);
             var port = GetValue(AppConfigPort);
-            int portValue;
 
             if (string.IsNullOrWhiteSpace(hostname) == false &&
-                string.IsNullOrWhiteSpace(port) == false &&
-                int.TryParse(port, out portValue))
+                string.IsNullOrWhiteSpace(port) == false)
             {
-                host = new Uri(host + ":" + port);
+                int portValue;
+                if (int.TryParse(port, out portValue))
+                {
+                    host = new Uri(host + ":" + port);
+                }
+                else
+                {
+                    throw new Exception($"Http endpoint port is wrongly formatted. It should be a valid integer but it is '{port}'.");
+                }
             }
 
             context.RegisterStartupTask(builder => BuildTask(builder, host));
