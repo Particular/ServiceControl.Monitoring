@@ -78,7 +78,6 @@
     <Compile Include="Tests\When_receiving_metrics.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
