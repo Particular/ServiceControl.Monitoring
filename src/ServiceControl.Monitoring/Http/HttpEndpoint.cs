@@ -34,7 +34,7 @@ namespace ServiceControl.Monitoring.Http
                 int portValue;
                 if (int.TryParse(port, out portValue))
                 {
-                    host = new Uri(host + ":" + port);
+                    host = new Uri(hostname + ":" + port);
                 }
                 else
                 {
@@ -95,6 +95,7 @@ namespace ServiceControl.Monitoring.Http
                 base.ConfigureApplicationContainer(container);
                 container.Register(typeof(RawDataProvider), provider);
             }
+            
         }
     }
 }
