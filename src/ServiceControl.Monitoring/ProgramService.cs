@@ -6,12 +6,17 @@ using NServiceBus;
 
 namespace ServiceControl.Monitoring
 {
+    using System.IO;
+    using System.Reflection;
+
     [DesignerCategory("Code")]
     class ProgramService : ServiceBase
     {
         IEndpointInstance endpointInstance;
         static void Main()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += (s, e) => ResolveAssembly(e.Name);
+
             using (var service = new ProgramService())
             {
                 if (Environment.UserInteractive)
@@ -48,6 +53,17 @@ namespace ServiceControl.Monitoring
                 return endpointInstance.Stop();
             }
             return Task.FromResult(0);
+        }
+
+        static Assembly ResolveAssembly(string name)
+        {
+            var assemblyLocation = Assembly.GetEntryAssembly().Location;
+            var appDirectory = Path.GetDirectoryName(assemblyLocation);
+            var requestingName = new AssemblyName(name).Name;
+
+            // ReSharper disable once AssignNullToNotNullAttribute
+            var combine = Path.Combine(appDirectory, requestingName + ".dll");
+            return !File.Exists(combine) ? null : Assembly.LoadFrom(combine);
         }
     }
 }
