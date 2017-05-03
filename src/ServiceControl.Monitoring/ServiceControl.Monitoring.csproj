@@ -93,6 +93,8 @@
     <Compile Include="PublisherConsumer.cs" />
     <Compile Include="RawDataProvider.cs" />
     <Compile Include="ProgramService.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="SettingsReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

@@ -6,6 +6,7 @@ using NServiceBus;
 
 namespace ServiceControl.Monitoring
 {
+    using System.Configuration;
     using System.IO;
     using System.Reflection;
 
@@ -33,12 +34,15 @@ namespace ServiceControl.Monitoring
 
         protected override void OnStart(string[] args)
         {
-            AsyncOnStart().GetAwaiter().GetResult();
+            var settingsReader = new SettingsReader(ConfigurationManager.AppSettings);
+            var settings = Settings.Load(settingsReader);
+            settings.EnableInstallers = true;
+            AsyncOnStart(settings).GetAwaiter().GetResult();
         }
 
-        async Task AsyncOnStart()
+        async Task AsyncOnStart(Settings settings)
         {
-            endpointInstance = await EndpointFactory.StartEndpoint(true);
+            endpointInstance = await EndpointFactory.StartEndpoint(settings);
         }
 
         protected override void OnStop()

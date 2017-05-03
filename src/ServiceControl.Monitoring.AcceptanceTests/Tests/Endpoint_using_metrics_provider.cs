@@ -60,7 +60,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings);
                     c.EnableFeature<FakeRawDataReporter>();
                 });
             }
