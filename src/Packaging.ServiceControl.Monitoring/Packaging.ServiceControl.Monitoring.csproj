@@ -48,13 +48,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets'))" />
   </Target>
-  <Target Name="AfterBuild">
-    <Message Text="Deleting files from output that should not be packaged" Importance="High" />
-    <ItemGroup>
-      <ExcessFiles Include="$(OutputPath)$(AssemblyName).*" />
-    </ItemGroup>
-    <Delete Files="@(ExcessFiles)" />
-  </Target>
   <Target Name="ZipTarget" AfterTargets="AfterBuild">
     <PropertyGroup>
       <ZipTargetFolder>..\..\zip\</ZipTargetFolder>
@@ -74,6 +67,7 @@
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\RabbitMQ" SourceFolder="..\Packaging.NServiceBus.RabbitMQ\$(OutputPath)" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\MSMQ" SourceFolder="..\Packaging.NServiceBus.MSMQ\$(OutputPath)" ZipFileName="$(ZipFile)" />
     <!-- ServiceControl.Monitoring  -->
-    <AddToZip IncludeMask="*.*" ExcludeMask="*.config" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.exe" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.dll" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
   </Target>
 </Project>
