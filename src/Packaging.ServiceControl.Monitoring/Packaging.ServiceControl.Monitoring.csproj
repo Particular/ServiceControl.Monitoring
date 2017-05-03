@@ -39,6 +39,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <UsingTask AssemblyFile="..\..\buildsupport\DeploymentZipTask.Dll" TaskName="DeploymentZipTask.AddToZip" />
   <Import Project="..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets')" />
