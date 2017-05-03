@@ -21,7 +21,7 @@
 
         static EndpointConfiguration PrepareConfiguration(Settings settings)
         {
-            var config = new EndpointConfiguration("scmonitoring");
+            var config = new EndpointConfiguration(settings.EndpointName);
             MakeMetricsReceiver(config, settings);
             return config;
         }
