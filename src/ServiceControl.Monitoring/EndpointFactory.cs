@@ -9,14 +9,14 @@
 
     public class EndpointFactory
     {
-        internal static async Task<IEndpointInstance> StartEndpoint(Settings settings)
+        internal static Task<IEndpointInstance> StartEndpoint(Settings settings)
         {
             var endpointConfiguration = PrepareConfiguration(settings);
             if (settings.EnableInstallers)
             {
                 endpointConfiguration.EnableInstallers();
             }
-            return await Endpoint.Start(endpointConfiguration).ConfigureAwait(false);
+            return Endpoint.Start(endpointConfiguration);
         }
 
         static EndpointConfiguration PrepareConfiguration(Settings settings)
