@@ -12,14 +12,10 @@
         internal static Task<IEndpointInstance> StartEndpoint(Settings settings)
         {
             var endpointConfiguration = PrepareConfiguration(settings);
-            if (settings.EnableInstallers)
-            {
-                endpointConfiguration.EnableInstallers();
-            }
             return Endpoint.Start(endpointConfiguration);
         }
 
-        static EndpointConfiguration PrepareConfiguration(Settings settings)
+        public static EndpointConfiguration PrepareConfiguration(Settings settings)
         {
             var config = new EndpointConfiguration(settings.EndpointName);
             MakeMetricsReceiver(config, settings);
@@ -34,6 +30,11 @@
             if (settings.TransportConnectionString != null)
             {
                 transport.ConnectionString(settings.TransportConnectionString);
+            }
+
+            if (settings.EnableInstallers)
+            {
+                config.EnableInstallers(settings.Username);
             }
 
             config.UseSerialization<NewtonsoftSerializer>();
