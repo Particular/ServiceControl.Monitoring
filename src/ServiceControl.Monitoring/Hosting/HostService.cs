@@ -7,7 +7,7 @@
     using NServiceBus;
 
     [DesignerCategory("Code")]
-    class Host : ServiceBase
+    class HostService : ServiceBase
     {
         public void Run(bool interactive)
         {

@@ -21,7 +21,11 @@
                 {
                     "serviceName=",
                     "Specify the service name for the installed service.",
-                    s => overrides.Add(settings => settings.EndpointName = s)
+                    s => overrides.Add(settings =>
+                    {
+                        settings.EndpointName = s;
+                        settings.LogPath = Settings.CalculateLogPathForEndpointName(s);
+                    })
                 },
                 {
                     "userName=",

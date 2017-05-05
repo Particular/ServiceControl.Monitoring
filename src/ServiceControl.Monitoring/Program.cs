@@ -18,6 +18,8 @@ namespace ServiceControl.Monitoring
 
                 var settings = LoadSettings(ConfigurationManager.AppSettings, arguments);
 
+                MonitorLogs.Configure(settings);
+
                 var runner = new CommandRunner(arguments.Commands);
 
                 runner.Run(settings).GetAwaiter().GetResult();
