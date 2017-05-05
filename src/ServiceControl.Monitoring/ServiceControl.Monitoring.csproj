@@ -39,7 +39,7 @@
     <DocumentationFile>..\..\binaries\ServiceControl.Monitoring.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>ServiceControl.Monitoring.ProgramService</StartupObject>
+    <StartupObject>ServiceControl.Monitoring.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Operations.ico</ApplicationIcon>
@@ -82,19 +82,26 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Hosting\Commands\CommandRunner.cs" />
+    <Compile Include="Hosting\Commands\AbstractCommand.cs" />
     <Compile Include="EndpointFactory.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Hosting\HostArguments.cs" />
+    <Compile Include="Hosting\Options.cs" />
     <Compile Include="Http\HttpEndpoint.cs" />
     <Compile Include="Http\MetricsApiModule.cs" />
     <Compile Include="MetricReport.cs" />
     <Compile Include="MetricReportWithHeaders.cs" />
     <Compile Include="MetricsHandler.cs" />
     <Compile Include="MetricsReceiver.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="PublisherConsumer.cs" />
     <Compile Include="RawDataProvider.cs" />
-    <Compile Include="ProgramService.cs" />
+    <Compile Include="Hosting\Host.cs" />
+    <Compile Include="Hosting\Commands\RunCommand.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="SettingsReader.cs" />
+    <Compile Include="Hosting\Commands\SetupCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
