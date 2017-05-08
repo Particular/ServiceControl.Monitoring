@@ -57,8 +57,6 @@
   </Target>
   <Import Project="..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets')" />
   <Target Name="ZipTarget" BeforeTargets="BuildPackages">
-    <Message Text="$(GitVersion_MajorMinorPatch)" Importance="High" />
-    <Message Text="$(GitVersion_NuGetVersion)" Importance="High" />
     <PropertyGroup>
       <ZipTargetFolder>..\..\zip\</ZipTargetFolder>
       <ZipFile>$(ZipTargetFolder)Particular.ServiceControl.Monitoring-$(GitVersion_MajorMinorPatch).zip</ZipFile>
