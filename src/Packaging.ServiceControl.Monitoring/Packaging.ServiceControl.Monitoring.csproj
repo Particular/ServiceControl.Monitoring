@@ -53,8 +53,9 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets'))" />
+    <Error Condition="!Exists('..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets'))" />
   </Target>
-  <Target Name="ZipTarget" AfterTargets="AfterBuild">
+  <Target Name="ZipTarget" AfterTargets="PrepareForBuild">
     <PropertyGroup>
       <ZipTargetFolder>..\..\zip\</ZipTargetFolder>
       <ZipFile>$(ZipTargetFolder)Particular.ServiceControl.Monitoring-$(GitVersion_MajorMinorPatch).zip</ZipFile>
@@ -76,4 +77,5 @@
     <AddToZip IncludeMask="*.exe" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.dll" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
   </Target>
+  <Import Project="..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets')" />
 </Project>

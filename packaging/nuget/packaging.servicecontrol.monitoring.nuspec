@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <id>ServiceControl.Monitoring</id>
-    <title>NServiceBus ServiceControl Monitoring Packaging</title>
+    <id>Packaging.ServiceControl.Monitoring</id>
+    <title>ServiceControl Monitoring Installer contents</title>
     <version>$version$</version>
     <authors>$authors$</authors>
     <owners>$owners$</owners>
     <licenseUrl>$licenseUrl$</licenseUrl>
     <projectUrl>$projectUrl$</projectUrl>
     <iconUrl>$iconUrl$</iconUrl>
-    <description>Content only package for Service Control Management</description>
+    <description>Contains ServiceControl.Monitoring zip for Particular Service Control Management to install</description>
     <copyright>$copyright$</copyright>
     <tags>$tags$</tags>
     <dependencies />
