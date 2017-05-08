@@ -2,21 +2,19 @@
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>ServiceControl.Monitoring</id>
-    <title>NServiceBus ServiceControl Monitoring</title>
+    <title>NServiceBus ServiceControl Monitoring Packaging</title>
     <version>$version$</version>
     <authors>$authors$</authors>
     <owners>$owners$</owners>
     <licenseUrl>$licenseUrl$</licenseUrl>
     <projectUrl>$projectUrl$</projectUrl>
     <iconUrl>$iconUrl$</iconUrl>
-    <requireLicenseAcceptance>$requireLicenseAcceptance$</requireLicenseAcceptance>
-    <description>NServiceBus Transport for the Windows Azure Storage Queues</description>
+    <description>Content only package for Service Control Management</description>
     <copyright>$copyright$</copyright>
     <tags>$tags$</tags>
-    <dependencies>
-    </dependencies>
+    <dependencies />
   </metadata>
   <files>
-    <file src="..\..\binaries\ServiceControl.Monitoring.???" target="lib\net452" />
+    <file src="..\..\zip\*.zip" target="tools" />
   </files>
 </package>
