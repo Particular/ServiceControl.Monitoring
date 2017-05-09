@@ -75,6 +75,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Security" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
@@ -91,6 +92,24 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\ActiveLicense.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\ActiveLicenseFindResult.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSource.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceConfigFile.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceFilePath.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceHKCURegKey.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceHKLMRegKey.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceResult.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\NonBlockingReader.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\License.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\LicenseDeserializer.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\LicenseExpirationChecker.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\LicenseVerifier.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\RegistryLicenseStore.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\ReleaseDateReader.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
     <Compile Include="Hosting\Commands\CommandRunner.cs" />
     <Compile Include="Hosting\Commands\AbstractCommand.cs" />
     <Compile Include="EndpointFactory.cs" />
@@ -99,6 +118,8 @@
     <Compile Include="Hosting\Options.cs" />
     <Compile Include="Http\HttpEndpoint.cs" />
     <Compile Include="Http\MetricsApiModule.cs" />
+    <Compile Include="Licensing\LicenseManager.cs" />
+    <Compile Include="Licensing\LicenseCheckFeature.cs" />
     <Compile Include="MetricReport.cs" />
     <Compile Include="MetricReportWithHeaders.cs" />
     <Compile Include="MetricsHandler.cs" />
