@@ -29,7 +29,7 @@
             var nlogConfig = new LoggingConfiguration();
             var simpleLayout = new SimpleLayout("${longdate}|${threadid}|${level}|${logger}|${message}${onexception:${newline}${exception:format=tostring}}");
             var header = $@"-------------------------------------------------------------
-ServiceControl Version:				{version}
+ServiceControl Monitoring Version:				{version}
 Selected Transport:					{settings.TransportType}
 -------------------------------------------------------------";
 
@@ -51,16 +51,22 @@ Selected Transport:					{settings.TransportType}
                 UseDefaultRowHighlightingRules = true
             };
 
+            var nullTarget = new NullTarget();
+
             nlogConfig.AddTarget("console", consoleTarget);
             nlogConfig.AddTarget("debugger", fileTarget);
+            nlogConfig.AddTarget("null", nullTarget);
+            
+            //Suppress NSB license logging since this will have it's own
+            nlogConfig.LoggingRules.Add(new LoggingRule("NServiceBus.LicenseManager", LogLevel.Info, nullTarget) { Final = true });
 
             // Always want to see license logging regardless of default logging level
-            nlogConfig.LoggingRules.Add(new LoggingRule("Particular.ServiceControl.Licensing.*", LogLevel.Info, fileTarget));
-            nlogConfig.LoggingRules.Add(new LoggingRule("Particular.ServiceControl.Licensing.*", LogLevel.Info, consoleTarget)
+            nlogConfig.LoggingRules.Add(new LoggingRule("ServiceControl.Monitoring.Licensing.*", LogLevel.Info, fileTarget));
+            nlogConfig.LoggingRules.Add(new LoggingRule("ServiceControl.Monitoring.Licensing.*", LogLevel.Info, consoleTarget)
             {
                 Final = true
             });
-
+            
             // Defaults
             nlogConfig.LoggingRules.Add(new LoggingRule("*", settings.LogLevel, fileTarget));
             nlogConfig.LoggingRules.Add(new LoggingRule("*", settings.LogLevel < LogLevel.Info ? settings.LogLevel : LogLevel.Info, consoleTarget));
