@@ -100,12 +100,14 @@
     <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceHKCURegKey.cs" />
     <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceHKLMRegKey.cs" />
     <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceResult.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceUserProvided.cs" />
     <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\NonBlockingReader.cs" />
     <Compile Include="App_Packages\Particular.Licensing\License.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseDeserializer.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseExpirationChecker.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseVerifier.cs" />
     <Compile Include="App_Packages\Particular.Licensing\RegistryLicenseStore.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\ReleaseDateAttribute.cs" />
     <Compile Include="App_Packages\Particular.Licensing\ReleaseDateReader.cs" />
     <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
@@ -147,7 +149,9 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets'))" />
+    <Error Condition="!Exists('..\packages\Particular.Licensing.Sources.0.1.61\build\Particular.Licensing.Sources.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Particular.Licensing.Sources.0.1.61\build\Particular.Licensing.Sources.targets'))" />
   </Target>
+  <Import Project="..\packages\Particular.Licensing.Sources.0.1.61\build\Particular.Licensing.Sources.targets" Condition="Exists('..\packages\Particular.Licensing.Sources.0.1.61\build\Particular.Licensing.Sources.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

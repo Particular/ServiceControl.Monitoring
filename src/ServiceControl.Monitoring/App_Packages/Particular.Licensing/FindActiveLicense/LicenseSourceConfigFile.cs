@@ -1,4 +1,4 @@
-﻿namespace Particular.Licensing.FindActiveLicense
+﻿namespace Particular.Licensing
 {
     using System.Configuration;
     using System.IO;
@@ -40,7 +40,7 @@
             return new LicenseSourceResult
             {
                 Location = location,
-                Result = $"License file not found in path supplied by app config file setting 'NServiceBus/LicensePath'.  Value was {appConfigLicenseFile}"
+                Result = $"License file not found in path supplied by app config file setting 'NServiceBus/LicensePath'. Value was '{appConfigLicenseFile}'"
             };
         }
     }
