@@ -24,7 +24,6 @@
                     s => overrides.Add(settings =>
                     {
                         settings.EndpointName = s;
-                        settings.LogPath = Settings.CalculateLogPathForEndpointName(s);
                     })
                 },
                 {

@@ -12,7 +12,7 @@ namespace ServiceControl.Monitoring
         public string EndpointName { get; set; } = DEFAULT_ENDPOINT_NAME;
         public string TransportType { get; set; }
         public string ErrorQueue { get; set; }
-        public string LogPath { get; set; }
+        public string LogPath => CalculateLogPathForEndpointName(EndpointName);
         public LogLevel LogLevel { get; set; }
         public string Username { get; set; }
         public bool EnableInstallers { get; set; }
@@ -24,7 +24,6 @@ namespace ServiceControl.Monitoring
             var settings = new Settings
             {
                 TransportType = reader.Read("Monitoring/TransportType", typeof(MsmqTransport).AssemblyQualifiedName),
-                LogPath = CalculateLogPathForEndpointName(DEFAULT_ENDPOINT_NAME),
                 LogLevel = MonitorLogs.InitializeLevel(reader),
                 ErrorQueue = reader.Read("Monitoring/ErrorQueue", "error"),
                 HttpHostName = reader.Read<string>("Monitoring/HttpHostname"),
