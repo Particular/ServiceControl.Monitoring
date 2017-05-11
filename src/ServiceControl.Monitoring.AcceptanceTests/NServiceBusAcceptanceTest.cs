@@ -36,7 +36,8 @@ namespace NServiceBus.AcceptanceTests
             Settings = new Settings
             {
                 TransportType = typeof(MsmqTransport).AssemblyQualifiedName,
-                EnableInstallers = true
+                EnableInstallers = true, 
+                ErrorQueue = "error"
             };
         }
 
