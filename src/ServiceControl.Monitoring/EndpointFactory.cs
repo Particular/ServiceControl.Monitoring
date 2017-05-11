@@ -39,7 +39,7 @@
 
             config.UseSerialization<NewtonsoftSerializer>();
             config.UsePersistence<InMemoryPersistence>();
-            config.SendFailedMessagesTo("error");
+            config.SendFailedMessagesTo(settings.ErrorQueue);
             config.LimitMessageProcessingConcurrencyTo(1);
             config.DisableFeature<AutoSubscribe>();
             config.EnableFeature<MetricsReceiver>();
