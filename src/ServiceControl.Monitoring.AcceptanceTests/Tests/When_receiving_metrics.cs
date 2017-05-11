@@ -57,7 +57,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings);
 
                     c.Conventions().DefiningMessagesAs(t => t.FullName == "NServiceBus.Metrics.MetricReport");
                     c.AddActionOnMetricsReceived(o =>

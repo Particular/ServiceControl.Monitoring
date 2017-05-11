@@ -1,39 +1,64 @@
 ﻿namespace ServiceControl.Monitoring
 {
+    using System;
     using System.Threading.Tasks;
     using Http;
     using NServiceBus;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
+    using NServiceBus.Logging;
 
     public class EndpointFactory
     {
-        internal static async Task<IEndpointInstance> StartEndpoint(bool enableInstallers = false)
+        internal static Task<IEndpointInstance> StartEndpoint(Settings settings)
         {
-            var endpointConfiguration = PrepareConfiguration();
-            if (enableInstallers)
-            {
-                endpointConfiguration.EnableInstallers();
-            }
-            return await Endpoint.Start(endpointConfiguration).ConfigureAwait(false);
+            var endpointConfiguration = PrepareConfiguration(settings);
+            return Endpoint.Start(endpointConfiguration);
         }
 
-        static EndpointConfiguration PrepareConfiguration()
+        public static EndpointConfiguration PrepareConfiguration(Settings settings)
         {
-            var config = new EndpointConfiguration("scmonitoring");
-            MakeMetricsReceiver(config);
+            var config = new EndpointConfiguration(settings.EndpointName);
+            MakeMetricsReceiver(config, settings);
             return config;
         }
 
-        public static void MakeMetricsReceiver(EndpointConfiguration config)
+        public static void MakeMetricsReceiver(EndpointConfiguration config, Settings settings)
         {
-            config.UseTransport<MsmqTransport>();
+            var selectedTransportType = DetermineTransportType(settings);
+            var transport = config.UseTransport(selectedTransportType);
+
+            transport.ConnectionStringName("NServiceBus/Transport");
+
+            if (settings.EnableInstallers)
+            {
+                config.EnableInstallers(settings.Username);
+            }
+
+            config.GetSettings().Set<Settings>(settings);
+
             config.UseSerialization<NewtonsoftSerializer>();
             config.UsePersistence<InMemoryPersistence>();
-            config.SendFailedMessagesTo("error");
+            config.SendFailedMessagesTo(settings.ErrorQueue);
             config.LimitMessageProcessingConcurrencyTo(1);
             config.DisableFeature<AutoSubscribe>();
             config.EnableFeature<MetricsReceiver>();
             config.EnableFeature<HttpEndpoint>();
         }
+
+        static Type DetermineTransportType(Settings settings)
+        {
+            var transportType = Type.GetType(settings.TransportType);
+            if (transportType != null)
+            {
+                return transportType;
+            }
+
+            var errorMsg = $"Configuration of transport failed. Could not resolve type `{settings.TransportType}`";
+            Logger.Error(errorMsg);
+            throw new Exception(errorMsg);
+        }
+
+        static ILog Logger = LogManager.GetLogger<EndpointFactory>();
     }
 }

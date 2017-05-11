@@ -4,6 +4,7 @@ namespace NServiceBus.AcceptanceTests
     using System.Threading;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
+    using ServiceControl.Monitoring;
 
     /// <summary>
     /// Base class for all the NSB test that sets up our conventions
@@ -31,6 +32,15 @@ namespace NServiceBus.AcceptanceTests
 
                 return testName + "." + endpointBuilder;
             };
+
+            Settings = new Settings
+            {
+                TransportType = typeof(MsmqTransport).AssemblyQualifiedName,
+                EnableInstallers = true, 
+                ErrorQueue = "error"
+            };
         }
+
+        public static Settings Settings { get; set; }
     }
 }
