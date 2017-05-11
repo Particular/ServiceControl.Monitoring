@@ -9,14 +9,9 @@ using NServiceBus.ObjectBuilder;
 namespace ServiceControl.Monitoring.Http
 {
     using System;
-    using System.Configuration;
-    using System.Linq;
 
     class HttpEndpoint : Feature
     {
-        public const string AppConfigHostnameKey = "HttpEndpoint/Hostname";
-        public const string AppConfigPort = "HttpEndpoint/Port";
-
         public HttpEndpoint()
         {
             DependsOn<MetricsReceiver>();
@@ -25,8 +20,9 @@ namespace ServiceControl.Monitoring.Http
         protected override void Setup(FeatureConfigurationContext context)
         {
             var host = MetricsApiModule.DefaultHost;
-            var hostname = GetValue(AppConfigHostnameKey);
-            var port = GetValue(AppConfigPort);
+            var settings = context.Settings.Get<Settings>();
+            var hostname = settings.HttpHostName;
+            var port = settings.HttpPort;
 
             if (string.IsNullOrWhiteSpace(hostname) == false &&
                 string.IsNullOrWhiteSpace(port) == false)
@@ -43,11 +39,6 @@ namespace ServiceControl.Monitoring.Http
             }
 
             context.RegisterStartupTask(builder => BuildTask(builder, host));
-        }
-
-        static string GetValue(string key)
-        {
-            return (ConfigurationManager.AppSettings.GetValues(key) ?? new string[0]).FirstOrDefault();
         }
 
         FeatureStartupTask BuildTask(IBuilder builder, Uri host)

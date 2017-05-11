@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using Http;
     using NServiceBus;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
     using NServiceBus.Logging;
 
@@ -36,6 +37,8 @@
             {
                 config.EnableInstallers(settings.Username);
             }
+
+            config.GetSettings().Set<Settings>(settings);
 
             config.UseSerialization<NewtonsoftSerializer>();
             config.UsePersistence<InMemoryPersistence>();

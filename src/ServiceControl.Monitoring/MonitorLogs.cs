@@ -14,7 +14,7 @@
     {
         const long MegaByte = 1073741824;
 
-        const string LogLevelKey = "LogLevel";
+        const string LogLevelKey = "Monitoring/LogLevel";
 
         public static void Configure(Settings settings)
         {
