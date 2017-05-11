@@ -22,7 +22,7 @@ namespace ServiceControl.Monitoring
         {
             var settings = new Settings
             {
-                TransportType = reader.Read("Monitoring/Transport", typeof(MsmqTransport).AssemblyQualifiedName),
+                TransportType = reader.Read("Monitoring/TransportType", typeof(MsmqTransport).AssemblyQualifiedName),
                 LogPath = CalculateLogPathForEndpointName(DEFAULT_ENDPOINT_NAME),
                 LogLevel = MonitorLogs.InitializeLevel(reader),
                 HttpHostName = reader.Read<string>("Monitoring/HttpHostname"),
