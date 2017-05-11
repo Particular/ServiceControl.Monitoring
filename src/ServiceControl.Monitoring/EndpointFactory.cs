@@ -28,10 +28,7 @@
             var selectedTransportType = DetermineTransportType(settings);
             var transport = config.UseTransport(selectedTransportType);
 
-            if (settings.TransportConnectionString != null)
-            {
-                transport.ConnectionString(settings.TransportConnectionString);
-            }
+            transport.ConnectionStringName("NServiceBus/Transport");
 
             if (settings.EnableInstallers)
             {
