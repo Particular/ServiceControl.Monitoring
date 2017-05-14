@@ -1,6 +1,5 @@
 namespace ServiceControl.Monitoring
 {
-    using System;
     using System.IO;
     using System.Reflection;
     using NLog;
