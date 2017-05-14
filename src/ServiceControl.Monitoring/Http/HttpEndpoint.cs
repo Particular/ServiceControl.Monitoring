@@ -53,7 +53,8 @@ namespace ServiceControl.Monitoring.Http
             public NancyTask(IBuilder builder, Uri host)
             {
                 var buildstrapper = new Bootstrapper(builder.Build<RawDataProvider>());
-                metricsEndpoint = new NancyHost(host, buildstrapper);
+                var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
+                metricsEndpoint = new NancyHost(host, buildstrapper, hostConfiguration);
             }
 
             protected override Task OnStart(IMessageSession session)
