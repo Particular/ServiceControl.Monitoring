@@ -7,6 +7,7 @@
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
     using NServiceBus.Logging;
+    using Raw;
 
     public class EndpointFactory
     {
@@ -42,7 +43,8 @@
             config.SendFailedMessagesTo(settings.ErrorQueue);
             config.LimitMessageProcessingConcurrencyTo(1);
             config.DisableFeature<AutoSubscribe>();
-            config.EnableFeature<MetricsReceiver>();
+            config.EnableFeature<RawMetricsFeature>();
+            config.EnableFeature<QueueLength.QueueLengthFeature>();
             config.EnableFeature<HttpEndpoint>();
         }
 

@@ -17,6 +17,21 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -114,27 +129,33 @@
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
     <Compile Include="Hosting\Commands\CommandRunner.cs" />
     <Compile Include="Hosting\Commands\AbstractCommand.cs" />
-    <Compile Include="EndpointFactory.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="Hosting\HostArguments.cs" />
     <Compile Include="Hosting\Options.cs" />
+    <Compile Include="InternalsVisibleTo.cs" />
+    <Compile Include="EndpointFactory.cs" />
     <Compile Include="Http\HttpEndpoint.cs" />
+    <Compile Include="Http\IEndpointDataProvider.cs" />
     <Compile Include="Http\MetricsApiModule.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Licensing\LicenseCheckFeature.cs" />
-    <Compile Include="MetricReport.cs" />
-    <Compile Include="MetricReportWithHeaders.cs" />
-    <Compile Include="MetricsHandler.cs" />
-    <Compile Include="MetricsReceiver.cs" />
     <Compile Include="MonitorLogs.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="PublisherConsumer.cs" />
-    <Compile Include="RawDataProvider.cs" />
     <Compile Include="Hosting\HostService.cs" />
     <Compile Include="Hosting\Commands\RunCommand.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="SettingsReader.cs" />
     <Compile Include="Hosting\Commands\SetupCommand.cs" />
+    <Compile Include="QueueLength\IQueueLengthCalculator.cs" />
+    <Compile Include="QueueLength\QueueLengthCalculator.cs" />
+    <Compile Include="QueueLength\QueueLengthDataConsumer.cs" />
+    <Compile Include="QueueLength\QueueLengthFeature.cs" />
+    <Compile Include="QueueLength\TagExtensions.cs" />
+    <Compile Include="Raw\Extensions.cs" />
+    <Compile Include="Raw\IRawDataConsumer.cs" />
+    <Compile Include="Raw\MetricReport.cs" />
+    <Compile Include="Raw\MetricsHandler.cs" />
+    <Compile Include="Raw\RawMetricsFeature.cs" />
+    <Compile Include="Raw\RawDataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

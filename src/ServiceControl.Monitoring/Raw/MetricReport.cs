@@ -1,7 +1,8 @@
 ﻿namespace NServiceBus.Metrics
 {
     using global::Newtonsoft.Json.Linq;
-    
+    using NServiceBus;
+
     /// <summary>
     /// The reporting message.
     /// </summary>

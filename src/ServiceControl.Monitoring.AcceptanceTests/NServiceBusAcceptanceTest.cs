@@ -37,7 +37,9 @@ namespace NServiceBus.AcceptanceTests
             {
                 TransportType = typeof(MsmqTransport).AssemblyQualifiedName,
                 EnableInstallers = true, 
-                ErrorQueue = "error"
+                ErrorQueue = "error",
+                HttpHostName = "localhost",
+                HttpPort = "1234"
             };
         }
 

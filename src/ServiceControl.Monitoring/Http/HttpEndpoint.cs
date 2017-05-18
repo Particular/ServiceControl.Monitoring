@@ -9,35 +9,35 @@ using NServiceBus.ObjectBuilder;
 namespace ServiceControl.Monitoring.Http
 {
     using System;
+    using System.Collections.Generic;
+    using Raw;
 
     class HttpEndpoint : Feature
     {
         public HttpEndpoint()
         {
-            DependsOn<MetricsReceiver>();
+            DependsOn<RawMetricsFeature>();
+            DependsOn<QueueLength.QueueLengthFeature>();
         }
 
         protected override void Setup(FeatureConfigurationContext context)
         {
-            var host = MetricsApiModule.DefaultHost;
             var settings = context.Settings.Get<Settings>();
             var hostname = settings.HttpHostName;
             var port = settings.HttpPort;
 
-            if (string.IsNullOrWhiteSpace(hostname) == false &&
-                string.IsNullOrWhiteSpace(port) == false)
+            int portValue;
+            if (!int.TryParse(port, out portValue))
             {
-                int portValue;
-                if (int.TryParse(port, out portValue))
-                {
-                    host = new Uri(hostname + ":" + port);
-                }
-                else
-                {
-                    throw new Exception($"Http endpoint port is wrongly formatted. It should be a valid integer but it is '{port}'.");
-                }
+                throw new Exception($"Http endpoint port is wrongly formatted. It should be a valid integer but it is '{port}'.");
             }
 
+            if (string.IsNullOrEmpty(hostname))
+            {
+                throw new Exception("No host name provided.");
+            }
+
+            var host = new Uri($"http://{hostname}:{port}");
             context.RegisterStartupTask(builder => BuildTask(builder, host));
         }
 
@@ -52,7 +52,7 @@ namespace ServiceControl.Monitoring.Http
 
             public NancyTask(IBuilder builder, Uri host)
             {
-                var buildstrapper = new Bootstrapper(builder.Build<RawDataProvider>());
+                var buildstrapper = new Bootstrapper(builder.BuildAll<IEndpointDataProvider>());
                 var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
                 metricsEndpoint = new NancyHost(host, buildstrapper, hostConfiguration);
             }
@@ -70,22 +70,19 @@ namespace ServiceControl.Monitoring.Http
             }
         }
 
-        /// <summary>
-        /// Custom bootstrapper providing <see cref="RawDataProvider"/>.
-        /// </summary>
         class Bootstrapper : DefaultNancyBootstrapper
         {
-            readonly RawDataProvider provider;
+            readonly IEnumerable<IEndpointDataProvider> providers;
 
-            public Bootstrapper(RawDataProvider provider)
+            public Bootstrapper(IEnumerable<IEndpointDataProvider> providers)
             {
-                this.provider = provider;
+                this.providers = providers;
             }
 
             protected override void ConfigureApplicationContainer(TinyIoCContainer container)
             {
                 base.ConfigureApplicationContainer(container);
-                container.Register(typeof(RawDataProvider), provider);
+                container.Register(typeof(IEnumerable<IEndpointDataProvider>), providers);
             }
             
         }

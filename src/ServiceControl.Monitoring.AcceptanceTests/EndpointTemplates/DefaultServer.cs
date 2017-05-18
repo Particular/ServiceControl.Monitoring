@@ -36,7 +36,7 @@
             configuration.TypesToIncludeInScan(typesToInclude);
             configuration.CustomConfigurationSource(configSource);
             configuration.EnableInstallers();
-
+            configuration.UseSerialization<JsonSerializer>();
             configuration.DisableFeature<TimeoutManager>();
 
             var recoverability = configuration.Recoverability();

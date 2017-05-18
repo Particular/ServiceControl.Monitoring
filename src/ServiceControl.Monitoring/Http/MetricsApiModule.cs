@@ -1,34 +1,46 @@
 namespace ServiceControl.Monitoring.Http
 {
-    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Nancy;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Exposes ServiceControl.Monitoring metrics.
     /// </summary>
     public class MetricsApiModule : NancyModule
     {
-        internal static readonly Uri DefaultHost = new Uri("http://localhost:1234");
-
-        const string ModuleSubroute = "/metrics";
-        const string RawMetricSubroute = "/raw";
-
-        /// <summary>
-        /// The default Uri to listen on for Raw data.
-        /// </summary>
-        public static readonly Uri DefaultRawUri = new Uri(DefaultHost + ModuleSubroute + RawMetricSubroute);
+        const string EndpointsKey = "NServiceBus.Endpoints";
 
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        /// <param name="dataProvider"></param>
-        public MetricsApiModule(RawDataProvider dataProvider) : base(ModuleSubroute)
+        public MetricsApiModule(IEnumerable<IEndpointDataProvider> providers) : base("/metrics")
         {
             // consider hypermedia like listing of metrics
             // Get[""] = x => Response
 
-            Get[RawMetricSubroute] = x => Response.AsText(dataProvider.CurrentRawData.ToString(Formatting.None), "application/json");
+            Get["/raw"] = x =>
+            {
+                var endpoints = providers.SelectMany(p => p.Current.Select(kvp => new
+                    {
+                        Provider = p.Name,
+                        Endpoint = kvp.Key,
+                        kvp.Value
+                    }))
+                    .GroupBy(a => a.Endpoint)
+                    .Select(endpointGrouped => new JProperty(endpointGrouped.Key, new JObject(endpointGrouped.Select(e => new JProperty(e.Provider, e.Value)))))
+                    .ToArray();
+
+                var result = new JObject
+                {
+                    {EndpointsKey, new JObject(endpoints)}
+                };
+                
+                // TODO: think about writing directly to the output stream
+                return Response.AsText(result.ToString(Formatting.None), "application/json");
+            };
 
             //Get["/{metricName}/{aggregation?}"] = x => $"<p>{x.metricName}:{(string.IsNullOrEmpty(x.aggregation) ? "raw" : x.aggregation)}</p>";
         }

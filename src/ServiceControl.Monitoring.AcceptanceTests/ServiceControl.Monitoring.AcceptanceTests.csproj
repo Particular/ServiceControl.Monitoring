@@ -11,6 +11,7 @@
     <AssemblyName>ServiceControl.Monitoring.AcceptanceTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -74,13 +75,18 @@
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="ScenarioDescriptors\EnvironmentHelper.cs" />
     <Compile Include="ScenarioDescriptors\TypeScanner.cs" />
-    <Compile Include="Tests\Endpoint_using_metrics_provider.cs" />
-    <Compile Include="Tests\When_receiving_metrics.cs" />
+    <Compile Include="Tests\MetricSenderTask.cs" />
+    <Compile Include="Tests\When_querying_queue_length_data.cs" />
+    <Compile Include="Tests\When_querying_raw_data.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ServiceControl.Monitoring.Tests\ServiceControl.Monitoring.Tests.csproj">
+      <Project>{9bd8b831-2d69-4c8e-8fbd-5cfc6ddef086}</Project>
+      <Name>ServiceControl.Monitoring.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj">
       <Project>{768BE338-20F1-4106-A3EB-DCE7686FCBF0}</Project>
       <Name>ServiceControl.Monitoring</Name>
