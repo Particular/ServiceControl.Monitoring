@@ -52,7 +52,7 @@ namespace ServiceControl.Monitoring.Http
 
             public NancyTask(IBuilder builder, Uri host)
             {
-                var buildstrapper = new Bootstrapper(builder.BuildAll<IEndpointDataProvider>());
+                var buildstrapper = new Bootstrapper(builder.BuildAll<IEndpointDataProvider>(), builder.Build<DiagramDataProvider>());
                 var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
                 metricsEndpoint = new NancyHost(host, buildstrapper, hostConfiguration);
             }
@@ -73,16 +73,19 @@ namespace ServiceControl.Monitoring.Http
         class Bootstrapper : DefaultNancyBootstrapper
         {
             readonly IEnumerable<IEndpointDataProvider> providers;
+            readonly DiagramDataProvider diagramProvider;
 
-            public Bootstrapper(IEnumerable<IEndpointDataProvider> providers)
+            public Bootstrapper(IEnumerable<IEndpointDataProvider> providers, DiagramDataProvider diagramProvider)
             {
                 this.providers = providers;
+                this.diagramProvider = diagramProvider;
             }
 
             protected override void ConfigureApplicationContainer(TinyIoCContainer container)
             {
                 base.ConfigureApplicationContainer(container);
                 container.Register(typeof(IEnumerable<IEndpointDataProvider>), providers);
+                container.Register(typeof(DiagramDataProvider), diagramProvider);
             }
             
         }

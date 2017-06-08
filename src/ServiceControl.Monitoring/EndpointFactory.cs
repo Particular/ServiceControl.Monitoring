@@ -46,6 +46,7 @@
             config.EnableFeature<RawMetricsFeature>();
             config.EnableFeature<QueueLength.QueueLengthFeature>();
             config.EnableFeature<HttpEndpoint>();
+            config.EnableFeature<DiagramFeature>();
         }
 
         static Type DetermineTransportType(Settings settings)

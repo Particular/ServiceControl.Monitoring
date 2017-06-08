@@ -127,6 +127,9 @@
     <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
+    <Compile Include="Diagrams\MonitoringData.cs" />
+    <Compile Include="Diagrams\DiagramDataProvider.cs" />
+    <Compile Include="Diagrams\DiagramFeature.cs" />
     <Compile Include="Hosting\Commands\CommandRunner.cs" />
     <Compile Include="Hosting\Commands\AbstractCommand.cs" />
     <Compile Include="Hosting\HostArguments.cs" />
@@ -134,6 +137,7 @@
     <Compile Include="Http\BaseModule.cs" />
     <Compile Include="Http\LicenseApiModule.cs" />
     <Compile Include="Http\RootApiModule.cs" />
+    <Compile Include="Http\DiagramApiModule.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="EndpointFactory.cs" />
     <Compile Include="Http\HttpEndpoint.cs" />

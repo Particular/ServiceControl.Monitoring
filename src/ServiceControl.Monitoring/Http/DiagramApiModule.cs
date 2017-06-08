@@ -5,18 +5,19 @@ namespace ServiceControl.Monitoring.Http
     using Nancy;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using Raw;
 
     /// <summary>
-    /// Exposes ServiceControl.Monitoring metrics.
+    /// Exposes ServiceControl.Monitoring metrics needed for plotting charts.
     /// </summary>
-    public class MetricsApiModule : NancyModule
+    public class DiagramsApiModule : NancyModule
     {
         const string EndpointsKey = "NServiceBus.Endpoints";
 
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public MetricsApiModule(IEnumerable<IEndpointDataProvider> providers) : base("/metrics")
+        public DiagramsApiModule(DiagramDataProvider provider) : base("/diagrams")
         {
             After.AddItemToEndOfPipeline((ctx) => ctx.Response
                 .WithHeader("Access-Control-Allow-Origin", "*")
@@ -26,14 +27,14 @@ namespace ServiceControl.Monitoring.Http
             // consider hypermedia like listing of metrics
             // Get[""] = x => Response
 
-            Get["/raw"] = x =>
+            Get["/data"] = x =>
             {
-                var endpoints = providers.SelectMany(p => p.Current.Select(kvp => new
+                var endpoints = provider.Current.Select(kvp => new
                     {
-                        Provider = p.Name,
+                        Provider = DiagramDataProvider.Name,
                         Endpoint = kvp.Key,
                         kvp.Value
-                    }))
+                    })
                     .GroupBy(a => a.Endpoint)
                     .Select(endpointGrouped => new JProperty(endpointGrouped.Key, new JObject(endpointGrouped.Select(e => new JProperty(e.Provider, e.Value)))))
                     .ToArray();
