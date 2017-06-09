@@ -1,66 +1,54 @@
 ﻿namespace ServiceControl.Monitoring.Raw
 {
-    using System.Collections;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
+    using System.Threading;
 
     public class MonitoringData
     {
-        public Dictionary<string, Dictionary<string, DiagramData>> Endpoints;
-
-        public MonitoringData()
+        public MonitoringData(int historySize)
         {
-            Endpoints = new Dictionary<string, Dictionary<string, DiagramData>>();
+            this.historySize = historySize;
+
+            Endpoints = new ConcurrentDictionary<string, EndpointData>();
         }
+
+        public EndpointData Get(string endpointName)
+        {
+            return Endpoints.GetOrAdd(endpointName, new EndpointData(historySize));
+        }
+
+        public ConcurrentDictionary<string, EndpointData> Endpoints;
+        readonly int historySize;
     }
 
-    public class DiagramData
+    public class EndpointData
     {
-        public SlidingBuffer<long> Data;
-
-        public DiagramData()
+        public EndpointData(int size)
         {
-            Data = new SlidingBuffer<long>(10);
-        }
-    }
+            Timestamps = new string[size];
+            CriticalTime = new string[size];
+            ProcessingTime = new string[size];
 
-    public class Meter
-    {
-        public string Name;
-        public long Count;
-    }
-
-    public struct Timer
-    {
-        public string Name;
-        public long TotalTime;
-    }
-
-    public class SlidingBuffer<T> : IEnumerable<T>
-    {
-        readonly Queue<T> queue;
-        readonly int maxCount;
-
-        public SlidingBuffer(int maxCount)
-        {
-            this.maxCount = maxCount;
-            queue = new Queue<T>(maxCount);
+            this.size = size;
+            head = 0;
         }
 
-        public void Add(T item)
+        public void Record(string timestamp, string criticalTime, string processingTime)
         {
-            if (queue.Count == maxCount)
-                queue.Dequeue();
-            queue.Enqueue(item);
+            Interlocked.Increment(ref head);
+
+            var index = (head - 1) % size;
+
+            Timestamps[index] = timestamp;
+            CriticalTime[index] = criticalTime;
+            ProcessingTime[index] = processingTime;
         }
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return queue.GetEnumerator();
-        }
+        public string[] Timestamps;
+        public string[] CriticalTime;
+        public string[] ProcessingTime;
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        int head;
+        int size;
     }
 }

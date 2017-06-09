@@ -1,9 +1,6 @@
 namespace ServiceControl.Monitoring.Raw
 {
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
-    using Http;
     using Newtonsoft.Json.Linq;
 
     /// <summary>
@@ -18,44 +15,33 @@ namespace ServiceControl.Monitoring.Raw
         /// </summary>
         public void Consume(IReadOnlyDictionary<string, string> headers, JObject data)
         {
-            var name = headers.GetOriginatingEndpoint();
-            Dictionary<string, DiagramData> endpointData;
-            
-            if (!monitoringData.Endpoints.TryGetValue(name, out endpointData))
-            {
-                endpointData = new Dictionary<string, DiagramData>();
-                monitoringData.Endpoints.Add(name, endpointData);
-            }
+            var timestamp = data["Timestamp"].ToString();
 
-            var meters = data["Meters"]?.ToObject<List<Meter>>() ?? new List<Meter>();
-            foreach (var meter in meters)
-            {
-                DiagramData diagramData;
-                endpointData.TryGetValue(meter.Name, out diagramData);
-                if (diagramData == null)
-                {
-                    diagramData = new DiagramData();
-                    endpointData.Add(meter.Name, diagramData);
-                }
-                diagramData.Data.Add(meter.Count);
-            }
+            var criticalTime = string.Empty;
+            var processingTime = string.Empty;
 
-            var timers = data["Timers"]?.ToObject<List<Timer>>() ?? new List<Timer>();
+            var timers = data["Timers"]?.ToObject<List<JObject>>() ?? new List<JObject>();
+
             foreach (var timer in timers)
             {
-                DiagramData diagramData;
-                endpointData.TryGetValue(timer.Name, out diagramData);
-                if (diagramData == null)
+                var timerName = timer["Name"].ToString();
+
+                if (timerName == "Critical Time")
                 {
-                    diagramData = new DiagramData();
-                    endpointData.Add(timer.Name, diagramData);
+                    criticalTime = timer["Rate"]["OneMinuteRate"].ToString();
                 }
-                diagramData.Data.Add(timer.TotalTime);
-            }            
+                else if (timerName == "Processing Time")
+                {
+                    processingTime = timer["Rate"]["OneMinuteRate"].ToString();
+                }
+            }
+
+            var endpointName = headers.GetOriginatingEndpoint();
+            var endpointData = monitoringData.Get(endpointName);
+
+            endpointData.Record(timestamp, criticalTime, processingTime);
         }
 
-        MonitoringData monitoringData = new MonitoringData();
-
-        public IEnumerable<KeyValuePair<string, JObject>> Current => monitoringData.Endpoints.Select(x => new KeyValuePair<string, JObject>(x.Key, JObject.FromObject(x.Value)));
+        MonitoringData monitoringData = new MonitoringData(10);
     }
 }
