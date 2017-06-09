@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Diagrams\EndpointDataTests.cs" />
     <Compile Include="QueueLength\CalculatorTests.cs" />
     <Compile Include="QueueLength\QueueLengthDataConsumerTests.cs" />
   </ItemGroup>
