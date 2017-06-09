@@ -15,9 +15,9 @@
             var endpointData = new EndpointData(size);
 
             endpointData.Record(DateTime.Now, 1, 1);
-            endpointData.Record(DateTime.Now, 2, 1);
-            endpointData.Record(DateTime.Now, 3, 1);
-            endpointData.Record(DateTime.Now, 4, 1);
+            endpointData.Record(DateTime.Now, 1, 2);
+            endpointData.Record(DateTime.Now, 1, 3);
+            endpointData.Record(DateTime.Now, 1, 4);
 
             Assert.IsTrue(endpointData.ProcessingTime.Contains(2));
             Assert.IsTrue(endpointData.ProcessingTime.Contains(3));
