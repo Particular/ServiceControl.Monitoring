@@ -1,5 +1,6 @@
 ﻿namespace ServiceControl.Monitoring.Raw
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Threading;
 
@@ -25,15 +26,15 @@
     {
         public EndpointData(int size)
         {
-            Timestamps = new string[size];
-            CriticalTime = new string[size];
-            ProcessingTime = new string[size];
+            Timestamps = new DateTime[size];
+            CriticalTime = new float[size];
+            ProcessingTime = new float[size];
 
             this.size = size;
             head = 0;
         }
 
-        public void Record(string timestamp, string criticalTime, string processingTime)
+        public void Record(DateTime timestamp, float criticalTime, float processingTime)
         {
             Interlocked.Increment(ref head);
 
@@ -44,9 +45,9 @@
             ProcessingTime[index] = processingTime;
         }
 
-        public string[] Timestamps;
-        public string[] CriticalTime;
-        public string[] ProcessingTime;
+        public DateTime[] Timestamps;
+        public float[] CriticalTime;
+        public float[] ProcessingTime;
 
         int head;
         int size;

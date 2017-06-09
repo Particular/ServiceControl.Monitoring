@@ -1,24 +1,29 @@
 namespace ServiceControl.Monitoring.Raw
 {
+    using System;
     using System.Collections.Generic;
+    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// The diagram endpoint data provider, consuming data with <see cref="Consume"/> and providing them with data optimized for displaying diagrams.
+    /// The diagram endpoint data provider, consuming data with <see cref="Consume" /> and providing them with data optimized
+    /// for displaying diagrams.
     /// </summary>
     public class DiagramDataProvider : IRawDataConsumer
     {
-        public const string Name = "Diagram";
+        public MonitoringData MonitoringData { get; } = new MonitoringData(10);
 
         /// <summary>
         /// Consumes a new portion of data.
         /// </summary>
         public void Consume(IReadOnlyDictionary<string, string> headers, JObject data)
         {
-            var timestamp = data["Timestamp"].ToString();
+            JsonConvert.SerializeObject(data["Timestamp"]);
 
-            var criticalTime = string.Empty;
-            var processingTime = string.Empty;
+            var timestamp = data["Timestamp"].Value<DateTime>();
+
+            var criticalTime = 0f;
+            var processingTime = 0f;
 
             var timers = data["Timers"]?.ToObject<List<JObject>>() ?? new List<JObject>();
 
@@ -27,21 +32,17 @@ namespace ServiceControl.Monitoring.Raw
                 var timerName = timer["Name"].ToString();
 
                 if (timerName == "Critical Time")
-                {
-                    criticalTime = timer["Rate"]["OneMinuteRate"].ToString();
-                }
+                    criticalTime = timer["Histogram"]["Mean"].Value<float>();
                 else if (timerName == "Processing Time")
-                {
-                    processingTime = timer["Rate"]["OneMinuteRate"].ToString();
-                }
+                    processingTime = timer["Histogram"]["Mean"].Value<float>();
             }
 
             var endpointName = headers.GetOriginatingEndpoint();
-            var endpointData = monitoringData.Get(endpointName);
+            var endpointData = MonitoringData.Get(endpointName);
 
             endpointData.Record(timestamp, criticalTime, processingTime);
         }
 
-        MonitoringData monitoringData = new MonitoringData(10);
+        public const string Name = "Diagram";
     }
 }

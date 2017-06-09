@@ -24,32 +24,28 @@ namespace ServiceControl.Monitoring.Http
                 .WithHeader("Access-Control-Allow-Methods", "POST,GET")
                 .WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type"));
 
-            // consider hypermedia like listing of metrics
-            // Get[""] = x => Response
-
-            /*
             Get["/data"] = x =>
             {
-                var endpoints = provider.Current.Select(kvp => new
+                var data = provider.MonitoringData.Endpoints.Select(e => new JObject
+                {
                     {
-                        Provider = DiagramDataProvider.Name,
-                        Endpoint = kvp.Key,
-                        kvp.Value
-                    })
-                    .GroupBy(a => a.Endpoint)
-                    .Select(endpointGrouped => new JProperty(endpointGrouped.Key, new JObject(endpointGrouped.Select(e => new JProperty(e.Provider, e.Value)))))
-                    .ToArray();
+                        e.Key, new JObject
+                        {
+                            {"Timestamps", new JArray(e.Value.Timestamps)},
+                            {"CriticalTime", new JArray(e.Value.CriticalTime)},
+                            {"ProcessingTime", new JArray(e.Value.ProcessingTime)}
+                        }
+                    }
+                }).ToArray();
 
                 var result = new JObject
                 {
-                    {EndpointsKey, new JObject(endpoints)}
+                    {EndpointsKey, new JArray(data)}
                 };
 
                 // TODO: think about writing directly to the output stream
                 return Response.AsText(result.ToString(Formatting.None), "application/json");
             };
-            */
-            //Get["/{metricName}/{aggregation?}"] = x => $"<p>{x.metricName}:{(string.IsNullOrEmpty(x.aggregation) ? "raw" : x.aggregation)}</p>";
         }
     }
 }
