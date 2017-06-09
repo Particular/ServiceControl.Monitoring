@@ -131,6 +131,9 @@
     <Compile Include="Hosting\Commands\AbstractCommand.cs" />
     <Compile Include="Hosting\HostArguments.cs" />
     <Compile Include="Hosting\Options.cs" />
+    <Compile Include="Http\BaseModule.cs" />
+    <Compile Include="Http\LicenseApiModule.cs" />
+    <Compile Include="Http\RootApiModule.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="EndpointFactory.cs" />
     <Compile Include="Http\HttpEndpoint.cs" />
@@ -156,6 +159,7 @@
     <Compile Include="Raw\MetricsHandler.cs" />
     <Compile Include="Raw\RawMetricsFeature.cs" />
     <Compile Include="Raw\RawDataProvider.cs" />
+    <Compile Include="VersionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
