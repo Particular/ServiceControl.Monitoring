@@ -9,7 +9,7 @@
     public class EndpointDataTests
     {
         [Test]
-        public void When_recroding_more_processing_times_than_size_the_oldest_are_removed()
+        public void When_recroding_more_processing_times_than_size_the_least_recently_added_are_removed()
         {
             var endpointData = new EndpointData(size: 2);
 
@@ -24,7 +24,7 @@
         }
 
         [Test]
-        public void When_recroding_more_critical_time_than_size_the_oldest_are_removed()
+        public void When_recroding_metrics_size_number_of_entries_are_stored()
         {
             var endpointData = new EndpointData(size: 2);
 

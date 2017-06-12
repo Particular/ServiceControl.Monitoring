@@ -11,6 +11,21 @@
     [TestFixture]
     public class DiagramDataProviderTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            var dataProvider = new DiagramDataProvider();
+            var endpointName = "Samples.Metrics.Tracing.Endpoint";
+
+            var headers = new Dictionary<string, string>
+            {
+                {Headers.OriginatingEndpoint, endpointName}
+            };
+
+            store = data => dataProvider.Consume(headers, data);
+            query = () => dataProvider.MonitoringData.Get(endpointName);
+        }
+
         [Test]
         public void When_passed_correct_json_the_data_is_recorded()
         {
@@ -32,18 +47,12 @@
                                     ]
                                   }";
 
-            var endpointName = "Samples.Metrics.Tracing.Endpoint";
-            var headers = new Dictionary<string, string> { { Headers.OriginatingEndpoint, endpointName} };
-            var data = JObject.Parse(json);
 
-            var diagramDataProvider = new DiagramDataProvider();
+            store(JObject.Parse(json));
 
-            diagramDataProvider.Consume(headers, data);
+            var endpointData = query();
 
-            var endpointData = diagramDataProvider.MonitoringData.Get(endpointName);
-
-            var timestmap = DateTime.ParseExact("2017-06-09T10:10:03.9429Z", "yyyy-MM-dd'T'HH:mm:ss.ffff'Z'",
-                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            var timestmap = ParseDatetime("2017-06-09T10:10:03.9429Z");
 
             var index = Array.IndexOf(endpointData.Timestamps, timestmap);
 
@@ -66,18 +75,11 @@
                                     ]
                                   }";
 
-            var endpointName = "Samples.Metrics.Tracing.Endpoint";
-            var headers = new Dictionary<string, string> { { Headers.OriginatingEndpoint, endpointName } };
-            var data = JObject.Parse(json);
+            store(JObject.Parse(json));
 
-            var diagramDataProvider = new DiagramDataProvider();
+            var endpointData = query();
 
-            diagramDataProvider.Consume(headers, data);
-
-            var endpointData = diagramDataProvider.MonitoringData.Get(endpointName);
-
-            var timestmap = DateTime.ParseExact("2017-06-09T10:10:03.9429Z", "yyyy-MM-dd'T'HH:mm:ss.ffff'Z'",
-                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            var timestmap = ParseDatetime("2017-06-09T10:10:03.9429Z");
 
             var index = Array.IndexOf(endpointData.Timestamps, timestmap);
 
@@ -100,22 +102,24 @@
                                     ]
                                   }";
 
-            var endpointName = "Samples.Metrics.Tracing.Endpoint";
-            var headers = new Dictionary<string, string> { { Headers.OriginatingEndpoint, endpointName } };
-            var data = JObject.Parse(json);
+            store(JObject.Parse(json));
 
-            var diagramDataProvider = new DiagramDataProvider();
+            var endpointData = query();
 
-            diagramDataProvider.Consume(headers, data);
-
-            var endpointData = diagramDataProvider.MonitoringData.Get(endpointName);
-
-            var timestmap = DateTime.ParseExact("2017-06-09T10:10:03.9429Z", "yyyy-MM-dd'T'HH:mm:ss.ffff'Z'",
-                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            var timestmap = ParseDatetime("2017-06-09T10:10:03.9429Z");
 
             var index = Array.IndexOf(endpointData.Timestamps, timestmap);
 
             Assert.AreEqual(null, endpointData.CriticalTime[index]);
         }
+
+        static DateTime ParseDatetime(string text)
+        {
+            return DateTime.ParseExact(text, "yyyy-MM-dd'T'HH:mm:ss.ffff'Z'",
+                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+        }
+
+        Action<JObject> store;
+        Func<EndpointData> query;
     }
 }
