@@ -50,5 +50,72 @@
             Assert.AreEqual(564.47f, endpointData.CriticalTime[index]);
             Assert.AreEqual(6.26f, endpointData.ProcessingTime[index]);
         }
+
+        [Test]
+        public void When_passed_susbset_of_possible_metrics_data_is_recorded()
+        {
+            const string json = @"{
+                                    ""Timestamp"": ""2017-06-09T10:10:03.9429Z"",
+                                    ""Timers"": [
+                                      {
+                                        ""Name"": ""Critical Time"",
+                                        ""Histogram"": {
+                                          ""Mean"": 564.47,
+                                        }
+                                      }
+                                    ]
+                                  }";
+
+            var endpointName = "Samples.Metrics.Tracing.Endpoint";
+            var headers = new Dictionary<string, string> { { Headers.OriginatingEndpoint, endpointName } };
+            var data = JObject.Parse(json);
+
+            var diagramDataProvider = new DiagramDataProvider();
+
+            diagramDataProvider.Consume(headers, data);
+
+            var endpointData = diagramDataProvider.MonitoringData.Get(endpointName);
+
+            var timestmap = DateTime.ParseExact("2017-06-09T10:10:03.9429Z", "yyyy-MM-dd'T'HH:mm:ss.ffff'Z'",
+                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+
+            var index = Array.IndexOf(endpointData.Timestamps, timestmap);
+
+            Assert.AreEqual(564.47f, endpointData.CriticalTime[index]);
+            Assert.AreEqual(null, endpointData.ProcessingTime[index]);
+        }
+
+        [Test]
+        public void When_passed_metrics_with_unavailable_metric_value_data_is_recorded()
+        {
+            const string json = @"{
+                                    ""Timestamp"": ""2017-06-09T10:10:03.9429Z"",
+                                    ""Timers"": [
+                                      {
+                                        ""Name"": ""Critical Time"",
+                                        ""Histogram"": {
+                                          ""Mean"": null,
+                                        }
+                                      }
+                                    ]
+                                  }";
+
+            var endpointName = "Samples.Metrics.Tracing.Endpoint";
+            var headers = new Dictionary<string, string> { { Headers.OriginatingEndpoint, endpointName } };
+            var data = JObject.Parse(json);
+
+            var diagramDataProvider = new DiagramDataProvider();
+
+            diagramDataProvider.Consume(headers, data);
+
+            var endpointData = diagramDataProvider.MonitoringData.Get(endpointName);
+
+            var timestmap = DateTime.ParseExact("2017-06-09T10:10:03.9429Z", "yyyy-MM-dd'T'HH:mm:ss.ffff'Z'",
+                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+
+            var index = Array.IndexOf(endpointData.Timestamps, timestmap);
+
+            Assert.AreEqual(null, endpointData.CriticalTime[index]);
+        }
     }
 }

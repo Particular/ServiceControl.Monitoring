@@ -22,8 +22,8 @@ namespace ServiceControl.Monitoring.Raw
 
             var timestamp = data["Timestamp"].Value<DateTime>();
 
-            var criticalTime = 0f;
-            var processingTime = 0f;
+            float? criticalTime = null;
+            float? processingTime = null;
 
             var timers = data["Timers"]?.ToObject<List<JObject>>() ?? new List<JObject>();
 
@@ -33,11 +33,11 @@ namespace ServiceControl.Monitoring.Raw
 
                 if (timerName == "Critical Time")
                 {
-                    criticalTime = timer["Histogram"]["Mean"].Value<float>();
+                    criticalTime = timer["Histogram"]["Mean"].Value<float?>();
                 }
                 else if (timerName == "Processing Time")
                 {
-                    processingTime = timer["Histogram"]["Mean"].Value<float>();
+                    processingTime = timer["Histogram"]["Mean"].Value<float?>();
                 }
             }
 

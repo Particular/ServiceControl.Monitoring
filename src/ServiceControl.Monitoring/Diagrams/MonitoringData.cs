@@ -27,14 +27,14 @@
         public EndpointData(int size)
         {
             Timestamps = new DateTime[size];
-            CriticalTime = new float[size];
-            ProcessingTime = new float[size];
+            CriticalTime = new float?[size];
+            ProcessingTime = new float?[size];
 
             this.size = size;
             head = 0;
         }
 
-        public void Record(DateTime timestamp, float criticalTime, float processingTime)
+        public void Record(DateTime timestamp, float? criticalTime, float? processingTime)
         {
             Interlocked.Increment(ref head);
 
@@ -46,8 +46,8 @@
         }
 
         public DateTime[] Timestamps;
-        public float[] CriticalTime;
-        public float[] ProcessingTime;
+        public float?[] CriticalTime;
+        public float?[] ProcessingTime;
 
         int head;
         int size;
