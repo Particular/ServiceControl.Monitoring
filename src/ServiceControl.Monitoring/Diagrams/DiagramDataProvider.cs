@@ -32,9 +32,13 @@ namespace ServiceControl.Monitoring.Raw
                 var timerName = timer["Name"].ToString();
 
                 if (timerName == "Critical Time")
+                {
                     criticalTime = timer["Histogram"]["Mean"].Value<float>();
+                }
                 else if (timerName == "Processing Time")
+                {
                     processingTime = timer["Histogram"]["Mean"].Value<float>();
+                }
             }
 
             var endpointName = headers.GetOriginatingEndpoint();
