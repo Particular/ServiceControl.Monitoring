@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using Monitoring.QueueLength;
     using Newtonsoft.Json.Linq;
     using NServiceBus;
     using NUnit.Framework;

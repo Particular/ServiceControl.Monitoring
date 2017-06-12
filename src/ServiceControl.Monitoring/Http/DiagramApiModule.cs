@@ -1,6 +1,5 @@
 namespace ServiceControl.Monitoring.Http
 {
-    using System.Collections.Generic;
     using System.Linq;
     using Nancy;
     using Newtonsoft.Json;

@@ -1,7 +1,6 @@
 ﻿namespace ServiceControl.Monitoring.Tests.Diagrams
 {
     using System;
-    using System.Data;
     using System.Linq;
     using NUnit.Framework;
     using Raw;
