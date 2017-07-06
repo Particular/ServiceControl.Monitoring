@@ -1,16 +1,16 @@
-﻿namespace ServiceControl.Monitoring.Raw
+﻿namespace ServiceControl.Monitoring.Processing.Snapshot
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus;
     using NServiceBus.Metrics;
+    using NServiceBus;
 
     public class MetricsHandler : IHandleMessages<MetricReport>
     {
-        readonly IEnumerable<IRawDataConsumer> providers;
+        readonly IEnumerable<ISnapshotDataConsumer> providers;
         static readonly Task<int> CompletedTask = Task.FromResult(0);
 
-        public MetricsHandler(IEnumerable<IRawDataConsumer> providers)
+        public MetricsHandler(IEnumerable<ISnapshotDataConsumer> providers)
         {
             this.providers = providers;
         }

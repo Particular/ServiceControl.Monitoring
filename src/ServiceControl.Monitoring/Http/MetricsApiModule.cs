@@ -16,7 +16,7 @@ namespace ServiceControl.Monitoring.Http
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public MetricsApiModule(IEnumerable<IEndpointDataProvider> providers) : base("/metrics")
+        public MetricsApiModule(IEnumerable<ISnapshotDataProvider> providers) : base("/metrics")
         {
             After.AddItemToEndOfPipeline(ctx => ctx.Response
                 .WithHeader("Access-Control-Allow-Origin", "*")
@@ -26,7 +26,7 @@ namespace ServiceControl.Monitoring.Http
             // consider hypermedia like listing of metrics
             // Get[""] = x => Response
 
-            Get["/raw"] = x =>
+            Get["/snapshot"] = x =>
             {
                 var endpoints = providers.SelectMany(p => p.Current.Select(kvp => new
                     {

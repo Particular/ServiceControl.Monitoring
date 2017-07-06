@@ -141,11 +141,17 @@
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="EndpointFactory.cs" />
     <Compile Include="Http\HttpEndpoint.cs" />
-    <Compile Include="Http\IEndpointDataProvider.cs" />
+    <Compile Include="Http\ISnapshotDataProvider.cs" />
     <Compile Include="Http\MetricsApiModule.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Licensing\LicenseCheckFeature.cs" />
     <Compile Include="MonitorLogs.cs" />
+    <Compile Include="Processing\RawData\IConsumeLongValueOccurrences.cs" />
+    <Compile Include="Processing\RawData\LongValueOccurenceSerializerDefinition.cs" />
+    <Compile Include="Processing\RawData\LongValueOccurrenceHandler.cs" />
+    <Compile Include="Processing\RawData\LongValueOccurrences.cs" />
+    <Compile Include="Processing\RawData\RawDataFeature.cs" />
+    <Compile Include="Processing\RawData\RawDataProvider.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Hosting\HostService.cs" />
     <Compile Include="Hosting\Commands\RunCommand.cs" />
@@ -164,6 +170,12 @@
     <Compile Include="Raw\RawMetricsFeature.cs" />
     <Compile Include="Raw\RawDataProvider.cs" />
     <Compile Include="VersionInfo.cs" />
+    <Compile Include="Processing\Snapshot\Extensions.cs" />
+    <Compile Include="Processing\Snapshot\ISnapshotDataConsumer.cs" />
+    <Compile Include="Processing\Snapshot\MetricReport.cs" />
+    <Compile Include="Processing\Snapshot\MetricsHandler.cs" />
+    <Compile Include="Processing\Snapshot\SnapshotMetricsFeature.cs" />
+    <Compile Include="Processing\Snapshot\SnapshotDataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

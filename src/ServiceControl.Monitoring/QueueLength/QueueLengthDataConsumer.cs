@@ -4,9 +4,9 @@ namespace ServiceControl.Monitoring.QueueLength
     using System.Linq;
     using Http;
     using Newtonsoft.Json.Linq;
-    using Raw;
+    using Processing.Snapshot;
 
-    class QueueLengthDataConsumer : IRawDataConsumer, IEndpointDataProvider
+    class QueueLengthDataConsumer : ISnapshotDataConsumer, ISnapshotDataProvider
     {
         public QueueLengthDataConsumer(IQueueLengthCalculator calculator)
         {
@@ -18,7 +18,7 @@ namespace ServiceControl.Monitoring.QueueLength
             get { return calculator.GetQueueLengths().Select(kvp => new KeyValuePair<string, JObject>(kvp.Key, new JObject(new JProperty("Count", kvp.Value)))); }
         }
 
-        string IEndpointDataProvider.Name { get; } = Name;
+        string ISnapshotDataProvider.Name { get; } = Name;
 
         public void Consume(IReadOnlyDictionary<string, string> headers, JObject data)
         {

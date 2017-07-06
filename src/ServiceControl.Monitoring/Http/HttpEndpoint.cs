@@ -10,13 +10,15 @@ namespace ServiceControl.Monitoring.Http
 {
     using System;
     using System.Collections.Generic;
+    using Processing.RawData;
+    using Processing.Snapshot;
     using Raw;
 
     class HttpEndpoint : Feature
     {
         public HttpEndpoint()
         {
-            DependsOn<RawMetricsFeature>();
+            DependsOn<SnapshotMetricsFeature>();
             DependsOn<QueueLength.QueueLengthFeature>();
         }
 
@@ -52,7 +54,11 @@ namespace ServiceControl.Monitoring.Http
 
             public NancyTask(IBuilder builder, Uri host)
             {
-                var buildstrapper = new Bootstrapper(builder.BuildAll<IEndpointDataProvider>(), builder.Build<DiagramDataProvider>());
+                var buildstrapper = new Bootstrapper(
+                    builder.BuildAll<ISnapshotDataProvider>(), 
+                    builder.Build<DiagramDataProvider>(),
+                    builder.Build<RawDataProvider>());
+
                 var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
                 metricsEndpoint = new NancyHost(host, buildstrapper, hostConfiguration);
             }
@@ -72,20 +78,24 @@ namespace ServiceControl.Monitoring.Http
 
         class Bootstrapper : DefaultNancyBootstrapper
         {
-            readonly IEnumerable<IEndpointDataProvider> providers;
+            readonly IEnumerable<ISnapshotDataProvider> providers;
             readonly DiagramDataProvider diagramProvider;
+            readonly RawDataProvider rawDataProvider;
 
-            public Bootstrapper(IEnumerable<IEndpointDataProvider> providers, DiagramDataProvider diagramProvider)
+            public Bootstrapper(IEnumerable<ISnapshotDataProvider> providers, DiagramDataProvider diagramProvider, 
+                RawDataProvider rawDataProvider)
             {
                 this.providers = providers;
                 this.diagramProvider = diagramProvider;
+                this.rawDataProvider = rawDataProvider;
             }
 
             protected override void ConfigureApplicationContainer(TinyIoCContainer container)
             {
                 base.ConfigureApplicationContainer(container);
-                container.Register(typeof(IEnumerable<IEndpointDataProvider>), providers);
+                container.Register(typeof(IEnumerable<ISnapshotDataProvider>), providers);
                 container.Register(typeof(DiagramDataProvider), diagramProvider);
+                container.Register(typeof(RawDataProvider), rawDataProvider);
             }
             
         }

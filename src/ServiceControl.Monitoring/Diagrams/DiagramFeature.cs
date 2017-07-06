@@ -4,7 +4,7 @@
     using NServiceBus.Features;
 
     /// <summary>
-    /// Registers the <see cref="RawDataProvider"/>
+    /// Registers the <see cref="DiagramDataProvider"/>
     /// </summary>
     public class DiagramFeature : Feature
     {

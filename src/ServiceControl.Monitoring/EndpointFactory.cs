@@ -7,6 +7,8 @@
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
     using NServiceBus.Logging;
+    using Processing.RawData;
+    using Processing.Snapshot;
     using Raw;
 
     public class EndpointFactory
@@ -39,11 +41,13 @@
             config.GetSettings().Set<Settings>(settings);
 
             config.UseSerialization<NewtonsoftSerializer>();
+            config.AddDeserializer<LongValueOccurrenceSerializerDefinition>();
             config.UsePersistence<InMemoryPersistence>();
             config.SendFailedMessagesTo(settings.ErrorQueue);
             config.LimitMessageProcessingConcurrencyTo(1);
             config.DisableFeature<AutoSubscribe>();
-            config.EnableFeature<RawMetricsFeature>();
+            config.EnableFeature<SnapshotMetricsFeature>();
+            config.EnableFeature<RawDataFeature>();
             config.EnableFeature<QueueLength.QueueLengthFeature>();
             config.EnableFeature<HttpEndpoint>();
             config.EnableFeature<DiagramFeature>();

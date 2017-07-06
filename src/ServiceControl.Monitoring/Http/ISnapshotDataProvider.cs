@@ -6,7 +6,7 @@
     /// <summary>
     /// Provides data grouped by endpoint.
     /// </summary>
-    public interface IEndpointDataProvider
+    public interface ISnapshotDataProvider
     {
         /// <summary>
         /// Gets name of the provider

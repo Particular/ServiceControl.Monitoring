@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.Raw
+﻿namespace ServiceControl.Monitoring.Processing.Snapshot
 {
     using System.Collections.Generic;
     using NServiceBus;

@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.Raw
+﻿namespace ServiceControl.Monitoring.Processing.Snapshot
 {
     using System.Collections.Generic;
     using Newtonsoft.Json.Linq;
@@ -6,7 +6,7 @@
     /// <summary>
     /// Consumes raw metrics data sent as a serialized Metrics context.
     /// </summary>
-    public interface IRawDataConsumer
+    public interface ISnapshotDataConsumer
     {
         /// <summary>
         /// Consumes a new portion of data.

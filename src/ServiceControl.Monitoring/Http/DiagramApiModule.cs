@@ -4,6 +4,7 @@ namespace ServiceControl.Monitoring.Http
     using Nancy;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using Processing.RawData;
     using Raw;
 
     /// <summary>
@@ -11,12 +12,10 @@ namespace ServiceControl.Monitoring.Http
     /// </summary>
     public class DiagramsApiModule : NancyModule
     {
-        const string EndpointsKey = "NServiceBus.Endpoints";
-
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public DiagramsApiModule(DiagramDataProvider provider) : base("/diagrams")
+        public DiagramsApiModule(DiagramDataProvider provider, RawDataProvider rawDataProvider) : base("/diagrams")
         {
             After.AddItemToEndOfPipeline(ctx => ctx.Response
                 .WithHeader("Access-Control-Allow-Origin", "*")
@@ -30,21 +29,37 @@ namespace ServiceControl.Monitoring.Http
                     {
                         e.Key, new JObject
                         {
-                            {"Timestamps", new JArray(e.Value.Timestamps)},
-                            {"CriticalTime", new JArray(e.Value.CriticalTime)},
-                            {"ProcessingTime", new JArray(e.Value.ProcessingTime)}
+                            {"Timestamps", new JArray(e.Value.Timestamps)}
                         }
                     }
                 }).ToArray();
 
+                var rawCriticalTime = rawDataProvider.CriticalTimes.Select(e => new JObject
+                {
+                    {
+                        e.Key, new JArray(e.Value.Values)
+                    }
+                });
+
+                var rawProcessingTime = rawDataProvider.ProcessingTimes.Select(e => new JObject
+                {
+                    {
+                        e.Key, new JArray(e.Value.Values)
+                    }
+                });
+
                 var result = new JObject
                 {
-                    {EndpointsKey, new JArray(data)}
+                    {EndpointsKey, new JArray(data)},
+                    {"CriticalTimes", new JArray(rawCriticalTime)},
+                    {"ProcessingTime", new JArray(rawProcessingTime)}
                 };
 
                 // TODO: think about writing directly to the output stream
                 return Response.AsText(result.ToString(Formatting.None), "application/json");
             };
         }
+
+        const string EndpointsKey = "NServiceBus.Endpoints";
     }
 }

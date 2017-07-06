@@ -11,6 +11,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using ServiceControl.Monitoring;
+    using ServiceControl.Monitoring.Processing.Snapshot;
     using ServiceControl.Monitoring.Raw;
     using Transport;
 
@@ -42,7 +43,7 @@
                         {
                             MonitoredEndpointName, new JObject
                             {
-                                {RawDataProvider.Name, JObject.Parse(Data)}
+                                {SnapshotDataProvider.Name, JObject.Parse(Data)}
                             }
                         }
                     }

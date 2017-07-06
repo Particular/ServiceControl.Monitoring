@@ -4,12 +4,13 @@ namespace ServiceControl.Monitoring.Raw
     using System.Collections.Generic;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using Processing.Snapshot;
 
     /// <summary>
     /// The diagram endpoint data provider, consuming data with <see cref="Consume" /> and providing them with data optimized
     /// for displaying diagrams.
     /// </summary>
-    public class DiagramDataProvider : IRawDataConsumer
+    public class DiagramDataProvider : ISnapshotDataConsumer
     {
         public MonitoringData MonitoringData { get; } = new MonitoringData(10);
 
