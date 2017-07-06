@@ -57,7 +57,7 @@ namespace ServiceControl.Monitoring.Http
                 var buildstrapper = new Bootstrapper(
                     builder.BuildAll<ISnapshotDataProvider>(), 
                     builder.Build<DiagramDataProvider>(),
-                    builder.Build<RawDataProvider>());
+                    builder.Build<DurationsDataStore>());
 
                 var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
                 metricsEndpoint = new NancyHost(host, buildstrapper, hostConfiguration);
@@ -80,14 +80,14 @@ namespace ServiceControl.Monitoring.Http
         {
             readonly IEnumerable<ISnapshotDataProvider> providers;
             readonly DiagramDataProvider diagramProvider;
-            readonly RawDataProvider rawDataProvider;
+            readonly DurationsDataStore durationsDataStore;
 
             public Bootstrapper(IEnumerable<ISnapshotDataProvider> providers, DiagramDataProvider diagramProvider, 
-                RawDataProvider rawDataProvider)
+                DurationsDataStore durationsDataStore)
             {
                 this.providers = providers;
                 this.diagramProvider = diagramProvider;
-                this.rawDataProvider = rawDataProvider;
+                this.durationsDataStore = durationsDataStore;
             }
 
             protected override void ConfigureApplicationContainer(TinyIoCContainer container)
@@ -95,7 +95,7 @@ namespace ServiceControl.Monitoring.Http
                 base.ConfigureApplicationContainer(container);
                 container.Register(typeof(IEnumerable<ISnapshotDataProvider>), providers);
                 container.Register(typeof(DiagramDataProvider), diagramProvider);
-                container.Register(typeof(RawDataProvider), rawDataProvider);
+                container.Register(typeof(DurationsDataStore), durationsDataStore);
             }
             
         }

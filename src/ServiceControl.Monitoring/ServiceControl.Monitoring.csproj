@@ -146,12 +146,11 @@
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Licensing\LicenseCheckFeature.cs" />
     <Compile Include="MonitorLogs.cs" />
-    <Compile Include="Processing\RawData\IConsumeLongValueOccurrences.cs" />
     <Compile Include="Processing\RawData\LongValueOccurenceSerializerDefinition.cs" />
     <Compile Include="Processing\RawData\LongValueOccurrenceHandler.cs" />
     <Compile Include="Processing\RawData\LongValueOccurrences.cs" />
     <Compile Include="Processing\RawData\RawDataFeature.cs" />
-    <Compile Include="Processing\RawData\RawDataProvider.cs" />
+    <Compile Include="Processing\RawData\DurationsDataStore.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Hosting\HostService.cs" />
     <Compile Include="Hosting\Commands\RunCommand.cs" />

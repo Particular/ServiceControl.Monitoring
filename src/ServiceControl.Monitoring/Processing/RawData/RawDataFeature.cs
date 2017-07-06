@@ -7,7 +7,7 @@
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent(typeof(RawDataProvider), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(typeof(DurationsDataStore), DependencyLifecycle.SingleInstance);
         }
     }
 }

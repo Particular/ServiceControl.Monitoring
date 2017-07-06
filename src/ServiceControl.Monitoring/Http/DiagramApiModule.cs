@@ -15,7 +15,7 @@ namespace ServiceControl.Monitoring.Http
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public DiagramsApiModule(DiagramDataProvider provider, RawDataProvider rawDataProvider) : base("/diagrams")
+        public DiagramsApiModule(DiagramDataProvider provider, DurationsDataStore durationsDataStore) : base("/diagrams")
         {
             After.AddItemToEndOfPipeline(ctx => ctx.Response
                 .WithHeader("Access-Control-Allow-Origin", "*")
@@ -34,14 +34,14 @@ namespace ServiceControl.Monitoring.Http
                     }
                 }).ToArray();
 
-                var rawCriticalTime = rawDataProvider.CriticalTimes.Select(e => new JObject
+                var rawCriticalTime = durationsDataStore.CriticalTimes.Select(e => new JObject
                 {
                     {
                         e.Key, new JArray(e.Value.Values)
                     }
                 });
 
-                var rawProcessingTime = rawDataProvider.ProcessingTimes.Select(e => new JObject
+                var rawProcessingTime = durationsDataStore.ProcessingTimes.Select(e => new JObject
                 {
                     {
                         e.Key, new JArray(e.Value.Values)
