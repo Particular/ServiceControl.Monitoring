@@ -1,5 +1,8 @@
 namespace ServiceControl.Monitoring.Http
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Linq;
     using Nancy;
     using Newtonsoft.Json;
@@ -24,42 +27,60 @@ namespace ServiceControl.Monitoring.Http
 
             Get["/data"] = x =>
             {
-                var data = provider.MonitoringData.Endpoints.Select(e => new JObject
-                {
-                    {
-                        e.Key, new JObject
-                        {
-                            {"Timestamps", new JArray(e.Value.Timestamps)}
-                        }
-                    }
-                }).ToArray();
+                var lastEntryDate = DateTime.Now.Subtract(TimeSpan.FromMinutes(5));
 
-                var rawCriticalTime = durationsDataStore.CriticalTimes.Select(e => new JObject
-                {
-                    {
-                        e.Key, new JArray(e.Value.Values)
-                    }
-                });
-
-                var rawProcessingTime = durationsDataStore.ProcessingTimes.Select(e => new JObject
-                {
-                    {
-                        e.Key, new JArray(e.Value.Values)
-                    }
-                });
+                var processingTimes = ToJsonResult(durationsDataStore.ProcessingTimes, lastEntryDate);
+                var criticalTimes = ToJsonResult(durationsDataStore.CriticalTimes, lastEntryDate);
 
                 var result = new JObject
                 {
-                    {EndpointsKey, new JArray(data)},
-                    {"CriticalTimes", new JArray(rawCriticalTime)},
-                    {"ProcessingTime", new JArray(rawProcessingTime)}
+                    {"ProcessingTime", new JArray(processingTimes)},
+                    {"CriticalTime", new JArray(criticalTimes) }
                 };
 
-                // TODO: think about writing directly to the output stream
                 return Response.AsText(result.ToString(Formatting.None), "application/json");
             };
         }
 
-        const string EndpointsKey = "NServiceBus.Endpoints";
+        static List<JObject> ToJsonResult(ConcurrentDictionary<string, ConcurrentDictionary<DateTime, DurationsDataStore.DurationBucket>> durations, 
+            DateTime lastEntryDate)
+        {
+            var snapshots = durations.ToArray().Select(kv =>
+                new EndpointSnapshot
+                {
+                    Name = kv.Key,
+                    Data = kv.Value.ToArray().Where(d => d.Key > lastEntryDate).OrderBy(d => d.Key)
+                }
+            );
+
+            var timings = new List<JObject>();
+
+            foreach (var snapshot in snapshots)
+            {
+                var average = snapshot.Data.Sum(d => d.Value.TotalTime) /
+                              (double) snapshot.Data.Sum(d => d.Value.TotalMeasurements);
+
+                timings.Add(new JObject
+                {
+                    {"EndpointName", snapshot.Name},
+                    {"Average", average},
+                    {
+                        "Data", new JArray(snapshot.Data.Select(s => new JObject
+                        {
+                            {"Time", s.Key},
+                            {"Average", s.Value.TotalTime / (double) s.Value.TotalMeasurements}
+                        }))
+                    }
+                });
+            }
+
+            return timings;
+        }
+
+        class EndpointSnapshot
+        {
+            public string Name;
+            public IEnumerable<KeyValuePair<DateTime, DurationsDataStore.DurationBucket>> Data;
+        }
     }
 }
