@@ -12,13 +12,20 @@
     using NUnit.Framework;
     using ServiceControl.Monitoring;
     using ServiceControl.Monitoring.Processing.Snapshot;
-    using ServiceControl.Monitoring.Raw;
     using Transport;
 
     public class When_querying_raw_data : NServiceBusAcceptanceTest
     {
         static string MonitoredEndpointName => Conventions.EndpointNamingConvention(typeof(MonitoredEndpoint));
-        const string Data = "{Context: 'a'}";
+        const string Data = @"{
+    ""Version"": ""2"",
+    ""Timestamp"": ""2017-05-11T07:13:28.5918Z"",
+    ""Context"": ""Not used"",
+    ""Counters"": [],
+    ""Gauges"": [],
+    ""Meters"": [],
+    ""Timers"": []
+}";
 
         [Test]
         public async Task Should_report_via_http()
@@ -57,7 +64,7 @@
         {
             using (var client = new HttpClient())
             {
-                return client.GetStringAsync("http://localhost:1234/metrics/raw").GetAwaiter().GetResult();
+                return client.GetStringAsync("http://localhost:1234/metrics/snapshot").GetAwaiter().GetResult();
             }
         }
 

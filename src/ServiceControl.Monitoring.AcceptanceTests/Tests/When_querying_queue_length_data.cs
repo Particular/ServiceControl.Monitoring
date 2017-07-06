@@ -12,7 +12,6 @@
     using NUnit.Framework;
     using ServiceControl.Monitoring;
     using ServiceControl.Monitoring.Processing.Snapshot;
-    using ServiceControl.Monitoring.Raw;
     using Transport;
 
     public class When_querying_queue_length_data : NServiceBusAcceptanceTest
@@ -93,7 +92,7 @@
         {
             using (var client = new HttpClient())
             {
-                return client.GetStringAsync("http://localhost:1234/metrics/raw").GetAwaiter().GetResult();
+                return client.GetStringAsync("http://localhost:1234/metrics/snapshot").GetAwaiter().GetResult();
             }
         }
 
