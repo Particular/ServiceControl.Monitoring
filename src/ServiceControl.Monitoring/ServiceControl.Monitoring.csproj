@@ -127,9 +127,6 @@
     <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
-    <Compile Include="Diagrams\MonitoringData.cs" />
-    <Compile Include="Diagrams\DiagramDataProvider.cs" />
-    <Compile Include="Diagrams\DiagramFeature.cs" />
     <Compile Include="Hosting\Commands\CommandRunner.cs" />
     <Compile Include="Hosting\Commands\AbstractCommand.cs" />
     <Compile Include="Hosting\HostArguments.cs" />
@@ -146,11 +143,11 @@
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Licensing\LicenseCheckFeature.cs" />
     <Compile Include="MonitorLogs.cs" />
-    <Compile Include="Processing\RawData\LongValueOccurenceSerializerDefinition.cs" />
-    <Compile Include="Processing\RawData\LongValueOccurrenceHandler.cs" />
-    <Compile Include="Processing\RawData\LongValueOccurrences.cs" />
-    <Compile Include="Processing\RawData\RawDataFeature.cs" />
-    <Compile Include="Processing\RawData\DurationsDataStore.cs" />
+    <Compile Include="Metrics\Raw\LongValueOccurenceSerializerDefinition.cs" />
+    <Compile Include="Metrics\Raw\LongValueOccurrenceHandler.cs" />
+    <Compile Include="Metrics\Raw\LongValueOccurrences.cs" />
+    <Compile Include="Metrics\Raw\RawMetricsFeature.cs" />
+    <Compile Include="Metrics\Raw\DurationsDataStore.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Hosting\HostService.cs" />
     <Compile Include="Hosting\Commands\RunCommand.cs" />
@@ -175,6 +172,12 @@
     <Compile Include="Processing\Snapshot\MetricsHandler.cs" />
     <Compile Include="Processing\Snapshot\SnapshotMetricsFeature.cs" />
     <Compile Include="Processing\Snapshot\SnapshotDataProvider.cs" />
+    <Compile Include="Metrics\Snapshot\Extensions.cs" />
+    <Compile Include="Metrics\Snapshot\ISnapshotDataConsumer.cs" />
+    <Compile Include="Metrics\Snapshot\MetricReport.cs" />
+    <Compile Include="Metrics\Snapshot\MetricsHandler.cs" />
+    <Compile Include="Metrics\Snapshot\SnapshotMetricsFeature.cs" />
+    <Compile Include="Metrics\Snapshot\SnapshotDataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

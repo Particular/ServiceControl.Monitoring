@@ -1,14 +1,11 @@
 namespace ServiceControl.Monitoring.Http
 {
-    using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using Nancy;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using Processing.RawData;
-    using Raw;
 
     /// <summary>
     /// Exposes ServiceControl.Monitoring metrics needed for in endpoint overview page.
@@ -18,7 +15,7 @@ namespace ServiceControl.Monitoring.Http
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public DiagramsApiModule(DiagramDataProvider provider, DurationsDataStore durationsDataStore) : base("/diagrams")
+        public DiagramsApiModule(DurationsDataStore durationsDataStore) : base("/diagrams")
         {
             After.AddItemToEndOfPipeline(ctx => ctx.Response
                 .WithHeader("Access-Control-Allow-Origin", "*")
@@ -27,10 +24,8 @@ namespace ServiceControl.Monitoring.Http
 
             Get["/data"] = x =>
             {
-                var lastEntryDate = DateTime.Now.Subtract(TimeSpan.FromMinutes(5));
-
-                var processingTimes = ToJsonResult(durationsDataStore.ProcessingTimes, lastEntryDate);
-                var criticalTimes = ToJsonResult(durationsDataStore.CriticalTimes, lastEntryDate);
+                var processingTimes = ToJsonResult(durationsDataStore.GetCriticalTime());
+                var criticalTimes = ToJsonResult(durationsDataStore.GetProcessingTime());
 
                 var result = new JObject
                 {
@@ -42,45 +37,21 @@ namespace ServiceControl.Monitoring.Http
             };
         }
 
-        static List<JObject> ToJsonResult(ConcurrentDictionary<string, ConcurrentDictionary<DateTime, DurationsDataStore.DurationBucket>> durations, 
-            DateTime lastEntryDate)
+        static IEnumerable<JObject> ToJsonResult(DurationsDataStore.EndpointTimings[] data)
         {
-            var snapshots = durations.ToArray().Select(kv =>
-                new EndpointSnapshot
+            return data.Select(d =>
+                new JObject
                 {
-                    Name = kv.Key,
-                    Data = kv.Value.ToArray().Where(d => d.Key > lastEntryDate).OrderBy(d => d.Key)
-                }
-            );
-
-            var timings = new List<JObject>();
-
-            foreach (var snapshot in snapshots)
-            {
-                var average = snapshot.Data.Sum(d => d.Value.TotalTime) /
-                              (double) snapshot.Data.Sum(d => d.Value.TotalMeasurements);
-
-                timings.Add(new JObject
-                {
-                    {"EndpointName", snapshot.Name},
-                    {"Average", average},
+                    {"EndpointName", d.EndpointName},
+                    {"Average", d.Average},
                     {
-                        "Data", new JArray(snapshot.Data.Select(s => new JObject
+                        "Data", new JArray(d.Intervals.Select(i => new JObject
                         {
-                            {"Time", s.Key},
-                            {"Average", s.Value.TotalTime / (double) s.Value.TotalMeasurements}
+                            {"Time", i.IntervalStart},
+                            {"Average", i.Average}
                         }))
                     }
                 });
-            }
-
-            return timings;
-        }
-
-        class EndpointSnapshot
-        {
-            public string Name;
-            public IEnumerable<KeyValuePair<DateTime, DurationsDataStore.DurationBucket>> Data;
         }
     }
 }

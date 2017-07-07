@@ -9,7 +9,6 @@
     using NServiceBus.Logging;
     using Processing.RawData;
     using Processing.Snapshot;
-    using Raw;
 
     public class EndpointFactory
     {
@@ -47,10 +46,9 @@
             config.LimitMessageProcessingConcurrencyTo(1);
             config.DisableFeature<AutoSubscribe>();
             config.EnableFeature<SnapshotMetricsFeature>();
-            config.EnableFeature<RawDataFeature>();
+            config.EnableFeature<RawMetricsFeature>();
             config.EnableFeature<QueueLength.QueueLengthFeature>();
             config.EnableFeature<HttpEndpoint>();
-            config.EnableFeature<DiagramFeature>();
         }
 
         static Type DetermineTransportType(Settings settings)

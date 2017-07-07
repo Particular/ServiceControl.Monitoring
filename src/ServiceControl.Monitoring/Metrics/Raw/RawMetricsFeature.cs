@@ -3,7 +3,7 @@
     using global::NServiceBus;
     using global::NServiceBus.Features;
 
-    public class RawDataFeature : Feature
+    public class RawMetricsFeature : Feature
     {
         protected override void Setup(FeatureConfigurationContext context)
         {

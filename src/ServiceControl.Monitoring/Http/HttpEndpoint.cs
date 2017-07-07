@@ -12,7 +12,6 @@ namespace ServiceControl.Monitoring.Http
     using System.Collections.Generic;
     using Processing.RawData;
     using Processing.Snapshot;
-    using Raw;
 
     class HttpEndpoint : Feature
     {
@@ -56,7 +55,6 @@ namespace ServiceControl.Monitoring.Http
             {
                 var buildstrapper = new Bootstrapper(
                     builder.BuildAll<ISnapshotDataProvider>(), 
-                    builder.Build<DiagramDataProvider>(),
                     builder.Build<DurationsDataStore>());
 
                 var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
@@ -79,14 +77,11 @@ namespace ServiceControl.Monitoring.Http
         class Bootstrapper : DefaultNancyBootstrapper
         {
             readonly IEnumerable<ISnapshotDataProvider> providers;
-            readonly DiagramDataProvider diagramProvider;
             readonly DurationsDataStore durationsDataStore;
 
-            public Bootstrapper(IEnumerable<ISnapshotDataProvider> providers, DiagramDataProvider diagramProvider, 
-                DurationsDataStore durationsDataStore)
+            public Bootstrapper(IEnumerable<ISnapshotDataProvider> providers, DurationsDataStore durationsDataStore)
             {
                 this.providers = providers;
-                this.diagramProvider = diagramProvider;
                 this.durationsDataStore = durationsDataStore;
             }
 
@@ -94,7 +89,6 @@ namespace ServiceControl.Monitoring.Http
             {
                 base.ConfigureApplicationContainer(container);
                 container.Register(typeof(IEnumerable<ISnapshotDataProvider>), providers);
-                container.Register(typeof(DiagramDataProvider), diagramProvider);
                 container.Register(typeof(DurationsDataStore), durationsDataStore);
             }
             

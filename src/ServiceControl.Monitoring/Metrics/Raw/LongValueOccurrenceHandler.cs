@@ -25,11 +25,11 @@
 
             if (messageType == ProcessingTimeMessageType)
             {
-                store.RecordProcessingTime(endpointName, message);
+                store.StoreProcessingTime(endpointName, message);
             }
             else if (messageType == CriticalTimeMessageType)
             {
-                store.RecordCriticalTime(endpointName, message);
+                store.StoreCriticalTime(endpointName, message);
             }
 
             return CompletedTask;
