@@ -1,22 +1,17 @@
-namespace ServiceControl.Monitoring.Http
+﻿namespace ServiceControl.Monitoring.Http
 {
-    using System.Collections.Generic;
     using System.Linq;
     using Nancy;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using QueueLength;
 
-    /// <summary>
-    /// Exposes ServiceControl.Monitoring metrics.
-    /// </summary>
-    public class MetricsApiModule : NancyModule
+    public class QueueLengthApiModule : NancyModule
     {
-        const string EndpointsKey = "NServiceBus.Endpoints";
-
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public MetricsApiModule(IEnumerable<ISnapshotDataProvider> providers) : base("/metrics")
+        public QueueLengthApiModule(QueueLengthDataStore store) : base("/metrics")
         {
             After.AddItemToEndOfPipeline(ctx => ctx.Response
                 .WithHeader("Access-Control-Allow-Origin", "*")
@@ -26,21 +21,17 @@ namespace ServiceControl.Monitoring.Http
             // consider hypermedia like listing of metrics
             // Get[""] = x => Response
 
-            Get["/snapshot"] = x =>
+            Get["/queue-length"] = x =>
             {
-                var endpoints = providers.SelectMany(p => p.Current.Select(kvp => new
+                var endpoints = store.Current.Select(kvp => new JObject
                     {
-                        Provider = p.Name,
-                        Endpoint = kvp.Key,
-                        kvp.Value
-                    }))
-                    .GroupBy(a => a.Endpoint)
-                    .Select(endpointGrouped => new JProperty(endpointGrouped.Key, new JObject(endpointGrouped.Select(e => new JProperty(e.Provider, e.Value)))))
+                        {kvp.Key, kvp.Value}
+                    })
                     .ToArray();
 
                 var result = new JObject
                 {
-                    {EndpointsKey, new JObject(endpoints)}
+                    {"NServiceBus.Endpoints", new JArray(endpoints)}
                 };
 
                 // TODO: think about writing directly to the output stream

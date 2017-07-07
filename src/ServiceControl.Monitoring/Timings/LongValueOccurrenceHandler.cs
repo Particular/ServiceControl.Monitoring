@@ -1,19 +1,18 @@
-﻿namespace ServiceControl.Monitoring.Processing.RawData
+﻿namespace ServiceControl.Monitoring.Timings
 {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
-    using global::NServiceBus;
-    using NServiceBus.Metrics;
-    using Snapshot;
+    using NServiceBus;
+    using Processing.RawData.NServiceBus.Metrics;
+    using Processing.Snapshot;
 
-    public class LongValueOccurrenceTimeReportHandler : IHandleMessages<LongValueOccurrences>
+    class TimingsReportHandler : IHandleMessages<LongValueOccurrences>
     {
-        readonly DurationsDataStore store;
-        static readonly Task<int> CompletedTask = Task.FromResult(0);
+        readonly TimingsDataStore store;
+        
         static string ProcessingTimeMessageType = "NServiceBus.Metrics.ProcessingTime";
         static string CriticalTimeMessageType = "NServiceBus.Metrics.CriticalTime";
 
-        public LongValueOccurrenceTimeReportHandler(DurationsDataStore store)
+        public TimingsReportHandler(TimingsDataStore store)
         {
             this.store = store;
         }
@@ -32,7 +31,7 @@
                 store.StoreCriticalTime(endpointName, message);
             }
 
-            return CompletedTask;
+            return TaskEx.Completed;
         }
     }
 }

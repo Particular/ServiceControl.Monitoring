@@ -8,7 +8,8 @@
     using NServiceBus.Features;
     using NServiceBus.Logging;
     using Processing.RawData;
-    using Processing.Snapshot;
+    using QueueLength;
+    using Timings;
 
     public class EndpointFactory
     {
@@ -45,9 +46,9 @@
             config.SendFailedMessagesTo(settings.ErrorQueue);
             config.LimitMessageProcessingConcurrencyTo(1);
             config.DisableFeature<AutoSubscribe>();
-            config.EnableFeature<SnapshotMetricsFeature>();
-            config.EnableFeature<RawMetricsFeature>();
-            config.EnableFeature<QueueLength.QueueLengthFeature>();
+
+            config.EnableFeature<TimingsFeature>();
+            config.EnableFeature<QueueLengthFeature>();
             config.EnableFeature<HttpEndpoint>();
         }
 

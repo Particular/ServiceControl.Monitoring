@@ -9,16 +9,15 @@ using NServiceBus.ObjectBuilder;
 namespace ServiceControl.Monitoring.Http
 {
     using System;
-    using System.Collections.Generic;
-    using Processing.RawData;
-    using Processing.Snapshot;
+    using QueueLength;
+    using Timings;
 
     class HttpEndpoint : Feature
     {
         public HttpEndpoint()
         {
-            DependsOn<SnapshotMetricsFeature>();
-            DependsOn<QueueLength.QueueLengthFeature>();
+            DependsOn<TimingsFeature>();
+            DependsOn<QueueLengthFeature>();
         }
 
         protected override void Setup(FeatureConfigurationContext context)
@@ -53,12 +52,12 @@ namespace ServiceControl.Monitoring.Http
 
             public NancyTask(IBuilder builder, Uri host)
             {
-                var buildstrapper = new Bootstrapper(
-                    builder.BuildAll<ISnapshotDataProvider>(), 
-                    builder.Build<DurationsDataStore>());
+                var bootstrapper = new Bootstrapper(
+                    builder.Build<QueueLengthDataStore>(), 
+                    builder.Build<TimingsDataStore>());
 
                 var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
-                metricsEndpoint = new NancyHost(host, buildstrapper, hostConfiguration);
+                metricsEndpoint = new NancyHost(host, bootstrapper, hostConfiguration);
             }
 
             protected override Task OnStart(IMessageSession session)
@@ -76,10 +75,10 @@ namespace ServiceControl.Monitoring.Http
 
         class Bootstrapper : DefaultNancyBootstrapper
         {
-            readonly IEnumerable<ISnapshotDataProvider> providers;
-            readonly DurationsDataStore durationsDataStore;
+            readonly QueueLengthDataStore providers;
+            readonly TimingsDataStore durationsDataStore;
 
-            public Bootstrapper(IEnumerable<ISnapshotDataProvider> providers, DurationsDataStore durationsDataStore)
+            public Bootstrapper(QueueLengthDataStore providers, TimingsDataStore durationsDataStore)
             {
                 this.providers = providers;
                 this.durationsDataStore = durationsDataStore;
@@ -88,8 +87,8 @@ namespace ServiceControl.Monitoring.Http
             protected override void ConfigureApplicationContainer(TinyIoCContainer container)
             {
                 base.ConfigureApplicationContainer(container);
-                container.Register(typeof(IEnumerable<ISnapshotDataProvider>), providers);
-                container.Register(typeof(DurationsDataStore), durationsDataStore);
+                container.Register(typeof(QueueLengthDataStore), providers);
+                container.Register(typeof(TimingsDataStore), durationsDataStore);
             }
             
         }

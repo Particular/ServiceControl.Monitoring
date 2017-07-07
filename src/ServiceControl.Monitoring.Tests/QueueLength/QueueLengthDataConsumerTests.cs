@@ -34,8 +34,8 @@
     ""Timers"": []
 }";
             var calculator = new FakeCalculator();
-            var consumer = new QueueLengthDataConsumer(calculator);
-            consumer.Consume(new Dictionary<string, string>(), JObject.Parse(json));
+            var consumer = new QueueLengthDataStore(calculator);
+            consumer.Store(JObject.Parse(json));
 
             Assert.AreEqual(1, calculator.SentSequences["sendingmessage.receiver2-a328a49b-4212-4a34-8e90-726848230c03"]);
             Assert.AreEqual(2, calculator.SentSequences["sendingmessage.receiver1-a328a49b-4212-4a34-8e90-726848230c03"]);
@@ -60,8 +60,8 @@
     ""Timers"": []
 }";
             var calculator = new FakeCalculator();
-            var consumer = new QueueLengthDataConsumer(calculator);
-            consumer.Consume(new Dictionary<string, string>(), JObject.Parse(json));
+            var consumer = new QueueLengthDataStore(calculator);
+            consumer.Store(JObject.Parse(json));
 
             Assert.IsFalse(calculator.SentSequences.ContainsKey("someKey"));
         }
@@ -85,8 +85,8 @@
     ""Timers"": []
 }";
             var calculator = new FakeCalculator();
-            var consumer = new QueueLengthDataConsumer(calculator);
-            consumer.Consume(new Dictionary<string, string>(), JObject.Parse(json));
+            var consumer = new QueueLengthDataStore(calculator);
+            consumer.Store(JObject.Parse(json));
 
             Assert.AreEqual(42, calculator.ReceivedSequences["fc3b1c43-7964-4a75-81e1-3260b85d6065"]);
             Assert.AreEqual("ReceivingMessage.Receiver@SIMON-MAC", calculator.Queues["fc3b1c43-7964-4a75-81e1-3260b85d6065"]);
@@ -111,8 +111,8 @@
     ""Timers"": []
 }";
             var calculator = new FakeCalculator();
-            var consumer = new QueueLengthDataConsumer(calculator);
-            consumer.Consume(new Dictionary<string, string>(), JObject.Parse(json));
+            var consumer = new QueueLengthDataStore(calculator);
+            consumer.Store(JObject.Parse(json));
 
             Assert.IsFalse(calculator.ReceivedSequences.ContainsKey("someKey"));
             Assert.IsFalse(calculator.Queues.ContainsKey("someKey"));

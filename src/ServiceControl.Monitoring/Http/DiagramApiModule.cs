@@ -5,7 +5,7 @@ namespace ServiceControl.Monitoring.Http
     using Nancy;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-    using Processing.RawData;
+    using Timings;
 
     /// <summary>
     /// Exposes ServiceControl.Monitoring metrics needed for in endpoint overview page.
@@ -15,7 +15,7 @@ namespace ServiceControl.Monitoring.Http
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public DiagramsApiModule(DurationsDataStore durationsDataStore) : base("/diagrams")
+        public DiagramsApiModule(TimingsDataStore durationsDataStore) : base("/diagrams")
         {
             After.AddItemToEndOfPipeline(ctx => ctx.Response
                 .WithHeader("Access-Control-Allow-Origin", "*")
@@ -37,7 +37,7 @@ namespace ServiceControl.Monitoring.Http
             };
         }
 
-        static IEnumerable<JObject> ToJsonResult(DurationsDataStore.EndpointTimings[] data)
+        static IEnumerable<JObject> ToJsonResult(TimingsDataStore.EndpointTimings[] data)
         {
             return data.Select(d =>
                 new JObject

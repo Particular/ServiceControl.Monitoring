@@ -11,13 +11,57 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using ServiceControl.Monitoring;
-    using ServiceControl.Monitoring.Processing.Snapshot;
     using Transport;
 
     public class When_querying_queue_length_data : NServiceBusAcceptanceTest
     {
-        static string MonitoredEndpointName => Conventions.EndpointNamingConvention(typeof(MonitoredEndpoint));
         static string ReceiverEndpointName => Conventions.EndpointNamingConvention(typeof(Receiver));
+
+        [Test]
+        public async Task Should_report_via_http()
+        {
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<MonitoredEndpoint>()
+                .WithEndpoint<Receiver>()
+                .Done(c =>
+                {
+                    c.Response = GetRawMetrics();
+                    return c.Response != null && c.Response.Contains("Receiver@MyMachine");
+                })
+                .Run();
+
+            Assert.IsNotNull(context.Response);
+
+            var expected = new JObject
+            {
+                {
+                    "NServiceBus.Endpoints", new JArray(
+                        new JObject
+                        {
+                            {
+                                "Receiver@MyMachine",
+                                new JObject
+                                {
+                                    {
+                                        "Count", 10
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }
+            };
+
+            Assert.AreEqual(expected.ToString(Formatting.None), context.Response);
+        }
+
+        static string GetRawMetrics()
+        {
+            using (var client = new HttpClient())
+            {
+                return client.GetStringAsync("http://localhost:1234/metrics/queue-length").GetAwaiter().GetResult();
+            }
+        }
 
         const string Data = @"{
     ""Version"": ""2"",
@@ -42,60 +86,6 @@
     ""Timers"": []
 }";
 
-        [Test]
-        public async Task Should_report_via_http()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<MonitoredEndpoint>()
-                .WithEndpoint<Receiver>()
-                .Done(c =>
-                {
-                    c.Response = GetRawMetrics();
-                    return c.Response != null && c.Response.Contains(MonitoredEndpointName);
-                })
-                .Run();
-
-            Assert.IsNotNull(context.Response);
-
-            var expected = new JObject
-            {
-                {
-                    "NServiceBus.Endpoints", new JObject
-                    {
-                        {
-                            "Receiver@MyMachine",
-                            new JObject
-                            {
-                                {
-                                    "QueueLength", new JObject
-                                    {
-                                        { "Count", 10 }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            MonitoredEndpointName,
-                            new JObject
-                            {
-                                {SnapshotDataProvider.Name, JObject.Parse(Data)}
-                            }
-                        }
-                    }
-                }
-            };
-
-            Assert.AreEqual(expected.ToString(Formatting.None), context.Response);
-        }
-
-        static string GetRawMetrics()
-        {
-            using (var client = new HttpClient())
-            {
-                return client.GetStringAsync("http://localhost:1234/metrics/snapshot").GetAwaiter().GetResult();
-            }
-        }
-
         class Context : ScenarioContext
         {
             public string Response { get; set; }
@@ -105,10 +95,7 @@
         {
             public MonitoredEndpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.EnableFeature<SenderFeature>();
-                });
+                EndpointSetup<DefaultServer>(c => { c.EnableFeature<SenderFeature>(); });
             }
 
             class SenderFeature : Feature
@@ -125,10 +112,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings);
-                });
+                EndpointSetup<DefaultServer>(c => { EndpointFactory.MakeMetricsReceiver(c, Settings); });
             }
         }
     }

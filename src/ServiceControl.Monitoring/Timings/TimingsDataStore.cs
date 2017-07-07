@@ -1,12 +1,12 @@
-﻿namespace ServiceControl.Monitoring.Processing.RawData
+﻿namespace ServiceControl.Monitoring.Timings
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Metrics;
+    using Processing.RawData.NServiceBus.Metrics;
 
-    public class DurationsDataStore
+    public class TimingsDataStore
     {
         ConcurrentDictionary<string, ConcurrentDictionary<DateTime, MeasurementInterval>> CriticalTimes = 
             new ConcurrentDictionary<string, ConcurrentDictionary<DateTime, MeasurementInterval>>();

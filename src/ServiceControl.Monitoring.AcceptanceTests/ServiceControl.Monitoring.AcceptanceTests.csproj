@@ -77,7 +77,6 @@
     <Compile Include="ScenarioDescriptors\TypeScanner.cs" />
     <Compile Include="Tests\MetricSenderTask.cs" />
     <Compile Include="Tests\When_querying_queue_length_data.cs" />
-    <Compile Include="Tests\When_querying_raw_data.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
