@@ -29,7 +29,7 @@
             }
             else if (messageType == CriticalTimeMessageType)
             {
-                //store.RecordCriticalTime(endpointName, message);
+                store.RecordCriticalTime(endpointName, message);
             }
 
             return CompletedTask;

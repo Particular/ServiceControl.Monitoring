@@ -4,7 +4,6 @@
     using System.Collections.Concurrent;
     using NServiceBus.Metrics;
 
-    //TODO: add removing old entries
     public class DurationsDataStore
     {
         public ConcurrentDictionary<string, ConcurrentDictionary<DateTime, DurationBucket>> CriticalTimes = 
@@ -17,6 +16,18 @@
         {
             var endpointData = ProcessingTimes.GetOrAdd(endpointName, new ConcurrentDictionary<DateTime, DurationBucket>());
 
+            Store(message, endpointData);
+        }
+
+        public void RecordCriticalTime(string endpointName, LongValueOccurrences message)
+        {
+            var endpointData = CriticalTimes.GetOrAdd(endpointName, new ConcurrentDictionary<DateTime, DurationBucket>());
+
+            Store(message, endpointData);
+        }
+
+        void Store(LongValueOccurrences message, ConcurrentDictionary<DateTime, DurationBucket> endpointData)
+        {
             for (var i = 0; i < message.Ticks.Length; i++)
             {
                 var date = new DateTime(message.BaseTicks + message.Ticks[i]);
@@ -42,10 +53,6 @@
                           date.Second < 60 ? 45 : 0;
 
             return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, seconds, date.Kind);
-        }
-
-        public void RecordCriticalTime(string endpointName, LongValueOccurrences message)
-        {
         }
 
         public struct DurationBucket
