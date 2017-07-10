@@ -112,7 +112,11 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => { EndpointFactory.MakeMetricsReceiver(c, Settings); });
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    EndpointFactory.MakeMetricsReceiver(c, Settings);
+                    c.LimitMessageProcessingConcurrencyTo(1);
+                });
             }
         }
     }

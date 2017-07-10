@@ -67,7 +67,7 @@
         }
 
         [Test]
-        public void Intervals_from_the_future_are__stored()
+        public void Intervals_from_the_future_are_stored()
         {
             var message = BuildMessage(new Dictionary<DateTime, long>
             {

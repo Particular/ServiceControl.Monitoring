@@ -44,7 +44,7 @@
             config.AddDeserializer<LongValueOccurrenceSerializerDefinition>();
             config.UsePersistence<InMemoryPersistence>();
             config.SendFailedMessagesTo(settings.ErrorQueue);
-            config.LimitMessageProcessingConcurrencyTo(1);
+            config.LimitMessageProcessingConcurrencyTo(DefaultConcurrencyLimit);
             config.DisableFeature<AutoSubscribe>();
 
             config.EnableFeature<TimingsFeature>();
@@ -66,5 +66,6 @@
         }
 
         static ILog Logger = LogManager.GetLogger<EndpointFactory>();
+        static int DefaultConcurrencyLimit = 10;
     }
 }

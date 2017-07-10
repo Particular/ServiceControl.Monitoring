@@ -68,7 +68,11 @@
         {
             public MonitoringEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => { EndpointFactory.MakeMetricsReceiver(c, Settings); });
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    EndpointFactory.MakeMetricsReceiver(c, Settings);
+                    c.LimitMessageProcessingConcurrencyTo(1);
+                });
             }
 
             public class LongValueOccurrenceHandler : IHandleMessages<LongValueOccurrences>
