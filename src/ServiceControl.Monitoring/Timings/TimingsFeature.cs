@@ -7,7 +7,8 @@
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent(typeof(TimingsDataStore), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(typeof(ProcessingTimeStore), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(typeof(CriticalTimeStore), DependencyLifecycle.SingleInstance);
         }
     }
 }

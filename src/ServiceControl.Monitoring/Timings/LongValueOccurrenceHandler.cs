@@ -1,5 +1,6 @@
 ﻿namespace ServiceControl.Monitoring.Timings
 {
+    using System;
     using System.Threading.Tasks;
     using NServiceBus;
     using Processing.RawData.NServiceBus.Metrics;
@@ -7,14 +8,16 @@
 
     class TimingsReportHandler : IHandleMessages<LongValueOccurrences>
     {
-        readonly TimingsDataStore store;
-        
+        readonly TimingsStore processingTimeStore;
+        readonly CriticalTimeStore criticalTimeStore;
+
         static string ProcessingTimeMessageType = "NServiceBus.Metrics.ProcessingTime";
         static string CriticalTimeMessageType = "NServiceBus.Metrics.CriticalTime";
 
-        public TimingsReportHandler(TimingsDataStore store)
+        public TimingsReportHandler(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore)
         {
-            this.store = store;
+            this.processingTimeStore = processingTimeStore;
+            this.criticalTimeStore = criticalTimeStore;
         }
 
         public Task Handle(LongValueOccurrences message, IMessageHandlerContext context)
@@ -24,11 +27,11 @@
 
             if (messageType == ProcessingTimeMessageType)
             {
-                store.StoreProcessingTime(endpointName, message);
+                processingTimeStore.Store(endpointName, message, DateTime.UtcNow);
             }
             else if (messageType == CriticalTimeMessageType)
             {
-                store.StoreCriticalTime(endpointName, message);
+                processingTimeStore.Store(endpointName, message, DateTime.UtcNow);
             }
 
             return TaskEx.Completed;

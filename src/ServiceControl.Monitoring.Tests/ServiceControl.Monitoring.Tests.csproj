@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="QueueLength\CalculatorTests.cs" />
     <Compile Include="QueueLength\QueueLengthDataConsumerTests.cs" />
+    <Compile Include="Timings\TimingsStoreTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj">

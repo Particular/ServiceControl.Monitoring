@@ -1,5 +1,6 @@
 namespace ServiceControl.Monitoring.Http
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Nancy;
@@ -15,7 +16,7 @@ namespace ServiceControl.Monitoring.Http
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public DiagramsApiModule(TimingsDataStore durationsDataStore) : base("/diagrams")
+        public DiagramsApiModule(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore) : base("/diagrams")
         {
             After.AddItemToEndOfPipeline(ctx => ctx.Response
                 .WithHeader("Access-Control-Allow-Origin", "*")
@@ -24,8 +25,10 @@ namespace ServiceControl.Monitoring.Http
 
             Get["/data"] = x =>
             {
-                var processingTimes = ToJsonResult(durationsDataStore.GetCriticalTime());
-                var criticalTimes = ToJsonResult(durationsDataStore.GetProcessingTime());
+                var now = DateTime.UtcNow;
+
+                var processingTimes = ToJsonResult(processingTimeStore.GetTimings(now));
+                var criticalTimes = ToJsonResult(processingTimeStore.GetTimings(now));
 
                 var result = new JObject
                 {
@@ -37,7 +40,7 @@ namespace ServiceControl.Monitoring.Http
             };
         }
 
-        static IEnumerable<JObject> ToJsonResult(TimingsDataStore.EndpointTimings[] data)
+        static IEnumerable<JObject> ToJsonResult(TimingsStore.EndpointTimings[] data)
         {
             return data.Select(d =>
                 new JObject

@@ -6,30 +6,15 @@
     using System.Linq;
     using Processing.RawData.NServiceBus.Metrics;
 
-    public class TimingsDataStore
+    public abstract class TimingsStore
     {
-        ConcurrentDictionary<string, ConcurrentDictionary<DateTime, MeasurementInterval>> CriticalTimes = 
+        ConcurrentDictionary<string, ConcurrentDictionary<DateTime, MeasurementInterval>> timings = 
             new ConcurrentDictionary<string, ConcurrentDictionary<DateTime, MeasurementInterval>>();
 
-        ConcurrentDictionary<string, ConcurrentDictionary<DateTime, MeasurementInterval>> ProcessingTimes =  
-            new ConcurrentDictionary<string, ConcurrentDictionary<DateTime, MeasurementInterval>>();
-
-        public void StoreProcessingTime(string endpointName, LongValueOccurrences message)
+        public void Store(string endpointName, LongValueOccurrences message, DateTime now)
         {
-            var endpointData = ProcessingTimes.GetOrAdd(endpointName, new ConcurrentDictionary<DateTime, MeasurementInterval>());
+            var endpointData = timings.GetOrAdd(endpointName, new ConcurrentDictionary<DateTime, MeasurementInterval>());
 
-            Store(message, endpointData);
-        }
-
-        public void StoreCriticalTime(string endpointName, LongValueOccurrences message)
-        {
-            var endpointData = CriticalTimes.GetOrAdd(endpointName, new ConcurrentDictionary<DateTime, MeasurementInterval>());
-
-            Store(message, endpointData);
-        }
-
-        void Store(LongValueOccurrences message, ConcurrentDictionary<DateTime, MeasurementInterval> endpointData)
-        {
             for (var i = 0; i < message.Ticks.Length; i++)
             {
                 var date = new DateTime(message.BaseTicks + message.Ticks[i]);
@@ -46,9 +31,9 @@
                     });
             }
 
-            if (endpointData.Count > 2 * MaxHistoricalIntervals)
+            if (endpointData.Count > 2 * NumberOfHistoricalIntervals)
             {
-                var validIntervals = GenerateIntervalIds(DateTime.Now, MaxHistoricalIntervals);
+                var validIntervals = GenerateIntervalIds(now, NumberOfHistoricalIntervals);
 
                 foreach (var interval in endpointData.Keys)
                 {
@@ -62,26 +47,16 @@
             }
         }
 
-        public EndpointTimings[] GetCriticalTime()
-        {
-            return GetTime(CriticalTimes);
-        }
-
-        public EndpointTimings[] GetProcessingTime()
-        {
-            return GetTime(ProcessingTimes);
-        }
-
-        static EndpointTimings[] GetTime(ConcurrentDictionary<string, ConcurrentDictionary<DateTime, MeasurementInterval>> times)
+        public EndpointTimings[] GetTimings(DateTime now)
         {
             var result = new List<EndpointTimings>();
-            var intervals = GenerateIntervalIds(DateTime.Now, MaxHistoricalIntervals);
+            var intervals = GenerateIntervalIds(now, NumberOfHistoricalIntervals);
 
-            foreach (var endpointName in times.Keys)
+            foreach (var endpointName in timings.Keys)
             {
                 ConcurrentDictionary<DateTime, MeasurementInterval> endpointData;
 
-                if (times.TryGetValue(endpointName, out endpointData))
+                if (timings.TryGetValue(endpointName, out endpointData))
                 {
                     var totalDuration = 0L;
                     var totalMeasurements = 0L;
@@ -172,7 +147,7 @@
         }
 
         /// Number of 15s intervals in 5 minutes
-        static int MaxHistoricalIntervals = 4 * 5;
+        internal static int NumberOfHistoricalIntervals = 4 * 5;
 
         static int IntervalSizeInSec = 15;
     }
