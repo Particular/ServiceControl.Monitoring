@@ -28,7 +28,7 @@ namespace ServiceControl.Monitoring.Http
                 var now = DateTime.UtcNow;
 
                 var processingTimes = ToJsonResult(processingTimeStore.GetTimings(now));
-                var criticalTimes = ToJsonResult(processingTimeStore.GetTimings(now));
+                var criticalTimes = ToJsonResult(criticalTimeStore.GetTimings(now));
 
                 var result = new JObject
                 {

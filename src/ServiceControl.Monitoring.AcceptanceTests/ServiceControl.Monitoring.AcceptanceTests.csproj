@@ -42,6 +42,9 @@
       <HintPath>..\packages\NServiceBus.6.2.0\lib\net452\NServiceBus.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NServiceBus.Metrics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NServiceBus.Metrics.1.1.0-alpha0130\lib\net452\NServiceBus.Metrics.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Newtonsoft.Json, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <HintPath>..\packages\NServiceBus.Newtonsoft.Json.1.0.1\lib\net452\NServiceBus.Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -77,15 +80,12 @@
     <Compile Include="ScenarioDescriptors\TypeScanner.cs" />
     <Compile Include="Tests\MetricSenderTask.cs" />
     <Compile Include="Tests\When_querying_queue_length_data.cs" />
+    <Compile Include="Tests\When_querying_timings_data.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ServiceControl.Monitoring.Tests\ServiceControl.Monitoring.Tests.csproj">
-      <Project>{9bd8b831-2d69-4c8e-8fbd-5cfc6ddef086}</Project>
-      <Name>ServiceControl.Monitoring.Tests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj">
       <Project>{768BE338-20F1-4106-A3EB-DCE7686FCBF0}</Project>
       <Name>ServiceControl.Monitoring</Name>

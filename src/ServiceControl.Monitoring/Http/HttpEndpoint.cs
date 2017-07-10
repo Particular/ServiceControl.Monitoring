@@ -54,7 +54,8 @@ namespace ServiceControl.Monitoring.Http
             {
                 var bootstrapper = new Bootstrapper(
                     builder.Build<QueueLengthDataStore>(), 
-                    builder.Build<TimingsStore>());
+                    builder.Build<ProcessingTimeStore>(),
+                    builder.Build<CriticalTimeStore>());
 
                 var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
                 metricsEndpoint = new NancyHost(host, bootstrapper, hostConfiguration);
@@ -76,19 +77,22 @@ namespace ServiceControl.Monitoring.Http
         class Bootstrapper : DefaultNancyBootstrapper
         {
             readonly QueueLengthDataStore providers;
-            readonly TimingsStore durationsStore;
+            readonly ProcessingTimeStore processingTimeStore;
+            readonly CriticalTimeStore criticalTimeStore;
 
-            public Bootstrapper(QueueLengthDataStore providers, TimingsStore durationsStore)
+            public Bootstrapper(QueueLengthDataStore providers, ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore)
             {
                 this.providers = providers;
-                this.durationsStore = durationsStore;
+                this.processingTimeStore = processingTimeStore;
+                this.criticalTimeStore = criticalTimeStore;
             }
 
             protected override void ConfigureApplicationContainer(TinyIoCContainer container)
             {
                 base.ConfigureApplicationContainer(container);
                 container.Register(typeof(QueueLengthDataStore), providers);
-                container.Register(typeof(TimingsStore), durationsStore);
+                container.Register(typeof(ProcessingTimeStore), processingTimeStore);
+                container.Register(typeof(CriticalTimeStore), criticalTimeStore);
             }
             
         }
