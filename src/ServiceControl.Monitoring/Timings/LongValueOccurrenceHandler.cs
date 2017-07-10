@@ -31,7 +31,7 @@
             }
             else if (messageType == CriticalTimeMessageType)
             {
-                processingTimeStore.Store(endpointName, message, DateTime.UtcNow);
+                criticalTimeStore.Store(endpointName, message, DateTime.UtcNow);
             }
 
             return TaskEx.Completed;

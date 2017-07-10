@@ -17,7 +17,7 @@
 
             for (var i = 0; i < message.Ticks.Length; i++)
             {
-                var date = new DateTime(message.BaseTicks + message.Ticks[i]);
+                var date = new DateTime(message.BaseTicks + message.Ticks[i], DateTimeKind.Utc);
                 var intervalId = IntervalId(date);
 
                 endpointData.AddOrUpdate(
@@ -117,7 +117,7 @@
                 interval += IntervalSizeInSec;
             }
 
-            return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, interval, date.Kind);
+            return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, interval, DateTimeKind.Utc);
         }
 
         struct MeasurementInterval
