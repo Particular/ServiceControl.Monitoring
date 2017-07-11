@@ -9,6 +9,7 @@ using NServiceBus.ObjectBuilder;
 namespace ServiceControl.Monitoring.Http
 {
     using System;
+    using System.Linq;
     using QueueLength;
     using Timings;
 
@@ -38,27 +39,29 @@ namespace ServiceControl.Monitoring.Http
             }
 
             var host = new Uri($"http://{hostname}:{port}");
+
             context.RegisterStartupTask(builder => BuildTask(builder, host));
         }
 
         FeatureStartupTask BuildTask(IBuilder builder, Uri host)
         {
-            return new NancyTask(builder, host);
+            return new NancyTask(new Action<TinyIoCContainer>[]
+            {
+                c => c.Register(typeof(QueueLengthDataStore), builder.Build<QueueLengthDataStore>()),
+                c => c.Register(typeof(ProcessingTimeStore), builder.Build<ProcessingTimeStore>()),
+                c => c.Register(typeof(CriticalTimeStore), builder.Build<CriticalTimeStore>())
+            }, host);
         }
 
         class NancyTask : FeatureStartupTask
         {
             NancyHost metricsEndpoint;
 
-            public NancyTask(IBuilder builder, Uri host)
+            public NancyTask(Action<TinyIoCContainer>[] containerRegistrations, Uri host)
             {
-                var bootstrapper = new Bootstrapper(
-                    builder.Build<QueueLengthDataStore>(), 
-                    builder.Build<ProcessingTimeStore>(),
-                    builder.Build<CriticalTimeStore>());
-
                 var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
-                metricsEndpoint = new NancyHost(host, bootstrapper, hostConfiguration);
+
+                metricsEndpoint = new NancyHost(host, new Bootstrapper(containerRegistrations), hostConfiguration);
             }
 
             protected override Task OnStart(IMessageSession session)
@@ -76,23 +79,19 @@ namespace ServiceControl.Monitoring.Http
 
         class Bootstrapper : DefaultNancyBootstrapper
         {
-            readonly QueueLengthDataStore providers;
-            readonly ProcessingTimeStore processingTimeStore;
-            readonly CriticalTimeStore criticalTimeStore;
+            readonly Action<TinyIoCContainer>[] containerRegistrations;
 
-            public Bootstrapper(QueueLengthDataStore providers, ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore)
+            public Bootstrapper(Action<TinyIoCContainer>[] containerRegistrations)
             {
-                this.providers = providers;
-                this.processingTimeStore = processingTimeStore;
-                this.criticalTimeStore = criticalTimeStore;
+                this.containerRegistrations = containerRegistrations;
             }
+
 
             protected override void ConfigureApplicationContainer(TinyIoCContainer container)
             {
                 base.ConfigureApplicationContainer(container);
-                container.Register(typeof(QueueLengthDataStore), providers);
-                container.Register(typeof(ProcessingTimeStore), processingTimeStore);
-                container.Register(typeof(CriticalTimeStore), criticalTimeStore);
+
+                containerRegistrations.ToList().ForEach(cr => cr(container));
             }
             
         }
