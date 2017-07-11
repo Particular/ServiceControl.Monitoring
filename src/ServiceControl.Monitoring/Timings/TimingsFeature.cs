@@ -6,8 +6,8 @@
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.RegisterSingleton(typeof(ProcessingTimeStore));
-            context.Container.RegisterSingleton(typeof(CriticalTimeStore));
+            context.Container.RegisterSingleton(new ProcessingTimeStore());
+            context.Container.RegisterSingleton(new CriticalTimeStore());
         }
     }
 }
