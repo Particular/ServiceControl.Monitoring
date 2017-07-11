@@ -34,7 +34,7 @@
         {
             using (var client = new HttpClient())
             {
-                return client.GetStringAsync("http://localhost:1234/diagrams").GetAwaiter().GetResult();
+                return client.GetStringAsync("http://localhost:1234/monitored-endpoints").GetAwaiter().GetResult();
             }
         }
 

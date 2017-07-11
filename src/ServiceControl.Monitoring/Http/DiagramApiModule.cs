@@ -11,19 +11,14 @@ namespace ServiceControl.Monitoring.Http
     /// <summary>
     /// Exposes ServiceControl.Monitoring metrics needed for in endpoint overview page.
     /// </summary>
-    public class DiagramsApiModule : NancyModule
+    public class DiagramsApiModule : ApiModule
     {
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
         public DiagramsApiModule(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore)
         {
-            After.AddItemToEndOfPipeline(ctx => ctx.Response
-                .WithHeader("Access-Control-Allow-Origin", "*")
-                .WithHeader("Access-Control-Allow-Methods", "POST,GET")
-                .WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type"));
-
-            Get["/diagrams"] = x =>
+            Get["/monitored-endpoints"] = x =>
             {
                 var now = DateTime.UtcNow;
 
