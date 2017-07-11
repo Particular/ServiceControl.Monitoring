@@ -23,12 +23,7 @@
                 endpointData.AddOrUpdate(
                     intervalId,
                     _ => new MeasurementInterval(1, message.Values[i]),
-                    (_, b) =>
-                    {
-                        b.TotalMeasurements += 1;
-                        b.TotalTime += message.Values[i];
-                        return b;
-                    });
+                    (_, b) => b.Update(message.Values[i]));
             }
 
             if (endpointData.Count > 2 * NumberOfHistoricalIntervals)
@@ -110,13 +105,18 @@
 
         struct MeasurementInterval
         {
-            public long TotalMeasurements;
+            public int TotalMeasurements;
             public long TotalTime;
 
             public MeasurementInterval(int totalMeasurements, long totalTime) : this()
             {
                 TotalMeasurements = totalMeasurements;
                 TotalTime = totalTime;
+            }
+
+            public MeasurementInterval Update(long measuredTime)
+            {
+                return new MeasurementInterval(TotalMeasurements + 1, TotalTime + measuredTime);
             }
         }
 
