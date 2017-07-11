@@ -18,7 +18,7 @@
             for (var i = 0; i < message.Ticks.Length; i++)
             {
                 var date = new DateTime(message.BaseTicks + message.Ticks[i], DateTimeKind.Utc);
-                var intervalId = IntervalId(date);
+                var intervalId = date.RoundDownToNearest(IntervalSize);
 
                 endpointData.AddOrUpdate(
                     intervalId,
@@ -94,30 +94,18 @@
             return result.ToArray();
         }
 
-        static DateTime[] GenerateIntervalIds(DateTime now, int numberOfPastIntervals)
+        static DateTime[] GenerateIntervalIds(DateTime start, int numberOfPastIntervals)
         {
             var intervals = new DateTime[numberOfPastIntervals];
 
-            intervals[0] = IntervalId(now);
+            intervals[0] = start.RoundDownToNearest(TimeSpan.FromSeconds(15));
 
             for (var i = 1; i < numberOfPastIntervals; i++)
             {
-                intervals[i] = intervals[i - 1].Subtract(TimeSpan.FromSeconds(IntervalSizeInSec));
+                intervals[i] = intervals[i - 1].Subtract(IntervalSize);
             }
 
             return intervals;
-        }
-
-        static DateTime IntervalId(DateTime date)
-        {
-            var interval = 0;
-
-            while (interval + IntervalSizeInSec < date.Second)
-            {
-                interval += IntervalSizeInSec;
-            }
-
-            return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, interval, DateTimeKind.Utc);
         }
 
         struct MeasurementInterval
@@ -149,6 +137,6 @@
         /// Number of 15s intervals in 5 minutes
         internal static int NumberOfHistoricalIntervals = 4 * 5;
 
-        static int IntervalSizeInSec = 15;
+        static TimeSpan IntervalSize = TimeSpan.FromSeconds(15);
     }
 }
