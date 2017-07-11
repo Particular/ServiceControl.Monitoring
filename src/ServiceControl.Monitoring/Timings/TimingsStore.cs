@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
     using Metrics.Raw;
 
     public abstract class TimingsStore
@@ -28,17 +27,17 @@
 
             if (endpointData.Count > 2 * NumberOfHistoricalIntervals)
             {
-                var validIntervals = GenerateIntervalIds(now, NumberOfHistoricalIntervals);
+                var historySize = TimeSpan.FromTicks(IntervalSize.Ticks * NumberOfHistoricalIntervals);
+                var oldestValidInterval = now.Subtract(historySize).RoundDownToNearest(IntervalSize);
 
                 foreach (var interval in endpointData.Keys)
                 {
-                    if (validIntervals.Contains(interval) == false)
+                    if (interval < oldestValidInterval)
                     {
                         MeasurementInterval bucket;
                         endpointData.TryRemove(interval, out bucket);
                     }
                 }
-
             }
         }
 
