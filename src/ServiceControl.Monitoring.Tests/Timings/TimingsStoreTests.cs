@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Metrics.Raw;
     using NUnit.Framework;
-    using Processing.RawData.NServiceBus.Metrics;
     using Timings;
 
     [TestFixture]

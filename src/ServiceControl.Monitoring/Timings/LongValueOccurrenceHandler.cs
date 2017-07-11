@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Metrics.Raw;
+    using Metrics.Snapshot;
     using NServiceBus;
-    using Processing.RawData.NServiceBus.Metrics;
-    using Processing.Snapshot;
 
     class TimingsReportHandler : IHandleMessages<LongValueOccurrences>
     {

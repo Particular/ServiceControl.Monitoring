@@ -4,7 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using Processing.RawData.NServiceBus.Metrics;
+    using Metrics.Raw;
 
     public abstract class TimingsStore
     {

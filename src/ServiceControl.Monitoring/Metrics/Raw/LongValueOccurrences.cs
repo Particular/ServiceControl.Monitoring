@@ -1,6 +1,6 @@
-﻿namespace ServiceControl.Monitoring.Processing.RawData.NServiceBus.Metrics
+﻿namespace ServiceControl.Monitoring.Metrics.Raw
 {
-    using global::NServiceBus;
+    using NServiceBus;
 
     public class LongValueOccurrences : IMessage
     {
@@ -12,11 +12,6 @@
 
         public long[] Values;
     }
-}
-
-namespace NServiceBus.Metrics
-{
-    using ServiceControl.Monitoring.Processing.RawData.NServiceBus.Metrics;
 
     public class ProcessingTime : LongValueOccurrences
     {

@@ -8,7 +8,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using ServiceControl.Monitoring;
-    using ServiceControl.Monitoring.Processing.RawData.NServiceBus.Metrics;
+    using ServiceControl.Monitoring.Metrics.Raw;
     using Conventions = AcceptanceTesting.Customization;
 
     public class When_querying_timings_data : NServiceBusAcceptanceTest

@@ -3,11 +3,11 @@
     using System;
     using System.Threading.Tasks;
     using Http;
+    using Metrics.Raw;
     using NServiceBus;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
     using NServiceBus.Logging;
-    using Processing.RawData;
     using QueueLength;
     using Timings;
 

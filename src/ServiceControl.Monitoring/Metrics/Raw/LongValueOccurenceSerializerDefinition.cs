@@ -1,12 +1,11 @@
-﻿namespace ServiceControl.Monitoring.Processing.RawData
+﻿namespace ServiceControl.Monitoring.Metrics.Raw
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using global::NServiceBus.MessageInterfaces;
-    using global::NServiceBus.Serialization;
-    using global::NServiceBus.Settings;
-    using NServiceBus.Metrics;
+    using NServiceBus.MessageInterfaces;
+    using NServiceBus.Serialization;
+    using NServiceBus.Settings;
 
     class LongValueOccurrenceSerializerDefinition : SerializationDefinition
     {
