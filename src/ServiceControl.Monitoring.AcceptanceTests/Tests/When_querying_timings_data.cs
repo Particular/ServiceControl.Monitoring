@@ -34,7 +34,7 @@
         {
             using (var client = new HttpClient())
             {
-                return client.GetStringAsync("http://localhost:1234/diagrams/data").GetAwaiter().GetResult();
+                return client.GetStringAsync("http://localhost:1234/diagrams").GetAwaiter().GetResult();
             }
         }
 

@@ -16,14 +16,14 @@ namespace ServiceControl.Monitoring.Http
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public DiagramsApiModule(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore) : base("/diagrams")
+        public DiagramsApiModule(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore)
         {
             After.AddItemToEndOfPipeline(ctx => ctx.Response
                 .WithHeader("Access-Control-Allow-Origin", "*")
                 .WithHeader("Access-Control-Allow-Methods", "POST,GET")
                 .WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type"));
 
-            Get["/data"] = x =>
+            Get["/diagrams"] = x =>
             {
                 var now = DateTime.UtcNow;
 
