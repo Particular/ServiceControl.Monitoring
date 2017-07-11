@@ -2,6 +2,7 @@
 {
     using System;
     using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests;
@@ -34,6 +35,10 @@
         {
             using (var client = new HttpClient())
             {
+                client.DefaultRequestHeaders
+                    .Accept
+                    .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
                 return client.GetStringAsync("http://localhost:1234/monitored-endpoints").GetAwaiter().GetResult();
             }
         }
