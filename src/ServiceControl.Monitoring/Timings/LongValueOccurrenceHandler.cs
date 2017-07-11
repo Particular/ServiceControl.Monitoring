@@ -11,8 +11,8 @@
         readonly TimingsStore processingTimeStore;
         readonly CriticalTimeStore criticalTimeStore;
 
-        static string ProcessingTimeMessageType = "NServiceBus.Metrics.ProcessingTime";
-        static string CriticalTimeMessageType = "NServiceBus.Metrics.CriticalTime";
+        const string ProcessingTimeMessageType = "NServiceBus.Metrics.ProcessingTime";
+        const string CriticalTimeMessageType = "NServiceBus.Metrics.CriticalTime";
 
         public TimingsReportHandler(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore)
         {
@@ -25,13 +25,23 @@
             var messageType = context.MessageHeaders[Headers.EnclosedMessageTypes];
             var endpointName = context.MessageHeaders.GetOriginatingEndpoint();
 
+            switch (messageType)
+            {
+                case ProcessingTimeMessageType:
+                    processingTimeStore.Store(endpointName, message, DateTime.UtcNow);
+                    break;
+                case CriticalTimeMessageType:
+                    criticalTimeStore.Store(endpointName, message, DateTime.UtcNow);
+                    break;
+                default:
+                    throw new UnknownLongValueOccurrenceMessageType(messageType);
+
+            }
             if (messageType == ProcessingTimeMessageType)
             {
-                processingTimeStore.Store(endpointName, message, DateTime.UtcNow);
             }
             else if (messageType == CriticalTimeMessageType)
             {
-                criticalTimeStore.Store(endpointName, message, DateTime.UtcNow);
             }
 
             return TaskEx.Completed;

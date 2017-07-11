@@ -41,12 +41,14 @@
             config.GetSettings().Set<Settings>(settings);
 
             config.UseSerialization<NewtonsoftSerializer>();
-            config.AddDeserializer<LongValueOccurrenceSerializerDefinition>();
             config.UsePersistence<InMemoryPersistence>();
             config.SendFailedMessagesTo(settings.ErrorQueue);
             config.DisableFeature<AutoSubscribe>();
 
             config.EnableFeature<TimingsFeature>();
+            config.Recoverability().AddUnrecoverableException<UnknownLongValueOccurrenceMessageType>();
+            config.AddDeserializer<LongValueOccurrenceSerializerDefinition>();
+
             config.EnableFeature<QueueLengthFeature>();
             config.EnableFeature<HttpEndpoint>();
         }
