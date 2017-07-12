@@ -8,7 +8,8 @@ namespace ServiceControl.Monitoring.Licensing
 
     public class LicenseManager
     {
-        internal License Details { get; set; }
+        internal static License Details { get; set; }
+        internal static bool IsValid { get; set; }
 
         public void Refresh()
         {
@@ -26,7 +27,8 @@ namespace ServiceControl.Monitoring.Licensing
                 }
                 Logger.Warn("License has expired");
             }
-            
+
+            IsValid = !result.HasExpired;
             Details = result.License;
         }
 
