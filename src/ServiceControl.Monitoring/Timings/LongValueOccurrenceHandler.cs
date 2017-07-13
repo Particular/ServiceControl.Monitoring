@@ -37,12 +37,6 @@
                     throw new UnknownLongValueOccurrenceMessageType(messageType);
 
             }
-            if (messageType == ProcessingTimeMessageType)
-            {
-            }
-            else if (messageType == CriticalTimeMessageType)
-            {
-            }
 
             return TaskEx.Completed;
         }
