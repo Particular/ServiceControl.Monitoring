@@ -7,7 +7,7 @@
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent(b => new QueueLengthDataConsumer(new QueueLengthCalculator()), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new QueueLengthDataStore(new QueueLengthCalculator()), DependencyLifecycle.SingleInstance);
         }
     }
 }

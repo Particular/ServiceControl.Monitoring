@@ -2,13 +2,11 @@ namespace ServiceControl.Monitoring.QueueLength
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Http;
     using Newtonsoft.Json.Linq;
-    using Raw;
 
-    class QueueLengthDataConsumer : IRawDataConsumer, IEndpointDataProvider
+    public class QueueLengthDataStore
     {
-        public QueueLengthDataConsumer(IQueueLengthCalculator calculator)
+        public QueueLengthDataStore(IQueueLengthCalculator calculator)
         {
             this.calculator = calculator;
         }
@@ -18,9 +16,7 @@ namespace ServiceControl.Monitoring.QueueLength
             get { return calculator.GetQueueLengths().Select(kvp => new KeyValuePair<string, JObject>(kvp.Key, new JObject(new JProperty("Count", kvp.Value)))); }
         }
 
-        string IEndpointDataProvider.Name { get; } = Name;
-
-        public void Consume(IReadOnlyDictionary<string, string> headers, JObject data)
+        public void Store(JObject data)
         {
             var counters = (JArray) data["Counters"] ?? EmptyArray;
             UpdateSends(counters);
@@ -65,7 +61,6 @@ namespace ServiceControl.Monitoring.QueueLength
         }
 
         IQueueLengthCalculator calculator;
-        const string Name = "QueueLength";
         static readonly JArray EmptyArray = new JArray();
     }
 }

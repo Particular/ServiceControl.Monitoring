@@ -9,15 +9,16 @@ using NServiceBus.ObjectBuilder;
 namespace ServiceControl.Monitoring.Http
 {
     using System;
-    using System.Collections.Generic;
-    using Raw;
+    using System.Linq;
+    using QueueLength;
+    using Timings;
 
     class HttpEndpoint : Feature
     {
         public HttpEndpoint()
         {
-            DependsOn<RawMetricsFeature>();
-            DependsOn<QueueLength.QueueLengthFeature>();
+            DependsOn<TimingsFeature>();
+            DependsOn<QueueLengthFeature>();
         }
 
         protected override void Setup(FeatureConfigurationContext context)
@@ -38,23 +39,29 @@ namespace ServiceControl.Monitoring.Http
             }
 
             var host = new Uri($"http://{hostname}:{port}");
+
             context.RegisterStartupTask(builder => BuildTask(builder, host));
         }
 
         FeatureStartupTask BuildTask(IBuilder builder, Uri host)
         {
-            return new NancyTask(builder, host);
+            return new NancyTask(new Action<TinyIoCContainer>[]
+            {
+                c => c.Register(typeof(QueueLengthDataStore), builder.Build<QueueLengthDataStore>()),
+                c => c.Register(typeof(ProcessingTimeStore), builder.Build<ProcessingTimeStore>()),
+                c => c.Register(typeof(CriticalTimeStore), builder.Build<CriticalTimeStore>())
+            }, host);
         }
 
         class NancyTask : FeatureStartupTask
         {
             NancyHost metricsEndpoint;
 
-            public NancyTask(IBuilder builder, Uri host)
+            public NancyTask(Action<TinyIoCContainer>[] containerRegistrations, Uri host)
             {
-                var buildstrapper = new Bootstrapper(builder.BuildAll<IEndpointDataProvider>());
                 var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
-                metricsEndpoint = new NancyHost(host, buildstrapper, hostConfiguration);
+
+                metricsEndpoint = new NancyHost(host, new Bootstrapper(containerRegistrations), hostConfiguration);
             }
 
             protected override Task OnStart(IMessageSession session)
@@ -72,17 +79,19 @@ namespace ServiceControl.Monitoring.Http
 
         class Bootstrapper : DefaultNancyBootstrapper
         {
-            readonly IEnumerable<IEndpointDataProvider> providers;
+            readonly Action<TinyIoCContainer>[] containerRegistrations;
 
-            public Bootstrapper(IEnumerable<IEndpointDataProvider> providers)
+            public Bootstrapper(Action<TinyIoCContainer>[] containerRegistrations)
             {
-                this.providers = providers;
+                this.containerRegistrations = containerRegistrations;
             }
+
 
             protected override void ConfigureApplicationContainer(TinyIoCContainer container)
             {
                 base.ConfigureApplicationContainer(container);
-                container.Register(typeof(IEnumerable<IEndpointDataProvider>), providers);
+
+                containerRegistrations.ToList().ForEach(cr => cr(container));
             }
             
         }

@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    interface IQueueLengthCalculator
+    public interface IQueueLengthCalculator
     {
         void UpdateReceivedSequence(string key, long value, string queue);
         void UpdateSentSequence(string key, long value);
