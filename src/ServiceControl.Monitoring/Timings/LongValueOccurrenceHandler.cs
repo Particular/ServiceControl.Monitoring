@@ -11,8 +11,8 @@
         readonly TimingsStore processingTimeStore;
         readonly CriticalTimeStore criticalTimeStore;
 
-        const string ProcessingTimeMessageType = "NServiceBus.Metrics.ProcessingTime";
-        const string CriticalTimeMessageType = "NServiceBus.Metrics.CriticalTime";
+        const string ProcessingTimeMessageType = "ProcessingTime";
+        const string CriticalTimeMessageType = "CriticalTime";
 
         public TimingsReportHandler(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore)
         {
@@ -22,7 +22,7 @@
 
         public Task Handle(LongValueOccurrences message, IMessageHandlerContext context)
         {
-            var messageType = context.MessageHeaders[Headers.EnclosedMessageTypes];
+            var messageType = context.MessageHeaders[MetricHeaders.MetricType];
             var endpointName = context.MessageHeaders.GetOriginatingEndpoint();
 
             switch (messageType)

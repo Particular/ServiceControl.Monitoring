@@ -142,6 +142,7 @@
     <Compile Include="Http\HttpEndpoint.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Licensing\LicenseCheckFeature.cs" />
+    <Compile Include="MetricHeaders.cs" />
     <Compile Include="MonitorLogs.cs" />
     <Compile Include="Metrics\Raw\LongValueOccurenceSerializerDefinition.cs" />
     <Compile Include="Timings\CriticalTimeStore.cs" />
