@@ -12,7 +12,7 @@
 
         public void Store(string endpointName, LongValueOccurrences message, DateTime now)
         {
-            var endpointData = timings.GetOrAdd(endpointName, new ConcurrentDictionary<DateTime, MeasurementInterval>());
+            var endpointData = timings.GetOrAdd(endpointName, _ => new ConcurrentDictionary<DateTime, MeasurementInterval>());
 
             for (var i = 0; i < message.Ticks.Length; i++)
             {
