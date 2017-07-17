@@ -15,7 +15,7 @@
 
         public Task Handle(MetricReport message, IMessageHandlerContext context)
         {
-            queueLengthDataStore.Store( message.Data);
+            queueLengthDataStore.Store(message.Data);
 
             return TaskEx.Completed;
         }

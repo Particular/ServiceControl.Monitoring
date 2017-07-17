@@ -12,12 +12,14 @@
     {
         TimingsStore store;
         DateTime now;
+        EndpointInstanceId endpointInstanceId;
 
         [SetUp]
         public void SetUp()
         {
             store = new ProcessingTimeStore();
             now = DateTime.UtcNow;
+            endpointInstanceId = new EndpointInstanceId(string.Empty, string.Empty);
         }
 
         [Test]
@@ -28,7 +30,7 @@
                 {now.AddSeconds(-9), 0L}
             });
 
-            store.Store(string.Empty, message, now);
+            store.Store(endpointInstanceId, message, now);
 
             var timings = store.GetTimings(now);
 
@@ -37,18 +39,19 @@
         }
 
         [Test]
-        public void With_single_interval_global_average_equals_interval_average()
+        public void With_single_interval_global_stats_equals_interval_stats()
         {
             var message = BuildMessage(new Dictionary<DateTime, long>
             {
-                {now.AddSeconds(-9), 1L}
+                {now.AddSeconds(-9), 2L}
             });
 
-            store.Store(string.Empty, message, now);
+            store.Store(endpointInstanceId, message, now);
 
             var timings = store.GetTimings(now);
 
-            Assert.AreEqual(1L, timings[0].Average);
+            Assert.AreEqual(1, timings[0].TotalMeasurements);
+            Assert.AreEqual(2L, timings[0].TotalTime);
         }
 
         [Test]
@@ -59,11 +62,11 @@
                 {now.AddMinutes(-5), 3L}
             });
 
-            store.Store(string.Empty, message, now);
+            store.Store(endpointInstanceId, message, now);
 
             var timings = store.GetTimings(now);
 
-            Assert.IsTrue(timings[0].Intervals.All(i => i.Average == 0));
+            Assert.IsTrue(timings[0].Intervals.All(i => i.TotalMeasurements == 0));
         }
 
         [Test]
@@ -74,15 +77,15 @@
                 {now.AddMinutes(5), 1L}
             });
 
-            store.Store(string.Empty, message, now);
+            store.Store(endpointInstanceId, message, now);
 
             var currentTimings = store.GetTimings(now);
 
-            Assert.IsTrue(currentTimings[0].Average == 0);
+            Assert.IsTrue(currentTimings[0].TotalMeasurements == 0);
 
             var futureTimings = store.GetTimings(now.AddMinutes(6));
 
-            Assert.IsTrue(futureTimings[0].Average == 1);
+            Assert.IsTrue(futureTimings[0].TotalMeasurements == 1);
         }
 
         [Test]
@@ -100,16 +103,17 @@
                 {now, 3L}
             });
 
-            store.Store(string.Empty, firstMessage, now);
-            store.Store(string.Empty, secondMessage, now);
+            store.Store(endpointInstanceId, firstMessage, now);
+            store.Store(endpointInstanceId, secondMessage, now);
 
             var timings = store.GetTimings(now);
 
-            var nonEmptyIntervals = timings[0].Intervals.Where(i => i.Average > 0).ToArray();
+            var nonEmptyIntervals = timings[0].Intervals.Where(i => i.TotalMeasurements > 0).ToArray();
 
-            Assert.AreEqual(1.5d, timings[0].Average);
-            Assert.AreEqual(3d, nonEmptyIntervals.Length);
-            CollectionAssert.AreEqual(new double[]{2, 1, 1}, nonEmptyIntervals.Select(i => i.Average));
+            Assert.AreEqual(3, nonEmptyIntervals.Length);
+            Assert.AreEqual(4, timings[0].TotalMeasurements);
+            CollectionAssert.AreEqual(new double[] { 4, 1, 1 }, nonEmptyIntervals.Select(i => i.TotalTime));
+            CollectionAssert.AreEqual(new double[] { 2, 1, 1 }, nonEmptyIntervals.Select(i => i.TotalMeasurements));
         }
 
         [Test]
@@ -122,7 +126,7 @@
                 {now, 1L}
             });
 
-            store.Store(string.Empty, message, now);
+            store.Store(endpointInstanceId, message, now);
 
             var timings = store.GetTimings(now);
             var intervalStarts = timings[0].Intervals.Select(i => i.IntervalStart).ToArray();

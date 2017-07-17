@@ -13,13 +13,15 @@ namespace NServiceBus.Metrics.AcceptanceTests
     {
         IDispatchMessages dispatcher;
         string endpointName;
+        string instanceId;
         string data;
         string destination;
 
-        public MetricSenderTask(IDispatchMessages dispatcher, string endpointName, string data, string destination)
+        public MetricSenderTask(IDispatchMessages dispatcher, string endpointName, string instanceId, string data, string destination)
         {
             this.dispatcher = dispatcher;
             this.endpointName = endpointName;
+            this.instanceId = instanceId;
             this.data = data;
             this.destination = destination;
         }
@@ -33,6 +35,8 @@ namespace NServiceBus.Metrics.AcceptanceTests
 
             headers[Headers.OriginatingEndpoint] = endpointName;
             headers[Headers.EnclosedMessageTypes] = "NServiceBus.Metrics.MetricReport";
+            headers["NServiceBus.Metric.InstanceId"] = instanceId;
+
             var message = new OutgoingMessage(Guid.NewGuid().ToString(), headers, body);
             var operation = new TransportOperation(message, new UnicastAddressTag(destination));
 

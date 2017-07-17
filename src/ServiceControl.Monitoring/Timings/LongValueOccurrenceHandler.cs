@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using Metrics.Raw;
-    using Metrics.Snapshot;
     using NServiceBus;
 
     class TimingsReportHandler : IHandleMessages<LongValueOccurrences>
@@ -22,16 +21,17 @@
 
         public Task Handle(LongValueOccurrences message, IMessageHandlerContext context)
         {
+            var endpointInstanceId = EndpointInstanceId.From(context.MessageHeaders);
+
             var messageType = context.MessageHeaders[MetricHeaders.MetricType];
-            var endpointName = context.MessageHeaders.GetOriginatingEndpoint();
 
             switch (messageType)
             {
                 case ProcessingTimeMessageType:
-                    processingTimeStore.Store(endpointName, message, DateTime.UtcNow);
+                    processingTimeStore.Store(endpointInstanceId, message, DateTime.UtcNow);
                     break;
                 case CriticalTimeMessageType:
-                    criticalTimeStore.Store(endpointName, message, DateTime.UtcNow);
+                    criticalTimeStore.Store(endpointInstanceId, message, DateTime.UtcNow);
                     break;
                 default:
                     throw new UnknownLongValueOccurrenceMessageType(messageType);

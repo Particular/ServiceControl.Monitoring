@@ -127,15 +127,18 @@
     <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
+    <Compile Include="EndpointInstanceId.cs" />
     <Compile Include="Hosting\Commands\CommandRunner.cs" />
     <Compile Include="Hosting\Commands\AbstractCommand.cs" />
     <Compile Include="Hosting\HostArguments.cs" />
     <Compile Include="Hosting\Options.cs" />
     <Compile Include="Http\BaseModule.cs" />
+    <Compile Include="Http\Diagrams\MonitoredEndpoint.cs" />
+    <Compile Include="Http\Diagrams\MonitoredEndpointTimings.cs" />
     <Compile Include="Http\LicenseApiModule.cs" />
     <Compile Include="Http\RootApiModule.cs" />
     <Compile Include="Http\ApiModule.cs" />
-    <Compile Include="Http\DiagramApiModule.cs" />
+    <Compile Include="Http\Diagrams\DiagramApiModule.cs" />
     <Compile Include="Http\QueueLengthApiModule.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="EndpointFactory.cs" />
@@ -147,6 +150,7 @@
     <Compile Include="Metrics\Raw\LongValueOccurenceSerializerDefinition.cs" />
     <Compile Include="Timings\CriticalTimeStore.cs" />
     <Compile Include="Timings\DateTimeExtensions.cs" />
+    <Compile Include="Http\Diagrams\TimingsAggregator.cs" />
     <Compile Include="Timings\LongValueOccurrenceHandler.cs" />
     <Compile Include="Metrics\Raw\LongValueOccurrences.cs" />
     <Compile Include="Timings\ProcessingTimeStore.cs" />

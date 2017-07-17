@@ -103,7 +103,7 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     context.RegisterStartupTask(
-                        b => new MetricSenderTask(b.Build<IDispatchMessages>(), context.Settings.EndpointName(), Data, ReceiverEndpointName));
+                        b => new MetricSenderTask(b.Build<IDispatchMessages>(), context.Settings.EndpointName(), string.Empty, Data, ReceiverEndpointName));
                 }
             }
         }
