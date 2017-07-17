@@ -13,9 +13,19 @@ namespace ServiceControl.Monitoring.Http
         /// </summary>
         public MonitoredEndpointsModule(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore)
         {
+            var timingAggregator = new TimingsAggregator(processingTimeStore, criticalTimeStore);
+
             Get["/monitored-endpoints"] = x =>
             {
-                var endpointsData = TimingsAggregator.AggregateIntoLogicalEndpoints(processingTimeStore, criticalTimeStore);
+                var endpointsData = timingAggregator.AggregateIntoLogicalEndpoints();
+
+                return Negotiate.WithModel(endpointsData);
+            };
+
+            Get["/monitored-endpoints/{endpointName}"] = parameters =>
+            {
+                var endpointName = (string)parameters.EndpointName;
+                var endpointsData = timingAggregator.AggregateDataForLogicalEndpoint(endpointName);
 
                 return Negotiate.WithModel(endpointsData);
             };

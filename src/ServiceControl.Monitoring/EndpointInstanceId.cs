@@ -30,7 +30,7 @@
 
             if (headers.TryGetValue(MetricHeaders.MetricInstanceId, out instanceId))
             {
-                return new EndpointInstanceId(endpointName, instanceId);    
+                return new EndpointInstanceId(endpointName, instanceId);
             }
 
             var hostId = headers[Headers.OriginatingHostId];
