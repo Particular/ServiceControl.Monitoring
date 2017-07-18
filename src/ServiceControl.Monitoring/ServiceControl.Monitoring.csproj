@@ -61,9 +61,15 @@
     <ApplicationIcon>Operations.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=4.6.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.6.0\lib\net45\Autofac.dll</HintPath>
+    </Reference>
     <Reference Include="Nancy, Version=1.4.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nancy.1.4.3\lib\net40\Nancy.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Nancy.Bootstrappers.Autofac, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nancy.Bootstrappers.Autofac.1.4.1\lib\net40\Nancy.Bootstrappers.Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Nancy.Hosting.Self, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nancy.Hosting.Self.1.4.1\lib\net40\Nancy.Hosting.Self.dll</HintPath>
@@ -86,6 +92,9 @@
     <Reference Include="NServiceBus.NLog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <HintPath>..\packages\NServiceBus.NLog.2.0.0\lib\net452\NServiceBus.NLog.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder.Autofac, Version=6.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NServiceBus.Autofac.6.0.1\lib\net452\NServiceBus.ObjectBuilder.Autofac.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -154,7 +163,6 @@
     <Compile Include="Timings\LongValueOccurrenceHandler.cs" />
     <Compile Include="Metrics\Raw\LongValueOccurrences.cs" />
     <Compile Include="Timings\ProcessingTimeStore.cs" />
-    <Compile Include="Timings\TimingsFeature.cs" />
     <Compile Include="Timings\TimingsStore.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Hosting\HostService.cs" />
@@ -166,7 +174,6 @@
     <Compile Include="QueueLength\IQueueLengthCalculator.cs" />
     <Compile Include="QueueLength\QueueLengthCalculator.cs" />
     <Compile Include="QueueLength\QueueLengthDataStore.cs" />
-    <Compile Include="QueueLength\QueueLengthFeature.cs" />
     <Compile Include="QueueLength\TagExtensions.cs" />
     <Compile Include="VersionInfo.cs" />
     <Compile Include="Metrics\Snapshot\Extensions.cs" />

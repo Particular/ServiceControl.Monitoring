@@ -1,14 +1,16 @@
 ﻿namespace ServiceControl.Monitoring
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
+    using Autofac;
     using Http;
     using Metrics.Raw;
+    using Nancy;
     using NServiceBus;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
     using NServiceBus.Logging;
-    using QueueLength;
     using Timings;
 
     public class EndpointFactory
@@ -28,6 +30,10 @@
 
         public static void MakeMetricsReceiver(EndpointConfiguration config, Settings settings)
         {
+            config.UseContainer<AutofacBuilder>(
+                c => c.ExistingLifetimeScope(CreateContainer())
+            );
+
             var selectedTransportType = DetermineTransportType(settings);
             var transport = config.UseTransport(selectedTransportType);
 
@@ -45,12 +51,20 @@
             config.SendFailedMessagesTo(settings.ErrorQueue);
             config.DisableFeature<AutoSubscribe>();
 
-            config.EnableFeature<TimingsFeature>();
             config.Recoverability().AddUnrecoverableException<UnknownLongValueOccurrenceMessageType>();
             config.AddDeserializer<LongValueOccurrenceSerializerDefinition>();
 
-            config.EnableFeature<QueueLengthFeature>();
             config.EnableFeature<HttpEndpoint>();
+        }
+
+        static IContainer CreateContainer()
+        {
+            var containerBuilder = new ContainerBuilder();
+
+            containerBuilder.RegisterModule<ApplicationModule>();
+
+            var container = containerBuilder.Build();
+            return container;
         }
 
         static Type DetermineTransportType(Settings settings)
@@ -67,5 +81,50 @@
         }
 
         static ILog Logger = LogManager.GetLogger<EndpointFactory>();
+    }
+
+    class ApplicationModule : Module
+    {
+        protected override void Load(ContainerBuilder builder)
+        {
+            base.Load(builder);
+            builder.RegisterAssemblyTypes(ThisAssembly)
+                .Where(Include)
+                .AsSelf()
+                .AsImplementedInterfaces()
+                .SingleInstance();
+        }
+
+        static bool Include(Type type)
+        {
+            if (IsMessageType(type))
+                return false;
+
+            if (IsNancyModule(type))
+                return false;
+
+            if (IsMessageHandler(type))
+                return false;
+
+            return true;
+        }
+
+        static bool IsMessageType(Type type)
+        {
+            return typeof(IMessage).IsAssignableFrom(type);
+        }
+
+        static bool IsNancyModule(Type type)
+        {
+            return typeof(INancyModule).IsAssignableFrom(type);
+        }
+
+        static bool IsMessageHandler(Type type)
+        {
+            return type.GetInterfaces()
+                .Where(@interface => @interface.IsGenericType)
+                .Select(@interface => @interface.GetGenericTypeDefinition())
+                .Any(genericTypeDef => genericTypeDef == typeof(IHandleMessages<>));
+        }
     }
 }

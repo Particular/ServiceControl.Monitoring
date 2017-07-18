@@ -1,26 +1,16 @@
 ﻿using NServiceBus.Features;
 using System.Threading.Tasks;
-using Nancy;
 using Nancy.Hosting.Self;
-using Nancy.TinyIoc;
 using NServiceBus;
-using NServiceBus.ObjectBuilder;
 
 namespace ServiceControl.Monitoring.Http
 {
     using System;
-    using System.Linq;
-    using QueueLength;
-    using Timings;
+    using Autofac;
+    using Nancy.Bootstrappers.Autofac;
 
     class HttpEndpoint : Feature
     {
-        public HttpEndpoint()
-        {
-            DependsOn<TimingsFeature>();
-            DependsOn<QueueLengthFeature>();
-        }
-
         protected override void Setup(FeatureConfigurationContext context)
         {
             var settings = context.Settings.Get<Settings>();
@@ -40,28 +30,23 @@ namespace ServiceControl.Monitoring.Http
 
             var host = new Uri($"http://{hostname}:{port}");
 
-            context.RegisterStartupTask(builder => BuildTask(builder, host));
+            context.RegisterStartupTask(builder => BuildTask(builder.Build<ILifetimeScope>(), host));
         }
 
-        FeatureStartupTask BuildTask(IBuilder builder, Uri host)
+        FeatureStartupTask BuildTask(ILifetimeScope container, Uri host)
         {
-            return new NancyTask(new Action<TinyIoCContainer>[]
-            {
-                c => c.Register(typeof(QueueLengthDataStore), builder.Build<QueueLengthDataStore>()),
-                c => c.Register(typeof(ProcessingTimeStore), builder.Build<ProcessingTimeStore>()),
-                c => c.Register(typeof(CriticalTimeStore), builder.Build<CriticalTimeStore>())
-            }, host);
+            return new NancyTask(container, host);
         }
 
         class NancyTask : FeatureStartupTask
         {
             NancyHost metricsEndpoint;
 
-            public NancyTask(Action<TinyIoCContainer>[] containerRegistrations, Uri host)
+            public NancyTask(ILifetimeScope container, Uri host)
             {
                 var hostConfiguration = new HostConfiguration { RewriteLocalhost = false };
 
-                metricsEndpoint = new NancyHost(host, new Bootstrapper(containerRegistrations), hostConfiguration);
+                metricsEndpoint = new NancyHost(host, new Bootstrapper(container), hostConfiguration);
             }
 
             protected override Task OnStart(IMessageSession session)
@@ -77,23 +62,19 @@ namespace ServiceControl.Monitoring.Http
             }
         }
 
-        class Bootstrapper : DefaultNancyBootstrapper
+        class Bootstrapper : AutofacNancyBootstrapper
         {
-            readonly Action<TinyIoCContainer>[] containerRegistrations;
+            readonly ILifetimeScope lifetimeScope;
 
-            public Bootstrapper(Action<TinyIoCContainer>[] containerRegistrations)
+            public Bootstrapper(ILifetimeScope lifetimeScope)
             {
-                this.containerRegistrations = containerRegistrations;
+                this.lifetimeScope = lifetimeScope;
             }
 
-
-            protected override void ConfigureApplicationContainer(TinyIoCContainer container)
+            protected override ILifetimeScope GetApplicationContainer()
             {
-                base.ConfigureApplicationContainer(container);
-
-                containerRegistrations.ToList().ForEach(cr => cr(container));
-            }
-            
+                return lifetimeScope;
+            }            
         }
     }
 }
