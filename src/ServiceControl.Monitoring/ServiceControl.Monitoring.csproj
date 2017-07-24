@@ -148,7 +148,6 @@
     <Compile Include="Http\RootApiModule.cs" />
     <Compile Include="Http\ApiModule.cs" />
     <Compile Include="Http\Diagrams\DiagramApiModule.cs" />
-    <Compile Include="Http\QueueLengthApiModule.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="EndpointFactory.cs" />
     <Compile Include="Http\HttpEndpoint.cs" />

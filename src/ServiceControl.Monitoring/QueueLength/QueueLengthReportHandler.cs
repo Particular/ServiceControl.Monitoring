@@ -15,7 +15,9 @@
 
         public Task Handle(MetricReport message, IMessageHandlerContext context)
         {
-            queueLengthDataStore.Store(message.Data);
+            var endpointInstanceId = EndpointInstanceId.From(context.MessageHeaders);
+
+            queueLengthDataStore.Store(endpointInstanceId, message.Data);
 
             return TaskEx.Completed;
         }

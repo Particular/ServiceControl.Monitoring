@@ -4,8 +4,8 @@
 
     public interface IQueueLengthCalculator
     {
-        void UpdateReceivedSequence(string key, long value, string queue);
-        void UpdateSentSequence(string key, long value);
-        Dictionary<string, long> GetQueueLengths();
+        bool UpdateReceivedSequence(VirtualQueueId virtualQueueId, double value);
+        List<VirtualQueueId> UpdateSentSequence(string key, double value);
+        Dictionary<VirtualQueueId, double> GetQueueLengths();
     }
 }

@@ -4,6 +4,7 @@ namespace ServiceControl.Monitoring.Tests.MonitoredEndpoints
     using System.Collections.Generic;
     using System.Linq;
     using Metrics.Raw;
+    using Monitoring.QueueLength;
     using NUnit.Framework;
     using Timings;
 
@@ -11,6 +12,7 @@ namespace ServiceControl.Monitoring.Tests.MonitoredEndpoints
     {
         protected ProcessingTimeStore processingTimeStore;
         protected CriticalTimeStore criticalTimeStore;
+        protected QueueLengthDataStore queueLengthDataStore;
         protected TimingsAggregator aggregator;
         protected DateTime now;
 
@@ -19,7 +21,9 @@ namespace ServiceControl.Monitoring.Tests.MonitoredEndpoints
         {
             processingTimeStore = new ProcessingTimeStore();
             criticalTimeStore = new CriticalTimeStore();
-            aggregator = new TimingsAggregator(processingTimeStore, criticalTimeStore);
+            queueLengthDataStore = new QueueLengthDataStore(new QueueLengthCalculator());
+
+            aggregator = new TimingsAggregator(processingTimeStore, criticalTimeStore, queueLengthDataStore);
             now = DateTime.UtcNow;
         }
 

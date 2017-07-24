@@ -4,15 +4,19 @@ using System.Linq;
 
 namespace ServiceControl.Monitoring.Timings
 {
+    using QueueLength;
+
     public class TimingsAggregator
     {
         readonly ProcessingTimeStore processingTimeStore;
         readonly CriticalTimeStore criticalTimeStore;
+        readonly QueueLengthDataStore queueLengthDataStore;
 
-        public TimingsAggregator(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore)
+        public TimingsAggregator(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore, QueueLengthDataStore queueLengthDataStore)
         {
             this.processingTimeStore = processingTimeStore;
             this.criticalTimeStore = criticalTimeStore;
+            this.queueLengthDataStore = queueLengthDataStore;
         }
 
         public IEnumerable<MonitoredEndpoint> AggregateIntoLogicalEndpoints()
@@ -21,8 +25,9 @@ namespace ServiceControl.Monitoring.Timings
 
             var processingTimes = processingTimeStore.GetTimings(now);
             var criticalTimes = criticalTimeStore.GetTimings(now);
+            var queueLengths = queueLengthDataStore.GetQueueLengths(now);
 
-            var endpointNames = processingTimes.Concat(criticalTimes).Select(t => t.Id.EndpointName).Distinct();
+            var endpointNames = processingTimes.Concat(criticalTimes).Select(t => t.Id.EndpointName).Concat(queueLengths.Keys).Distinct();
 
             foreach (var endpointName in endpointNames)
             {
@@ -38,6 +43,23 @@ namespace ServiceControl.Monitoring.Timings
                     ProcessingTime = AggregateTimings(instanceProcessingTime),
                     CriticalTime = AggregateTimings(instanceCriticalTime)
                 };
+
+                Dictionary<DateTime, double> queueLength;
+
+                if(queueLengths.TryGetValue(endpointName, out queueLength) && queueLength.Count > 0)
+                { 
+                    var queueLengthValues = queueLength.OrderBy(kvp => kvp.Key).ToArray();
+                    var queueLengthMinDate = queueLengthValues.First().Key;
+
+                    monitoredEndpoint.QueueLength = new LinearMonitoredValues
+                    {
+                        Average = queueLength.Values.Average(),
+                        Points = queueLengthValues.Select(kvp => kvp.Value).ToArray(),
+                        PointsAxisValues = queueLengthValues
+                            .Select(kvp => (int)kvp.Key.Subtract(queueLengthMinDate).TotalMilliseconds)
+                            .ToArray()
+                    };
+                }
 
                 yield return monitoredEndpoint;
             }
@@ -67,11 +89,11 @@ namespace ServiceControl.Monitoring.Timings
             }
         }
 
-        static MonitoredTimings AggregateTimings(List<TimingsStore.EndpointInstanceTimings> timings)
+        static MonitoredEndpointValues AggregateTimings(List<TimingsStore.EndpointInstanceTimings> timings)
         {
             Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
 
-            return new MonitoredTimings
+            return new MonitoredEndpointValues
             {
                 Average = timings.Sum(t => t.TotalTime) / returnOneIfZero(timings.Sum(t => t.TotalMeasurements)),
                 Points = timings.SelectMany(t => t.Intervals)
@@ -87,8 +109,9 @@ namespace ServiceControl.Monitoring.Timings
     {
         public string Name { get; set; }
         public string[] EndpointInstanceIds { get; set; }
-        public MonitoredTimings ProcessingTime { get; set; }
-        public MonitoredTimings CriticalTime { get; set; }
+        public MonitoredEndpointValues ProcessingTime { get; set; }
+        public MonitoredEndpointValues CriticalTime { get; set; }
+        public LinearMonitoredValues QueueLength { get; set; }
     }
 
     public class MonitoredEndpointInstance
@@ -96,13 +119,19 @@ namespace ServiceControl.Monitoring.Timings
         public string Name { get; set; }
         public string Id { get; set; }
 
-        public MonitoredTimings ProcessingTime { get; set; }
-        public MonitoredTimings CriticalTime { get; set; }
+        public MonitoredEndpointValues ProcessingTime { get; set; }
+        public MonitoredEndpointValues CriticalTime { get; set; }
+        public LinearMonitoredValues QueueLength { get; set; }
     }
 
-    public class MonitoredTimings
+    public class MonitoredEndpointValues
     {
         public double? Average { get; set; }
         public double[] Points { get; set; }
+    }
+
+    public class LinearMonitoredValues : MonitoredEndpointValues
+    {
+        public int[] PointsAxisValues { get; set; }
     }
 }

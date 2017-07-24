@@ -1,19 +1,17 @@
 ﻿namespace NServiceBus.Metrics.AcceptanceTests
 {
-    using System.Net.Http;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Features;
     using global::Newtonsoft.Json;
     using global::Newtonsoft.Json.Linq;
-    using NServiceBus.AcceptanceTests;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using ServiceControl.Monitoring;
     using Transport;
 
-    public class When_querying_queue_length_data : NServiceBusAcceptanceTest
+    public class When_querying_queue_length_data : ApiIntegrationTest
     {
         static string ReceiverEndpointName => Conventions.EndpointNamingConvention(typeof(Receiver));
 
@@ -25,42 +23,27 @@
                 .WithEndpoint<Receiver>()
                 .Done(c =>
                 {
-                    c.Response = GetRawMetrics();
-                    return c.Response != null && c.Response.Contains("Receiver@MyMachine");
+                    c.Response = GetString("http://localhost:1234/monitored-endpoints");
+                    return c.Response != null && c.Response.Contains("10");
                 })
                 .Run();
 
             Assert.IsNotNull(context.Response);
 
+            var result = JArray.Parse(context.Response);
+            Assert.AreEqual(1, result.Count);
+
+            var endpoint = result[0].Value<JObject>();
+            var queueLength = endpoint["queueLength"];
+
             var expected = new JObject
             {
-                {
-                    "NServiceBus.Endpoints", new JArray(
-                        new JObject
-                        {
-                            {
-                                "Receiver@MyMachine",
-                                new JObject
-                                {
-                                    {
-                                        "Count", 10
-                                    }
-                                }
-                            }
-                        }
-                    )
-                }
+                { "pointsAxisValues", new JArray(new []{0}) },
+                { "average", 10 },
+                { "points", new JArray(new []{10}) }
             };
 
-            Assert.AreEqual(expected.ToString(Formatting.None), context.Response);
-        }
-
-        static string GetRawMetrics()
-        {
-            using (var client = new HttpClient())
-            {
-                return client.GetStringAsync("http://localhost:1234/metrics/queue-length").GetAwaiter().GetResult();
-            }
+            Assert.AreEqual(expected.ToString(Formatting.None), queueLength.ToString(Formatting.None));
         }
 
         const string Data = @"{

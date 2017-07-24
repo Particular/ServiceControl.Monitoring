@@ -1,18 +1,16 @@
 ﻿namespace NServiceBus.Metrics.AcceptanceTests
 {
     using System;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using NServiceBus.AcceptanceTests;
+    using global::Newtonsoft.Json.Linq;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using ServiceControl.Monitoring;
     using ServiceControl.Monitoring.Metrics.Raw;
     using Conventions = AcceptanceTesting.Customization;
 
-    public class When_querying_timings_data : NServiceBusAcceptanceTest
+    public class When_querying_timings_data : ApiIntegrationTest
     {
         static string ReceiverEndpointName => Conventions.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));
         static string MonitoredEndpointName => Conventions.Conventions.EndpointNamingConvention(typeof(MonitoredEndpoint));
@@ -20,27 +18,24 @@
         [Test]
         public async Task Should_report_via_http()
         {
-            string timingData = null;
+            string response = null;
 
             await Scenario.Define<Context>()
                 .WithEndpoint<MonitoredEndpoint>(c => c.When(s => s.SendLocal(new SampleMessage())))
                 .WithEndpoint<MonitoringEndpoint>()
-                .Done(c => c.TimingReportReceived && (timingData = GetTimingData()) != null)
+                .Done(c => c.TimingReportReceived && (response = GetString("http://localhost:1234/monitored-endpoints")) != null)
                 .Run();
 
-            Assert.IsTrue(timingData.Contains(MonitoredEndpointName));
-        }
+            Assert.IsNotNull(response);
 
-        static string GetTimingData()
-        {
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders
-                    .Accept
-                    .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var result = JArray.Parse(response);
+            Assert.AreEqual(1, result.Count);
 
-                return client.GetStringAsync("http://localhost:1234/monitored-endpoints").GetAwaiter().GetResult();
-            }
+            var endpoint = result[0].Value<JObject>();
+            var processingTime = endpoint["processingTime"].Value<JObject>();
+
+            Assert.IsTrue(processingTime["average"].Value<int>() > 0);
+            Assert.AreEqual(20, processingTime["points"].Value<JArray>().Count);
         }
 
         class Context : ScenarioContext

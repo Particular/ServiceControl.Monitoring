@@ -66,9 +66,9 @@
   <ItemGroup>
     <Compile Include="MonitoredEndpoints\AggregationTests.cs" />
     <Compile Include="QueueLength\CalculatorTests.cs" />
-    <Compile Include="QueueLength\QueueLengthDataConsumerTests.cs" />
     <Compile Include="MonitoredEndpoints\DetailsAggregationTests.cs" />
     <Compile Include="MonitoredEndpoints\ListAggregationTests.cs" />
+    <Compile Include="QueueLength\QueueLengthStoreTests.cs" />
     <Compile Include="Timings\TimingsStoreTests.cs" />
   </ItemGroup>
   <ItemGroup>
