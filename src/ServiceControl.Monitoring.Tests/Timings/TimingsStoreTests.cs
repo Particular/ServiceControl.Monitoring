@@ -23,7 +23,7 @@
         }
 
         [Test]
-        public void Number_of_intervals_is_constant_per_know_endpoint()
+        public void Number_of_intervals_is_constant_per_know_endpoint_and_have_intervals_assigned()
         {
             var message = BuildMessage(new Dictionary<DateTime, long>
             {
@@ -36,6 +36,20 @@
 
             Assert.AreEqual(1, timings.Length);
             Assert.AreEqual(TimingsStore.NumberOfHistoricalIntervals, timings[0].Intervals.Length);
+
+            // ordering of intervals
+            var dateTimes = timings[0].Intervals.Select(i => i.IntervalStart).ToArray();
+            var orderedDateTimes = dateTimes.OrderByDescending(d => d).ToArray();
+
+            CollectionAssert.AreEqual(orderedDateTimes, dateTimes);
+
+            // length of intervals
+            var intervalLength = dateTimes[0] - dateTimes[1];
+            for (var i = 1; i < dateTimes.Length; i++)
+            {
+                var dateDiff = dateTimes[i-1] - dateTimes[i];
+                Assert.AreEqual(intervalLength, dateDiff);
+            }
         }
 
         [Test]
@@ -138,20 +152,11 @@
         static LongValueOccurrences BuildMessage(Dictionary<DateTime, long> measurements)
         {
             var sortedMeasurements = measurements.OrderBy(kv => kv.Key).ToList();
-            var baseDateTime = sortedMeasurements.First().Key;
-
-            var message = new LongValueOccurrences
+            var message = new LongValueOccurrences();
+            
+            foreach (var kvp in sortedMeasurements)
             {
-                Version = 1,
-                BaseTicks = baseDateTime.Ticks,
-                Ticks = new int[measurements.Count],
-                Values = new long[measurements.Count]
-            };
-
-            for (var i = 0; i < sortedMeasurements.Count; i++)
-            {
-                message.Ticks[i] = (int)(sortedMeasurements[i].Key.Ticks - baseDateTime.Ticks);
-                message.Values[i] = sortedMeasurements[i].Value;
+                Assert.True(message.TryRecord(kvp.Key.Ticks, kvp.Value));
             }
 
             return message;

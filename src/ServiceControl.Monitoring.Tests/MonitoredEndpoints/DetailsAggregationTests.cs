@@ -13,7 +13,7 @@
         {
             var message = BuildMessage(new Dictionary<DateTime, long>
             {
-                {now, 1L }
+                {now, 1L}
             });
 
             processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Instance1"), message, now);
@@ -30,7 +30,7 @@
         {
             var message = BuildMessage(new Dictionary<DateTime, long>
             {
-                {now, 1L }
+                {now, 1L}
             });
 
             processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Instance1"), message, now);
@@ -40,7 +40,7 @@
             var aggregation = aggregator.AggregateDataForLogicalEndpoint("Endpoint1").ToList();
 
             Assert.AreEqual(3, aggregation.Count);
-            CollectionAssert.AreEquivalent(aggregation.Select(i => i.Id), new []{"Instance1", "Instance2", "Instance3"});
+            CollectionAssert.AreEquivalent(aggregation.Select(i => i.Id), new[] { "Instance1", "Instance2", "Instance3" });
         }
     }
 }

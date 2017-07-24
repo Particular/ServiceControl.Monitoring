@@ -21,21 +21,28 @@
 
         public Task Handle(LongValueOccurrences message, IMessageHandlerContext context)
         {
-            var endpointInstanceId = EndpointInstanceId.From(context.MessageHeaders);
-
-            var messageType = context.MessageHeaders[MetricHeaders.MetricType];
-
-            switch (messageType)
+            try
             {
-                case ProcessingTimeMessageType:
-                    processingTimeStore.Store(endpointInstanceId, message, DateTime.UtcNow);
-                    break;
-                case CriticalTimeMessageType:
-                    criticalTimeStore.Store(endpointInstanceId, message, DateTime.UtcNow);
-                    break;
-                default:
-                    throw new UnknownLongValueOccurrenceMessageType(messageType);
+                var endpointInstanceId = EndpointInstanceId.From(context.MessageHeaders);
 
+                var messageType = context.MessageHeaders[MetricHeaders.MetricType];
+
+                switch (messageType)
+                {
+                    case ProcessingTimeMessageType:
+                        processingTimeStore.Store(endpointInstanceId, message, DateTime.UtcNow);
+                        break;
+                    case CriticalTimeMessageType:
+                        criticalTimeStore.Store(endpointInstanceId, message, DateTime.UtcNow);
+                        break;
+                    default:
+                        throw new UnknownLongValueOccurrenceMessageType(messageType);
+
+                }
+            }
+            finally
+            {
+                LongValueOccurrences.Pool.Default.Release(message);
             }
 
             return TaskEx.Completed;
