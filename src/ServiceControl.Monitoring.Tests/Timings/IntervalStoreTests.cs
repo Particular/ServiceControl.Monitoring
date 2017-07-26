@@ -8,9 +8,9 @@
     using Timings;
 
     [TestFixture]
-    public class TimingsStoreTests
+    public class IntervalStoreTests
     {
-        TimingsStore store;
+        IntervalsStore store;
         DateTime now;
         EndpointInstanceId endpointInstanceId;
 
@@ -30,12 +30,12 @@
                 {now.AddSeconds(-9), 0L}
             });
 
-            store.Store(endpointInstanceId, message, now);
+            store.Store(endpointInstanceId, message.Entries);
 
-            var timings = store.GetTimings(now);
+            var timings = store.GetIntervals(now);
 
             Assert.AreEqual(1, timings.Length);
-            Assert.AreEqual(TimingsStore.NumberOfHistoricalIntervals, timings[0].Intervals.Length);
+            Assert.AreEqual(IntervalsStore.NumberOfHistoricalIntervals, timings[0].Intervals.Length);
 
             // ordering of intervals
             var dateTimes = timings[0].Intervals.Select(i => i.IntervalStart).ToArray();
@@ -60,12 +60,12 @@
                 {now.AddSeconds(-9), 2L}
             });
 
-            store.Store(endpointInstanceId, message, now);
+            store.Store(endpointInstanceId, message.Entries);
 
-            var timings = store.GetTimings(now);
+            var timings = store.GetIntervals(now);
 
             Assert.AreEqual(1, timings[0].TotalMeasurements);
-            Assert.AreEqual(2L, timings[0].TotalTime);
+            Assert.AreEqual(2L, timings[0].TotalValue);
         }
 
         [Test]
@@ -76,9 +76,9 @@
                 {now.AddMinutes(-5), 3L}
             });
 
-            store.Store(endpointInstanceId, message, now);
+            store.Store(endpointInstanceId, message.Entries);
 
-            var timings = store.GetTimings(now);
+            var timings = store.GetIntervals(now);
 
             Assert.IsTrue(timings[0].Intervals.All(i => i.TotalMeasurements == 0));
         }
@@ -91,13 +91,13 @@
                 {now.AddMinutes(5), 1L}
             });
 
-            store.Store(endpointInstanceId, message, now);
+            store.Store(endpointInstanceId, message.Entries);
 
-            var currentTimings = store.GetTimings(now);
+            var currentTimings = store.GetIntervals(now);
 
             Assert.IsTrue(currentTimings[0].TotalMeasurements == 0);
 
-            var futureTimings = store.GetTimings(now.AddMinutes(6));
+            var futureTimings = store.GetIntervals(now.AddMinutes(6));
 
             Assert.IsTrue(futureTimings[0].TotalMeasurements == 1);
         }
@@ -117,16 +117,16 @@
                 {now, 3L}
             });
 
-            store.Store(endpointInstanceId, firstMessage, now);
-            store.Store(endpointInstanceId, secondMessage, now);
+            store.Store(endpointInstanceId, firstMessage.Entries);
+            store.Store(endpointInstanceId, secondMessage.Entries);
 
-            var timings = store.GetTimings(now);
+            var timings = store.GetIntervals(now);
 
             var nonEmptyIntervals = timings[0].Intervals.Where(i => i.TotalMeasurements > 0).ToArray();
 
             Assert.AreEqual(3, nonEmptyIntervals.Length);
             Assert.AreEqual(4, timings[0].TotalMeasurements);
-            CollectionAssert.AreEqual(new double[] { 4, 1, 1 }, nonEmptyIntervals.Select(i => i.TotalTime));
+            CollectionAssert.AreEqual(new double[] { 4, 1, 1 }, nonEmptyIntervals.Select(i => i.TotalValue));
             CollectionAssert.AreEqual(new double[] { 2, 1, 1 }, nonEmptyIntervals.Select(i => i.TotalMeasurements));
         }
 
@@ -140,9 +140,9 @@
                 {now, 1L}
             });
 
-            store.Store(endpointInstanceId, message, now);
+            store.Store(endpointInstanceId, message.Entries);
 
-            var timings = store.GetTimings(now);
+            var timings = store.GetIntervals(now);
             var intervalStarts = timings[0].Intervals.Select(i => i.IntervalStart).ToArray();
 
             Assert.IsTrue(intervalStarts[0]> intervalStarts[1]);

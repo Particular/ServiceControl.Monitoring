@@ -16,7 +16,7 @@
                 {now.AddSeconds(-9), 0L}
             });
 
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Endpoint1@machine"), message, now);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Endpoint1@machine"), message.Entries);
 
             var aggregation = aggregator.AggregateIntoLogicalEndpoints().ToList();
 
@@ -37,8 +37,8 @@
                 {now.AddSeconds(-9), 0L}
             });
 
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Endpoint1@machine"), firstMessage, now);
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint2", "Endpoint2@machine"), secondMessage, now);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Endpoint1@machine"), firstMessage.Entries);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint2", "Endpoint2@machine"), secondMessage.Entries);
 
             var aggregation = aggregator.AggregateIntoLogicalEndpoints().ToList();
 
@@ -60,8 +60,8 @@
                 {now.AddSeconds(-9), 0L}
             });
 
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Endpoint1@machine"), firstMessage, now);
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Endpoint1@machine2"), secondMessage, now);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Endpoint1@machine"), firstMessage.Entries);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Endpoint1@machine2"), secondMessage.Entries);
 
             var aggregation = aggregator.AggregateIntoLogicalEndpoints().ToList();
 
@@ -77,7 +77,7 @@
                 {now.AddSeconds(-9), 0L}
             });
 
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Endpoint1@machine"), message, now);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Endpoint1@machine"), message.Entries);
 
             var aggregation = aggregator.AggregateIntoLogicalEndpoints().ToList();
 

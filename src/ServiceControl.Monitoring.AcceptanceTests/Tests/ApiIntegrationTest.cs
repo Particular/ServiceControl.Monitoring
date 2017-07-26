@@ -2,13 +2,12 @@
 {
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using AcceptanceTesting;
     using NServiceBus.AcceptanceTests;
     using NUnit.Framework;
 
     public abstract class ApiIntegrationTest : NServiceBusAcceptanceTest
     {
-        protected HttpClient httpClient;
-
         [SetUp]
         public void Setup()
         {
@@ -25,9 +24,21 @@
             httpClient?.Dispose();
         }
 
-        protected  string GetString(string url)
+        protected string GetString(string url)
         {
             return httpClient.GetStringAsync(url).GetAwaiter().GetResult();
+        }
+
+        protected string MonitoredEndpointsUrl = "http://localhost:1234/monitored-endpoints";
+        HttpClient httpClient;
+
+        public class SampleMessage : IMessage
+        {
+        }
+
+        protected class Context : ScenarioContext
+        {
+            public bool ReportReceived { get; set; }
         }
     }
 }

@@ -3,33 +3,35 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
+    using Infrastructure;
     using Metrics.Raw;
 
-    public abstract class TimingsStore
+    public abstract class IntervalsStore : IKnowAboutEndpoints
     {
-        ConcurrentDictionary<EndpointInstanceId, Measurement> timings = 
-            new ConcurrentDictionary<EndpointInstanceId, Measurement>();
+        ConcurrentDictionary<EndpointInstanceId, Measurement> intervals = new ConcurrentDictionary<EndpointInstanceId, Measurement>();
 
-        public void Store(EndpointInstanceId instanceId, LongValueOccurrences message, DateTime now)
+        public void Store(EndpointInstanceId instanceId, RawMessage.Entry[] entries)
         {
-            var measurement = timings.GetOrAdd(instanceId, _ => new Measurement());
-            measurement.Report(message);
+            var measurement = intervals.GetOrAdd(instanceId, _ => new Measurement());
+
+            measurement.Report(entries);
         }
 
-        public EndpointInstanceTimings[] GetTimings(DateTime now)
+        public EndpointInstanceIntervals[] GetIntervals(DateTime now)
         {
-            var result = new List<EndpointInstanceTimings>();
+            var result = new List<EndpointInstanceIntervals>();
 
-            foreach (var timing in timings)
+            foreach (var interval in intervals)
             {
-                var instanceId = timing.Key;
-                var measurement = timing.Value;
+                var instanceId = interval.Key;
+                var measurement = interval.Value;
 
-                var item = new EndpointInstanceTimings
+                var item = new EndpointInstanceIntervals
                 {
                     Id = instanceId,
-                    Intervals = new TimingInterval[NumberOfHistoricalIntervals]
+                    Intervals = new TimeInterval[NumberOfHistoricalIntervals]
                 };
 
                 measurement.ReportTimeIntervals(now, item);
@@ -46,7 +48,7 @@
             MeasurementInterval[] intervals = new MeasurementInterval[Size];
 
             // ReSharper disable once SuggestBaseTypeForParameter
-            public void ReportTimeIntervals(DateTime now, EndpointInstanceTimings item)
+            public void ReportTimeIntervals(DateTime now, EndpointInstanceIntervals item)
             {
                 var epoch = GetEpoch(now.Ticks);
                 var intervalsToFill = item.Intervals;
@@ -63,7 +65,7 @@
                         var epochIndex = epoch % Size;
                         var interval = intervals[epochIndex];
 
-                        intervalsToFill[i] = new TimingInterval
+                        intervalsToFill[i] = new TimeInterval
                         {
                             IntervalStart = GetDateTime(epoch),
                         };
@@ -72,7 +74,7 @@
                         // we calculate data only if that's the right epoch
                         if (interval.Epoch == epoch)
                         {
-                            intervalsToFill[i].TotalTime = interval.TotalTime;
+                            intervalsToFill[i].TotalValue = interval.TotalTime;
                             intervalsToFill[i].TotalMeasurements = interval.TotalMeasurements;
 
                             totalDuration += interval.TotalTime;
@@ -87,18 +89,18 @@
                     rwl.ExitReadLock();
                 }
 
-                item.TotalTime = totalDuration;
+                item.TotalValue = totalDuration;
                 item.TotalMeasurements = totalMeasurements;
             }
 
-            public void Report(LongValueOccurrences message)
+            public void Report(RawMessage.Entry[] entries)
             {
                 rwl.EnterWriteLock();
                 try
                 {
-                    for (var i = 0; i < message.Length; i++)
+                    for (var i = 0; i < entries.Length; i++)
                     {
-                        Report(ref message.entries[i]);
+                        Report(ref entries[i]);
                     }
                 }
                 finally
@@ -107,7 +109,7 @@
                 }
             }
 
-            void Report(ref LongValueOccurrences.Entry entry)
+            void Report(ref RawMessage.Entry entry)
             {
                 var epoch = GetEpoch(ref entry);
                 var epochIndex = epoch % Size;
@@ -142,7 +144,7 @@
                 }
             }
 
-            static long GetEpoch(ref LongValueOccurrences.Entry entry)
+            static long GetEpoch(ref RawMessage.Entry entry)
             {
                 return GetEpoch(entry.DateTicks);
             }
@@ -158,17 +160,17 @@
             }
         }
         
-        public class EndpointInstanceTimings { 
+        public class EndpointInstanceIntervals { 
             public EndpointInstanceId Id { get; set; }
-            public TimingInterval[] Intervals { get; set; }
-            public long TotalTime { get; set; }
+            public TimeInterval[] Intervals { get; set; }
+            public long TotalValue { get; set; }
             public long TotalMeasurements { get; set; }
         }
 
-        public class TimingInterval
+        public class TimeInterval
         {
             public DateTime IntervalStart { get; set; }
-            public long TotalTime { get; set; }
+            public long TotalValue { get; set; }
             public long TotalMeasurements { get; set; }
         }
 
@@ -176,5 +178,28 @@
         internal const int NumberOfHistoricalIntervals = 4 * 5;
 
         static TimeSpan IntervalSize = TimeSpan.FromSeconds(15);
+
+        IDictionary<string, IEnumerable<EndpointInstanceId>> IKnowAboutEndpoints.AllEndpointData()
+        {
+            return intervals.Keys
+                .GroupBy(i => i.EndpointName)
+                .ToDictionary(g => g.Key, g => g.AsEnumerable());
+        }
+
+        protected static MonitoredEndpointValues AggregateTimings(List<EndpointInstanceIntervals> timings)
+        {
+            Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
+
+            return new MonitoredEndpointValues
+            {
+                Average = timings.Sum(t => t.TotalValue) / returnOneIfZero(timings.Sum(t => t.TotalMeasurements)),
+                Points = timings.SelectMany(t => t.Intervals)
+                    .GroupBy(i => i.IntervalStart)
+                    .OrderBy(g => g.Key)
+                    .Select(g => g.Sum(i => i.TotalValue) / returnOneIfZero(g.Sum(i => i.TotalMeasurements)))
+                    .ToArray()
+            };
+        }
+
     }
 }

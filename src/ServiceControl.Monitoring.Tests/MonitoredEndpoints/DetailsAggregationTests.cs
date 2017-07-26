@@ -16,8 +16,8 @@
                 {now, 1L}
             });
 
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Instance1"), message, now);
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint2", "Instance2"), message, now);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Instance1"), message.Entries);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint2", "Instance2"), message.Entries);
 
             var aggregation = aggregator.AggregateDataForLogicalEndpoint("Endpoint1").ToList();
 
@@ -33,9 +33,9 @@
                 {now, 1L}
             });
 
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Instance1"), message, now);
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Instance2"), message, now);
-            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Instance3"), message, now);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Instance1"), message.Entries);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Instance2"), message.Entries);
+            processingTimeStore.Store(new EndpointInstanceId("Endpoint1", "Instance3"), message.Entries);
 
             var aggregation = aggregator.AggregateDataForLogicalEndpoint("Endpoint1").ToList();
 

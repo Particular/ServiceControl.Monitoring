@@ -8,11 +8,10 @@
     using NUnit.Framework;
     using ServiceControl.Monitoring;
     using ServiceControl.Monitoring.Metrics.Raw;
-    using Conventions = AcceptanceTesting.Customization;
 
-    public class When_querying_timings_data : ApiIntegrationTest
+    public class When_querying_retries_data : ApiIntegrationTest
     {
-        static string ReceiverEndpointName => Conventions.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));
+        static string ReceiverEndpointName => AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));
 
         [Test]
         public async Task Should_report_via_http()
@@ -20,7 +19,12 @@
             string response = null;
 
             await Scenario.Define<Context>()
-                .WithEndpoint<MonitoredEndpoint>(c => c.When(s => s.SendLocal(new SampleMessage())))
+                .WithEndpoint<MonitoredEndpoint>(c =>
+                {
+                    c.DoNotFailOnErrorMessages();
+                    c.CustomConfig(ec => ec.Recoverability().Immediate(i => i.NumberOfRetries(5)));
+                    c.When(s => s.SendLocal(new SampleMessage()));
+                })
                 .WithEndpoint<MonitoringEndpoint>()
                 .Done(c => c.ReportReceived && (response = GetString(MonitoredEndpointsUrl)) != null)
                 .Run();
@@ -31,10 +35,10 @@
             Assert.AreEqual(1, result.Count);
 
             var endpoint = result[0].Value<JObject>();
-            var processingTime = endpoint["processingTime"].Value<JObject>();
+            var retries = endpoint["retries"].Value<JObject>();
 
-            Assert.IsTrue(processingTime["average"].Value<int>() > 0);
-            Assert.AreEqual(20, processingTime["points"].Value<JArray>().Count);
+            Assert.IsTrue(retries["average"].Value<double>() > 0);
+            Assert.AreEqual(20, retries["points"].Value<JArray>().Count);
         }
 
         class MonitoredEndpoint : EndpointConfigurationBuilder
@@ -53,7 +57,7 @@
             {
                 public Task Handle(SampleMessage message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    throw new Exception("Boom!");
                 }
             }
         }
@@ -69,16 +73,16 @@
                 });
             }
 
-            public class LongValueOccurrenceHandler : IHandleMessages<LongValueOccurrences>
+            public class OccurrencesHandler : IHandleMessages<Occurrences>
             {
                 Context testContext;
 
-                public LongValueOccurrenceHandler(Context testContext)
+                public OccurrencesHandler(Context testContext)
                 {
                     this.testContext = testContext;
                 }
 
-                public Task Handle(LongValueOccurrences message, IMessageHandlerContext context)
+                public Task Handle(Occurrences message, IMessageHandlerContext context)
                 {
                     testContext.ReportReceived = true;
 

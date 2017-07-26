@@ -4,9 +4,11 @@ namespace ServiceControl.Monitoring.QueueLength
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using Infrastructure;
     using Newtonsoft.Json.Linq;
+    using Timings;
 
-    public class QueueLengthDataStore
+    public class QueueLengthDataStore : IKnowAboutEndpoints, IProvideEndpointMonitoringData
     {
         public QueueLengthDataStore(IQueueLengthCalculator calculator)
         {
@@ -135,5 +137,42 @@ namespace ServiceControl.Monitoring.QueueLength
         IQueueLengthCalculator calculator;
         TimeSpan HistoricalPeriod = TimeSpan.FromMinutes(5);
         ConcurrentDictionary<string, ConcurrentDictionary<DateTime, double>> queueLengths = new ConcurrentDictionary<string, ConcurrentDictionary<DateTime, double>>();
+
+
+        IDictionary<string, IEnumerable<EndpointInstanceId>> IKnowAboutEndpoints.AllEndpointData()
+        {
+            return queueLengths.Keys
+                .ToDictionary(
+                    endpointName => endpointName,
+                    _ => Enumerable.Empty<EndpointInstanceId>()
+                );
+        }
+
+        public void FillIn(MonitoredEndpoint[] data, DateTime now)
+        {
+            var snapshot = GetQueueLengths(now);
+
+            foreach (var monitoredEndpoint in data)
+            {
+                Dictionary<DateTime, double> queueLength;
+
+                if (snapshot.TryGetValue(monitoredEndpoint.Name, out queueLength) && queueLength.Count > 0)
+                {
+                    var queueLengthValues = queueLength.OrderBy(kvp => kvp.Key).ToArray();
+                    var queueLengthMinDate = queueLengthValues.First().Key;
+
+                    monitoredEndpoint.QueueLength = new LinearMonitoredValues
+                    {
+                        Average = queueLength.Values.Average(),
+                        Points = queueLengthValues.Select(kvp => kvp.Value).ToArray(),
+                        PointsAxisValues = queueLengthValues
+                            .Select(kvp => (int)kvp.Key.Subtract(queueLengthMinDate).TotalMilliseconds)
+                            .ToArray()
+                    };
+                }
+
+            }
+
+        }
     }
 }

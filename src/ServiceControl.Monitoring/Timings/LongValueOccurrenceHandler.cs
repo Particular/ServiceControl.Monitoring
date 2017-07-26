@@ -1,13 +1,12 @@
 ﻿namespace ServiceControl.Monitoring.Timings
 {
-    using System;
     using System.Threading.Tasks;
     using Metrics.Raw;
     using NServiceBus;
 
     class TimingsReportHandler : IHandleMessages<LongValueOccurrences>
     {
-        readonly TimingsStore processingTimeStore;
+        readonly IntervalsStore processingTimeStore;
         readonly CriticalTimeStore criticalTimeStore;
 
         const string ProcessingTimeMessageType = "ProcessingTime";
@@ -30,10 +29,10 @@
                 switch (messageType)
                 {
                     case ProcessingTimeMessageType:
-                        processingTimeStore.Store(endpointInstanceId, message, DateTime.UtcNow);
+                        processingTimeStore.Store(endpointInstanceId, message.Entries);
                         break;
                     case CriticalTimeMessageType:
-                        criticalTimeStore.Store(endpointInstanceId, message, DateTime.UtcNow);
+                        criticalTimeStore.Store(endpointInstanceId, message.Entries);
                         break;
                     default:
                         throw new UnknownLongValueOccurrenceMessageType(messageType);
@@ -42,7 +41,7 @@
             }
             finally
             {
-                LongValueOccurrences.Pool.Default.Release(message);
+                RawMessage.Pool<LongValueOccurrences>.Default.Release(message);
             }
 
             return TaskEx.Completed;

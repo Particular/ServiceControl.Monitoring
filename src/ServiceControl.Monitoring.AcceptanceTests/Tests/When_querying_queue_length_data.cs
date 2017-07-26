@@ -18,19 +18,17 @@
         [Test]
         public async Task Should_report_via_http()
         {
-            var context = await Scenario.Define<Context>()
+            string response = null;
+
+            await Scenario.Define<Context>()
                 .WithEndpoint<MonitoredEndpoint>()
                 .WithEndpoint<Receiver>()
-                .Done(c =>
-                {
-                    c.Response = GetString("http://localhost:1234/monitored-endpoints");
-                    return c.Response != null && c.Response.Contains("10");
-                })
+                .Done(c => (response = GetString(MonitoredEndpointsUrl)) != null && response.Contains("10"))
                 .Run();
 
-            Assert.IsNotNull(context.Response);
+            Assert.IsNotNull(response);
 
-            var result = JArray.Parse(context.Response);
+            var result = JArray.Parse(response);
             Assert.AreEqual(1, result.Count);
 
             var endpoint = result[0].Value<JObject>();
@@ -69,11 +67,6 @@
     ""Timers"": []
 }";
 
-        class Context : ScenarioContext
-        {
-            public string Response { get; set; }
-        }
-
         class MonitoredEndpoint : EndpointConfigurationBuilder
         {
             public MonitoredEndpoint()
@@ -100,6 +93,22 @@
                     EndpointFactory.MakeMetricsReceiver(c, Settings);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
+            }
+
+            public class ReportHandler : IHandleMessages<MetricReport>
+            {
+                Context testContext;
+
+                public ReportHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
+
+                public Task Handle(MetricReport message, IMessageHandlerContext context)
+                {
+                    testContext.ReportReceived = true;
+                    return TaskEx.Completed;
+                }
             }
         }
     }

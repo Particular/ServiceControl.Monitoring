@@ -51,8 +51,11 @@
             config.SendFailedMessagesTo(settings.ErrorQueue);
             config.DisableFeature<AutoSubscribe>();
 
-            config.Recoverability().AddUnrecoverableException<UnknownLongValueOccurrenceMessageType>();
+            var recoverability = config.Recoverability();
+            recoverability.AddUnrecoverableException<UnknownLongValueOccurrenceMessageType>();
+            recoverability.AddUnrecoverableException<UnknownOccurrenceMessageType>();
             config.AddDeserializer<LongValueOccurrenceSerializerDefinition>();
+            config.AddDeserializer<OccurrenceSerializerDefinition>();
 
             config.EnableFeature<HttpEndpoint>();
         }

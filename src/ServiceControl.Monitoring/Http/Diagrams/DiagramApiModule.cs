@@ -1,7 +1,6 @@
 namespace ServiceControl.Monitoring.Http
 {
     using Nancy;
-    using QueueLength;
     using Timings;
 
     /// <summary>
@@ -12,10 +11,8 @@ namespace ServiceControl.Monitoring.Http
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public MonitoredEndpointsModule(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore, QueueLengthDataStore queueLengthDataStore)
+        public MonitoredEndpointsModule(TimingsAggregator timingAggregator)
         {
-            var timingAggregator = new TimingsAggregator(processingTimeStore, criticalTimeStore, queueLengthDataStore);
-
             Get["/monitored-endpoints"] = x =>
             {
                 var endpointsData = timingAggregator.AggregateIntoLogicalEndpoints();

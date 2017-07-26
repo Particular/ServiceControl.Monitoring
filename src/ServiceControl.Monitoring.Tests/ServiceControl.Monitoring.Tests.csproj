@@ -69,8 +69,8 @@
     <Compile Include="MonitoredEndpoints\ListAggregationTests.cs" />
     <Compile Include="QueueLength\CalculatorTests.cs" />
     <Compile Include="QueueLength\QueueLengthStoreTests.cs" />
-    <Compile Include="Timings\LongValueOccurrencesPollTests.cs" />
-    <Compile Include="Timings\TimingsStoreTests.cs" />
+    <Compile Include="Timings\RawMessagePollTests.cs" />
+    <Compile Include="Timings\IntervalStoreTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj">

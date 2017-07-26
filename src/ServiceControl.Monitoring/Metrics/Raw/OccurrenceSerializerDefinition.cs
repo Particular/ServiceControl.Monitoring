@@ -7,28 +7,26 @@
     using NServiceBus.Serialization;
     using NServiceBus.Settings;
 
-    class LongValueOccurrenceSerializerDefinition : SerializationDefinition
+    public class OccurrenceSerializerDefinition : SerializationDefinition
     {
         public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
         {
-            return mapper => new DurationRawDataSerializer();
+            return mapper => new OccurrenceSerializer();
         }
     }
 
-    class DurationRawDataSerializer : RawMessageSerializer<LongValueOccurrences>, IMessageSerializer
+    public class OccurrenceSerializer : RawMessageSerializer<Occurrences>, IMessageSerializer
     {
         public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
         {
             return DeserializeRawMessage(stream);
         }
 
-        public string ContentType { get; } = "LongValueOccurrence";
+        public string ContentType { get; } = "Occurrence";
 
-        protected override bool Store(long timestamp, BinaryReader reader, LongValueOccurrences message)
+        protected override bool Store(long timestamp, BinaryReader reader, Occurrences message)
         {
-            var value = reader.ReadInt64();
-
-            return message.TryRecord(timestamp, value);
+            return message.TryRecord(timestamp);
         }
     }
 }
