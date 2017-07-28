@@ -6,13 +6,13 @@
     using System.Threading;
     using Messaging;
 
-    public abstract class IntervalsStore
+    public class IntervalsStore
     {
         ConcurrentDictionary<EndpointInstanceId, Measurement> intervals = new ConcurrentDictionary<EndpointInstanceId, Measurement>();
 
         public void Store(EndpointInstanceId instanceId, RawMessage.Entry[] entries)
         {
-            var measurement = intervals.GetOrAdd(instanceId, _ => new Measurement());
+            var measurement = intervals.GetOrAdd(instanceId, _ => new Measurement(intervalSize, numberOfIntervals));
 
             measurement.Report(entries);
         }
@@ -29,7 +29,7 @@
                 var item = new EndpointInstanceIntervals
                 {
                     Id = instanceId,
-                    Intervals = new TimeInterval[NumberOfHistoricalIntervals]
+                    Intervals = new TimeInterval[numberOfIntervals]
                 };
 
                 measurement.ReportTimeIntervals(now, item);
@@ -41,9 +41,18 @@
 
         class Measurement
         {
-            const int Size = NumberOfHistoricalIntervals*2;
+            int size;
+            TimeSpan intervalSize;
+            MeasurementInterval[] intervals;
+
             ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
-            MeasurementInterval[] intervals = new MeasurementInterval[Size];
+
+            public Measurement(TimeSpan intervalSize, int numberOfIntervals)
+            {
+                this.intervalSize = intervalSize;
+                size = numberOfIntervals * 2;
+                intervals = new MeasurementInterval[size];
+            }
 
             // ReSharper disable once SuggestBaseTypeForParameter
             public void ReportTimeIntervals(DateTime now, EndpointInstanceIntervals item)
@@ -60,7 +69,7 @@
                 {
                     for (var i = 0; i < numberOfIntervalsToFill ; i++)
                     {
-                        var epochIndex = epoch % Size;
+                        var epochIndex = epoch % size;
                         var interval = intervals[epochIndex];
 
                         intervalsToFill[i] = new TimeInterval
@@ -110,7 +119,7 @@
             void Report(ref RawMessage.Entry entry)
             {
                 var epoch = GetEpoch(ref entry);
-                var epochIndex = epoch % Size;
+                var epochIndex = epoch % size;
 
                 if (intervals[epochIndex].Epoch == epoch)
                 {
@@ -142,19 +151,19 @@
                 }
             }
 
-            static long GetEpoch(ref RawMessage.Entry entry)
+            long GetEpoch(ref RawMessage.Entry entry)
             {
                 return GetEpoch(entry.DateTicks);
             }
 
-            static long GetEpoch(long ticks)
+            long GetEpoch(long ticks)
             {
-                return ticks / IntervalSize.Ticks;
+                return ticks / intervalSize.Ticks;
             }
 
-            static DateTime GetDateTime(long epoch)
+            DateTime GetDateTime(long epoch)
             {
-                return new DateTime(epoch * IntervalSize.Ticks, DateTimeKind.Utc);
+                return new DateTime(epoch * intervalSize.Ticks, DateTimeKind.Utc);
             }
         }
         
@@ -172,9 +181,14 @@
             public long TotalMeasurements { get; set; }
         }
 
-        /// Number of 15s intervals in 5 minutes
-        internal const int NumberOfHistoricalIntervals = 4 * 5;
+        public IntervalsStore(TimeSpan intervalSize, int numberOfIntervals)
+        {
+            this.intervalSize = intervalSize;
+            this.numberOfIntervals = numberOfIntervals;
+        }
 
-        static TimeSpan IntervalSize = TimeSpan.FromSeconds(15);
+        /// Number of 15s intervals in 5 minutes
+        int numberOfIntervals = 4 * 5;
+        TimeSpan intervalSize = TimeSpan.FromSeconds(15);
     }
 }

@@ -43,11 +43,11 @@ namespace ServiceControl.Monitoring.Http.Diagrams
             };
         }
 
-        static void FillInEndpointData(MonitoredEndpoint[] endpoints, IntervalsStore store, 
+        static void FillInEndpointData(MonitoredEndpoint[] endpoints, VariableHistoryIntervalStore store, 
             Action<MonitoredEndpoint, MonitoredEndpointValues> setter,
             Func<List<IntervalsStore.EndpointInstanceIntervals>, MonitoredEndpointValues> aggregate)
         {
-            var intervals = store.GetIntervals(DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
+            var intervals = store.GetIntervals(HistoryPeriod.FromMinutes(5), DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
 
             foreach (var endpoint in endpoints)
             {
@@ -57,11 +57,11 @@ namespace ServiceControl.Monitoring.Http.Diagrams
             }
         }
 
-        static void FillInInstanceData(MonitoredEndpointInstance[] instances, IntervalsStore store,
+        static void FillInInstanceData(MonitoredEndpointInstance[] instances, VariableHistoryIntervalStore store,
             Action<MonitoredEndpointInstance, MonitoredEndpointValues> setter,
             Func<List<IntervalsStore.EndpointInstanceIntervals>, MonitoredEndpointValues> aggregate)
         {
-            var intervals = store.GetIntervals(DateTime.UtcNow).ToLookup(k => k.Id.InstanceId);
+            var intervals = store.GetIntervals(HistoryPeriod.FromMinutes(5), DateTime.UtcNow).ToLookup(k => k.Id.InstanceId);
 
             foreach (var instance in instances)
             {

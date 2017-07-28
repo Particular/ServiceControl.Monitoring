@@ -151,6 +151,8 @@
     <Compile Include="Http\Diagrams\DiagramApiModule.cs" />
     <Compile Include="Infrastructure\EndpointRegistry.cs" />
     <Compile Include="Infrastructure\EndpointTracker.cs" />
+    <Compile Include="Infrastructure\HistoryPeriod.cs" />
+    <Compile Include="Timings\ProcessingTimeStore.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="EndpointFactory.cs" />
     <Compile Include="Http\HttpEndpoint.cs" />
@@ -171,7 +173,7 @@
     <Compile Include="Http\Diagrams\IntervalsAggregator.cs" />
     <Compile Include="Timings\LongValueOccurrenceHandler.cs" />
     <Compile Include="Messaging\LongValueOccurrences.cs" />
-    <Compile Include="Timings\ProcessingTimeStore.cs" />
+    <Compile Include="Infrastructure\VariableHistoryIntervalStore.cs" />
     <Compile Include="Infrastructure\IntervalsStore.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Hosting\HostService.cs" />

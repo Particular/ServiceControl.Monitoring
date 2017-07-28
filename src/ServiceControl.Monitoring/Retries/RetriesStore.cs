@@ -1,7 +1,7 @@
 ﻿namespace ServiceControl.Monitoring
 {
     using Infrastructure;
-    public class RetriesStore : IntervalsStore
+    public class RetriesStore : VariableHistoryIntervalStore
     {
     }
 }

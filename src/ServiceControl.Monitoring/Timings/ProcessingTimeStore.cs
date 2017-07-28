@@ -1,8 +1,8 @@
-﻿namespace ServiceControl.Monitoring.Timings
+namespace ServiceControl.Monitoring.Timings
 {
     using Infrastructure;
 
-    public class ProcessingTimeStore : IntervalsStore
+    public class ProcessingTimeStore : VariableHistoryIntervalStore
     {
     }
 }
