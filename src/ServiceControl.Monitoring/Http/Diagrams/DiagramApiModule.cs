@@ -18,14 +18,17 @@ namespace ServiceControl.Monitoring.Http.Diagrams
         /// </summary>
         public MonitoredEndpointsModule(EndpointRegistry endpointRegistry, CriticalTimeStore criticalTimeStore, ProcessingTimeStore processingTimeStore, RetriesStore retriesStore, QueueLengthStore queueLengthStore)
         {
-            Get["/monitored-endpoints"] = x =>
+            const int DefaultHistory = 5;
+
+            Get["/monitored-endpoints"] = parameters =>
             {
                 var endpoints = GetMonitoredEndpoints(endpointRegistry);
+                var period = HistoryPeriod.FromMinutes((int?)Request.Query["history"] ?? DefaultHistory);
 
-                FillInEndpointData(endpoints, criticalTimeStore, (e, v) => e.CriticalTime = v, IntervalsAggregator.AggregateTimings);
-                FillInEndpointData(endpoints, processingTimeStore, (e, v) => e.ProcessingTime = v, IntervalsAggregator.AggregateTimings);
-                FillInEndpointData(endpoints, retriesStore, (e, v) => e.Retries = v, IntervalsAggregator.AggregateRetries);
-                FillInEndpointData(endpoints, queueLengthStore, (e, v) => e.QueueLength = v, IntervalsAggregator.AggregateQueueLength);
+                FillInEndpointData(endpoints, criticalTimeStore, period, (e, v) => e.CriticalTime = v, IntervalsAggregator.AggregateTimings);
+                FillInEndpointData(endpoints, processingTimeStore, period, (e, v) => e.ProcessingTime = v, IntervalsAggregator.AggregateTimings);
+                FillInEndpointData(endpoints, retriesStore, period, (e, v) => e.Retries = v, IntervalsAggregator.AggregateRetries);
+                FillInEndpointData(endpoints, queueLengthStore, period, (e, v) => e.QueueLength = v, IntervalsAggregator.AggregateQueueLength);
 
                 return Negotiate.WithModel(endpoints);
             };
@@ -33,21 +36,25 @@ namespace ServiceControl.Monitoring.Http.Diagrams
             Get["/monitored-endpoints/{endpointName}"] = parameters =>
             {
                 var endpointName = (string)parameters.EndpointName;
-                var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName);
 
-                FillInInstanceData(instances, criticalTimeStore, (e, v) => e.CriticalTime = v, IntervalsAggregator.AggregateTimings);
-                FillInInstanceData(instances, processingTimeStore, (e, v) => e.ProcessingTime = v, IntervalsAggregator.AggregateTimings);
-                FillInInstanceData(instances, retriesStore, (e, v) => e.Retries = v, IntervalsAggregator.AggregateRetries);
+                var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName);
+                var period = HistoryPeriod.FromMinutes((int?)Request.Query["history"] ?? DefaultHistory);
+
+                FillInInstanceData(instances, criticalTimeStore, period, (e, v) => e.CriticalTime = v, IntervalsAggregator.AggregateTimings);
+                FillInInstanceData(instances, processingTimeStore, period, (e, v) => e.ProcessingTime = v, IntervalsAggregator.AggregateTimings);
+                FillInInstanceData(instances, retriesStore, period, (e, v) => e.Retries = v, IntervalsAggregator.AggregateRetries);
 
                 return Negotiate.WithModel(instances);
             };
         }
 
-        static void FillInEndpointData(MonitoredEndpoint[] endpoints, VariableHistoryIntervalStore store, 
+        static void FillInEndpointData(MonitoredEndpoint[] endpoints, 
+            VariableHistoryIntervalStore store, 
+            HistoryPeriod period,
             Action<MonitoredEndpoint, MonitoredEndpointValues> setter,
             Func<List<IntervalsStore.EndpointInstanceIntervals>, MonitoredEndpointValues> aggregate)
         {
-            var intervals = store.GetIntervals(HistoryPeriod.FromMinutes(5), DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
+            var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
 
             foreach (var endpoint in endpoints)
             {
@@ -57,11 +64,13 @@ namespace ServiceControl.Monitoring.Http.Diagrams
             }
         }
 
-        static void FillInInstanceData(MonitoredEndpointInstance[] instances, VariableHistoryIntervalStore store,
+        static void FillInInstanceData(MonitoredEndpointInstance[] instances, 
+            VariableHistoryIntervalStore store,
+            HistoryPeriod period,
             Action<MonitoredEndpointInstance, MonitoredEndpointValues> setter,
             Func<List<IntervalsStore.EndpointInstanceIntervals>, MonitoredEndpointValues> aggregate)
         {
-            var intervals = store.GetIntervals(HistoryPeriod.FromMinutes(5), DateTime.UtcNow).ToLookup(k => k.Id.InstanceId);
+            var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.InstanceId);
 
             foreach (var instance in instances)
             {
