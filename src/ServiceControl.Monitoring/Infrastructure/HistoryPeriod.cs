@@ -8,15 +8,14 @@
     {
         static HistoryPeriod()
         {
-            all = new Dictionary<TimeSpan, HistoryPeriod>();
-
-            AddPeriod(TimeSpan.FromMinutes(5));
-            AddPeriod(TimeSpan.FromMinutes(10));
-            AddPeriod(TimeSpan.FromMinutes(15));
-            AddPeriod(TimeSpan.FromMinutes(30));
-            AddPeriod(TimeSpan.FromMinutes(60));
-
-            All = all.Values.ToList().AsReadOnly();
+            All = new List<HistoryPeriod>()
+            {
+                new HistoryPeriod(TimeSpan.FromMinutes(5)),
+                new HistoryPeriod(TimeSpan.FromMinutes(10)),
+                new HistoryPeriod(TimeSpan.FromMinutes(15)),
+                new HistoryPeriod(TimeSpan.FromMinutes(30)),
+                new HistoryPeriod(TimeSpan.FromMinutes(60))
+            };
         }
 
         HistoryPeriod(TimeSpan value)
@@ -26,16 +25,13 @@
 
         public TimeSpan Value { get; }
 
-        static void AddPeriod(TimeSpan value)
-        {
-            all.Add(value, new HistoryPeriod(value));
-        }
-
         public static HistoryPeriod FromMinutes(int minutes)
         {
-            HistoryPeriod period;
-            if (all.TryGetValue(TimeSpan.FromMinutes(minutes), out period))
+            var period = All.FirstOrDefault(p => p.Value == TimeSpan.FromMinutes(minutes));
+            if (period != null)
+            {
                 return period;
+            }
 
             throw new Exception("Unknown history period.");
         }
@@ -57,8 +53,6 @@
         {
             return Value.GetHashCode();
         }
-
-        static readonly Dictionary<TimeSpan, HistoryPeriod> all;
 
         public static IReadOnlyCollection<HistoryPeriod> All;
     }
