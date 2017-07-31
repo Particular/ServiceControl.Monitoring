@@ -188,7 +188,7 @@
         }
 
         /// Number of 15s intervals in 5 minutes
-        int numberOfIntervals = 4 * 5;
-        TimeSpan intervalSize = TimeSpan.FromSeconds(15);
+        int numberOfIntervals;
+        TimeSpan intervalSize;
     }
 }
