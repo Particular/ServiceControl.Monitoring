@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Monitoring.Infrastructure;
     using Monitoring.QueueLength;
     using Newtonsoft.Json.Linq;
     using NUnit.Framework;
@@ -21,7 +22,7 @@
                 });
             
             var calculator = new FakeCalculator();
-            var consumer = new QueueLengthDataStore(calculator);
+            var consumer = new QueueLengthStore(calculator);
 
             consumer.Store(EmptyEndpointInstanceId(), message);
 
@@ -39,7 +40,7 @@
                 });
 
             var calculator = new FakeCalculator();
-            var consumer = new QueueLengthDataStore(calculator);
+            var consumer = new QueueLengthStore(calculator);
 
             consumer.Store(EmptyEndpointInstanceId(), message);
 
@@ -56,7 +57,7 @@
                 });
 
             var calculator = new FakeCalculator();
-            var consumer = new QueueLengthDataStore(calculator);
+            var consumer = new QueueLengthStore(calculator);
             consumer.Store(EmptyEndpointInstanceId(), message);
 
             Assert.AreEqual(42, calculator.ReceivedSequences["fc3b1c43-7964-4a75-81e1-3260b85d6065"]);
@@ -73,7 +74,7 @@
                 });
             
             var calculator = new FakeCalculator();
-            var consumer = new QueueLengthDataStore(calculator);
+            var consumer = new QueueLengthStore(calculator);
 
             consumer.Store(EmptyEndpointInstanceId(), report);
 
@@ -81,6 +82,7 @@
             Assert.IsFalse(calculator.Queues.ContainsKey("someKey"));
         }
 
+        
         [Test]
         public void It_calculates_endpoint_queue_length_as_sum_of_all_input_queue_lengths()
         {
@@ -104,19 +106,22 @@
                     new Counter("seq-2", 15),
                 });
 
-            var consumer = new QueueLengthDataStore(new QueueLengthCalculator());
+            var consumer = new QueueLengthStore(new QueueLengthCalculator());
 
             consumer.Store(new EndpointInstanceId("SenderA", string.Empty), senderAReport);
             consumer.Store(new EndpointInstanceId("Receiver", string.Empty), receiverReport);
             consumer.Store(new EndpointInstanceId("SenderB", string.Empty), senderBReport);
 
-            var lengths = consumer.GetQueueLengths(DateTime.UtcNow);
+            var now = DateTime.UtcNow;
+            consumer.SnapshotCurrentQueueLengthEstimations(now);
 
-            Assert.AreEqual(1, lengths.Keys.Count);
-            Assert.AreEqual("Receiver", lengths.Keys.First());
-            Assert.AreEqual(9, lengths.First().Value.Last().Value);
+            var lengths = consumer.GetIntervals(now);
+
+            Assert.AreEqual(1, lengths.Length);
+            Assert.AreEqual(9, lengths[0].Intervals.First().TotalValue);
         }
 
+        
         [Test]
         public void If_there_is_only_send_sequence_no_value_snapshot_is_not_taken()
         {
@@ -126,15 +131,20 @@
                     new Counter("seq-1", 1)
                 });
 
-            var consumer = new QueueLengthDataStore(new QueueLengthCalculator());
+            var consumer = new QueueLengthStore(new QueueLengthCalculator());
 
-            consumer.Store(EmptyEndpointInstanceId(), report);
+            var instanceId = EmptyEndpointInstanceId();
+            consumer.Store(instanceId, report);
 
-            var lengths = consumer.GetQueueLengths(DateTime.UtcNow);
+            var now = DateTime.UtcNow;
+            consumer.SnapshotCurrentQueueLengthEstimations(now);
 
-            Assert.AreEqual(0, lengths.Keys.Count);
+            var lengths = consumer.GetIntervals(now);
+
+            Assert.AreEqual(0, lengths.Length);
         }
 
+        
         [Test]
         public void If_there_is_only_receive_sequence_no_value_snapshot_is_taken()
         {
@@ -144,15 +154,20 @@
                     new Gauge(1, "seq"),
                 });
 
-            var consumer = new QueueLengthDataStore(new QueueLengthCalculator());
+            var consumer = new QueueLengthStore(new QueueLengthCalculator());
 
-            consumer.Store(EmptyEndpointInstanceId(), report);
+            var instanceId = EmptyEndpointInstanceId();
+            consumer.Store(instanceId, report);
 
-            var lengths = consumer.GetQueueLengths(DateTime.UtcNow);
+            var now = DateTime.UtcNow;
+            consumer.SnapshotCurrentQueueLengthEstimations(now);
 
-            Assert.AreEqual(0, lengths.Keys.Count);
+            var lengths = consumer.GetIntervals(now);
+
+            Assert.AreEqual(0, lengths.Length);
         }
 
+        
         [Test]
         public void If_send_report_is_received_value_snapshot_is_taken_for_endpoints_with_matching_receive_sequences()
         {
@@ -171,18 +186,19 @@
                 new Counter("seq-A", 3)
             });
 
-            var consumer = new QueueLengthDataStore(new QueueLengthCalculator());
+            var consumer = new QueueLengthStore(new QueueLengthCalculator());
 
             consumer.Store(new EndpointInstanceId("ReceiverA", string.Empty), receiverAReport);
             consumer.Store(new EndpointInstanceId("ReceiverB", string.Empty), receiverBReport);
             consumer.Store(new EndpointInstanceId("Sender", string.Empty), sendReport);
 
-            var lengths = consumer.GetQueueLengths(DateTime.UtcNow);
+            var now = DateTime.UtcNow;
+            consumer.SnapshotCurrentQueueLengthEstimations(now);
 
-            Assert.AreEqual(1, lengths.Count);
-            Assert.IsTrue(lengths.ContainsKey("ReceiverA"));
-            Assert.AreEqual(1, lengths["ReceiverA"].Count);
-            Assert.AreEqual(3 - 1, lengths["ReceiverA"].First().Value);
+            var lengths = consumer.GetIntervals(now);
+
+            Assert.AreEqual(1, lengths.Length);
+            Assert.AreEqual(3 - 1, lengths[0].Intervals.First().TotalValue);
 
         }
 
@@ -258,19 +274,16 @@
 
         class FakeCalculator : IQueueLengthCalculator
         {
-            public bool UpdateReceivedSequence(VirtualQueueId virtualQueueId, double value)
+            public void UpdateReceivedSequence(VirtualQueueId virtualQueueId, double value)
             {
                 ReceivedSequences[virtualQueueId.SessionKey] = value;
                 Queues[virtualQueueId.SessionKey] = virtualQueueId.QueueName;
 
-                return true;
             }
 
-            public List<VirtualQueueId> UpdateSentSequence(string key, double value)
+            public void UpdateSentSequence(string key, double value)
             {
                 SentSequences[key] = value;
-
-                return new List<VirtualQueueId>();
             }
 
             public Dictionary<VirtualQueueId, double> GetQueueLengths()

@@ -7,7 +7,6 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using ServiceControl.Monitoring;
-    using ServiceControl.Monitoring.Metrics.Raw;
 
     public class When_querying_retries_data : ApiIntegrationTest
     {
@@ -16,7 +15,7 @@
         [Test]
         public async Task Should_report_via_http()
         {
-            string response = null;
+            JToken retries = null;
 
             await Scenario.Define<Context>()
                 .WithEndpoint<MonitoredEndpoint>(c =>
@@ -26,16 +25,8 @@
                     c.When(s => s.SendLocal(new SampleMessage()));
                 })
                 .WithEndpoint<MonitoringEndpoint>()
-                .Done(c => c.ReportReceived && (response = GetString(MonitoredEndpointsUrl)) != null)
+                .Done(c => MetricReported("retries", out retries, c))
                 .Run();
-
-            Assert.IsNotNull(response);
-
-            var result = JArray.Parse(response);
-            Assert.AreEqual(1, result.Count);
-
-            var endpoint = result[0].Value<JObject>();
-            var retries = endpoint["retries"].Value<JObject>();
 
             Assert.IsTrue(retries["average"].Value<double>() > 0);
             Assert.AreEqual(20, retries["points"].Value<JArray>().Count);
@@ -71,23 +62,6 @@
                     EndpointFactory.MakeMetricsReceiver(c, Settings);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
-            }
-
-            public class OccurrencesHandler : IHandleMessages<Occurrences>
-            {
-                Context testContext;
-
-                public OccurrencesHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(Occurrences message, IMessageHandlerContext context)
-                {
-                    testContext.ReportReceived = true;
-
-                    return Task.FromResult(0);
-                }
             }
         }
     }

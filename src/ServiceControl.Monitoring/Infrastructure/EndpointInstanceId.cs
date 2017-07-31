@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring
+﻿namespace ServiceControl.Monitoring.Infrastructure
 {
     using System.Collections.Generic;
     using NServiceBus;

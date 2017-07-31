@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Autofac;
     using Http;
-    using Metrics.Raw;
+    using Messaging;
     using Nancy;
     using NServiceBus;
     using NServiceBus.Configuration.AdvanceExtensibility;
@@ -56,6 +56,7 @@
             recoverability.AddUnrecoverableException<UnknownOccurrenceMessageType>();
             config.AddDeserializer<LongValueOccurrenceSerializerDefinition>();
             config.AddDeserializer<OccurrenceSerializerDefinition>();
+            config.EnableFeature<QueueLength.QueueLength>();
 
             config.EnableFeature<HttpEndpoint>();
         }

@@ -1,6 +1,6 @@
-﻿namespace ServiceControl.Monitoring.Tests
+﻿namespace ServiceControl.Monitoring.Tests.Infrastructure
 {
-    using Metrics.Raw;
+    using Messaging;
     using NUnit.Framework;
 
     public class RawMessagePollTests

@@ -7,7 +7,6 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using ServiceControl.Monitoring;
-    using ServiceControl.Monitoring.Metrics.Raw;
     using Conventions = AcceptanceTesting.Customization;
 
     public class When_querying_timings_data : ApiIntegrationTest
@@ -17,21 +16,13 @@
         [Test]
         public async Task Should_report_via_http()
         {
-            string response = null;
+            JToken processingTime = null;
 
             await Scenario.Define<Context>()
                 .WithEndpoint<MonitoredEndpoint>(c => c.When(s => s.SendLocal(new SampleMessage())))
                 .WithEndpoint<MonitoringEndpoint>()
-                .Done(c => c.ReportReceived && (response = GetString(MonitoredEndpointsUrl)) != null)
+                .Done(c => MetricReported("processingTime", out processingTime, c))
                 .Run();
-
-            Assert.IsNotNull(response);
-
-            var result = JArray.Parse(response);
-            Assert.AreEqual(1, result.Count);
-
-            var endpoint = result[0].Value<JObject>();
-            var processingTime = endpoint["processingTime"].Value<JObject>();
 
             Assert.IsTrue(processingTime["average"].Value<int>() > 0);
             Assert.AreEqual(20, processingTime["points"].Value<JArray>().Count);
@@ -53,7 +44,7 @@
             {
                 public Task Handle(SampleMessage message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    return Task.Delay(TimeSpan.FromMilliseconds(10));
                 }
             }
         }
@@ -67,23 +58,6 @@
                     EndpointFactory.MakeMetricsReceiver(c, Settings);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
-            }
-
-            public class LongValueOccurrenceHandler : IHandleMessages<LongValueOccurrences>
-            {
-                Context testContext;
-
-                public LongValueOccurrenceHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(LongValueOccurrences message, IMessageHandlerContext context)
-                {
-                    testContext.ReportReceived = true;
-
-                    return Task.FromResult(0);
-                }
             }
         }
     }

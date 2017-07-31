@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.Metrics.AcceptanceTests
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Features;
-    using global::Newtonsoft.Json;
     using global::Newtonsoft.Json.Linq;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -16,32 +16,27 @@
         static string ReceiverEndpointName => Conventions.EndpointNamingConvention(typeof(Receiver));
 
         [Test]
-        public async Task Should_report_via_http()
+        public async Task When_sending_single_interval_data_Should_report_average_based_on_this_single_interval()
         {
-            string response = null;
+            JToken queueLength = null;
 
             await Scenario.Define<Context>()
                 .WithEndpoint<MonitoredEndpoint>()
                 .WithEndpoint<Receiver>()
-                .Done(c => (response = GetString(MonitoredEndpointsUrl)) != null && response.Contains("10"))
+                .Done(c => MetricReported("queueLength", out queueLength, c))
                 .Run();
 
-            Assert.IsNotNull(response);
+            Assert.AreEqual(10, queueLength["average"].Value<int>());
 
-            var result = JArray.Parse(response);
-            Assert.AreEqual(1, result.Count);
+            var points = queueLength["points"].Values<int>().ToArray();
 
-            var endpoint = result[0].Value<JObject>();
-            var queueLength = endpoint["queueLength"];
+            CollectionAssert.IsNotEmpty(points);
 
-            var expected = new JObject
-            {
-                { "pointsAxisValues", new JArray(new []{0}) },
-                { "average", 10 },
-                { "points", new JArray(new []{10}) }
-            };
-
-            Assert.AreEqual(expected.ToString(Formatting.None), queueLength.ToString(Formatting.None));
+            //NOTE: We can get queue-length value 10 in more than one interval even for single report being sent
+            //      This is caused by the snaposhotting logic that is storing current estimate for queue length periodically
+            //      If the test run crosses interval boundary value 10 can we reported for more than one interval.
+            Assert.IsTrue(points.All(v => v == 10 || v == 0));
+            Assert.IsTrue(points.Any(v => v == 10));
         }
 
         const string Data = @"{
@@ -93,22 +88,6 @@
                     EndpointFactory.MakeMetricsReceiver(c, Settings);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
-            }
-
-            public class ReportHandler : IHandleMessages<MetricReport>
-            {
-                Context testContext;
-
-                public ReportHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(MetricReport message, IMessageHandlerContext context)
-                {
-                    testContext.ReportReceived = true;
-                    return TaskEx.Completed;
-                }
             }
         }
     }

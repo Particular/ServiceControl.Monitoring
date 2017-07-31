@@ -1,23 +1,24 @@
 ﻿namespace ServiceControl.Monitoring.QueueLength
 {
     using System.Threading.Tasks;
+    using Infrastructure;
     using NServiceBus;
     using NServiceBus.Metrics;
 
     class QueueLengthReportHandler : IHandleMessages<MetricReport>
     {
-        QueueLengthDataStore queueLengthDataStore;
+        QueueLengthStore queueLengthStore;
 
-        public QueueLengthReportHandler(QueueLengthDataStore queueLengthDataStore)
+        public QueueLengthReportHandler(QueueLengthStore queueLengthStore)
         {
-            this.queueLengthDataStore = queueLengthDataStore;
+            this.queueLengthStore = queueLengthStore;
         }
 
         public Task Handle(MetricReport message, IMessageHandlerContext context)
         {
             var endpointInstanceId = EndpointInstanceId.From(context.MessageHeaders);
 
-            queueLengthDataStore.Store(endpointInstanceId, message.Data);
+            queueLengthStore.Store(endpointInstanceId, message.Data);
 
             return TaskEx.Completed;
         }

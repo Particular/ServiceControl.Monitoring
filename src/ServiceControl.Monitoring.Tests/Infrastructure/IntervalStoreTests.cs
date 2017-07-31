@@ -1,11 +1,11 @@
-﻿namespace ServiceControl.Monitoring.Tests
+﻿namespace ServiceControl.Monitoring.Tests.Infrastructure
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Metrics.Raw;
+    using Messaging;
+    using Monitoring.Infrastructure;
     using NUnit.Framework;
-    using Timings;
 
     [TestFixture]
     public class IntervalStoreTests
@@ -17,7 +17,7 @@
         [SetUp]
         public void SetUp()
         {
-            store = new ProcessingTimeStore();
+            store = new SomeStore();
             now = DateTime.UtcNow;
             endpointInstanceId = new EndpointInstanceId(string.Empty, string.Empty);
         }
@@ -160,6 +160,10 @@
             }
 
             return message;
+        }
+
+        class SomeStore : IntervalsStore
+        {
         }
     }
 }

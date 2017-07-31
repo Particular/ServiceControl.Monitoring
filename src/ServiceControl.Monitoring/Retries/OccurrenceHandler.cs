@@ -1,8 +1,10 @@
 ﻿namespace ServiceControl.Monitoring
 {
     using System.Threading.Tasks;
-    using Metrics.Raw;
+    using Infrastructure;
+    using Messaging;
     using NServiceBus;
+
     public class OccurrenceHandler : IHandleMessages<Occurrences>
     {
         readonly RetriesStore store;
@@ -18,7 +20,6 @@
             try
             {
                 var endpointInstanceId = EndpointInstanceId.From(context.MessageHeaders);
-
                 var messageType = context.MessageHeaders[MetricHeaders.MetricType];
 
                 switch (messageType)

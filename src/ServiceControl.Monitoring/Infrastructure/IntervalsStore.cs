@@ -1,14 +1,12 @@
-﻿namespace ServiceControl.Monitoring.Timings
+﻿namespace ServiceControl.Monitoring.Infrastructure
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
-    using Infrastructure;
-    using Metrics.Raw;
+    using Messaging;
 
-    public abstract class IntervalsStore : IKnowAboutEndpoints
+    public abstract class IntervalsStore
     {
         ConcurrentDictionary<EndpointInstanceId, Measurement> intervals = new ConcurrentDictionary<EndpointInstanceId, Measurement>();
 
@@ -178,28 +176,5 @@
         internal const int NumberOfHistoricalIntervals = 4 * 5;
 
         static TimeSpan IntervalSize = TimeSpan.FromSeconds(15);
-
-        IDictionary<string, IEnumerable<EndpointInstanceId>> IKnowAboutEndpoints.AllEndpointData()
-        {
-            return intervals.Keys
-                .GroupBy(i => i.EndpointName)
-                .ToDictionary(g => g.Key, g => g.AsEnumerable());
-        }
-
-        protected static MonitoredEndpointValues AggregateTimings(List<EndpointInstanceIntervals> timings)
-        {
-            Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
-
-            return new MonitoredEndpointValues
-            {
-                Average = timings.Sum(t => t.TotalValue) / returnOneIfZero(timings.Sum(t => t.TotalMeasurements)),
-                Points = timings.SelectMany(t => t.Intervals)
-                    .GroupBy(i => i.IntervalStart)
-                    .OrderBy(g => g.Key)
-                    .Select(g => g.Sum(i => i.TotalValue) / returnOneIfZero(g.Sum(i => i.TotalMeasurements)))
-                    .ToArray()
-            };
-        }
-
     }
 }

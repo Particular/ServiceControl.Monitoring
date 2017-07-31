@@ -1,12 +1,13 @@
 ﻿namespace ServiceControl.Monitoring.Timings
 {
     using System.Threading.Tasks;
-    using Metrics.Raw;
+    using Infrastructure;
+    using Messaging;
     using NServiceBus;
 
     class TimingsReportHandler : IHandleMessages<LongValueOccurrences>
     {
-        readonly IntervalsStore processingTimeStore;
+        readonly ProcessingTimeStore processingTimeStore;
         readonly CriticalTimeStore criticalTimeStore;
 
         const string ProcessingTimeMessageType = "ProcessingTime";
@@ -23,7 +24,6 @@
             try
             {
                 var endpointInstanceId = EndpointInstanceId.From(context.MessageHeaders);
-
                 var messageType = context.MessageHeaders[MetricHeaders.MetricType];
 
                 switch (messageType)

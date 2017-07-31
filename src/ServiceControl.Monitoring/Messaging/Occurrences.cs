@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.Metrics.Raw
+﻿namespace ServiceControl.Monitoring.Messaging
 {
 
     public class Occurrences : RawMessage

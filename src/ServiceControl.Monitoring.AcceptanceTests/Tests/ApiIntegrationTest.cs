@@ -3,6 +3,7 @@
     using System.Net.Http;
     using System.Net.Http.Headers;
     using AcceptanceTesting;
+    using global::Newtonsoft.Json.Linq;
     using NServiceBus.AcceptanceTests;
     using NUnit.Framework;
 
@@ -24,21 +25,32 @@
             httpClient?.Dispose();
         }
 
-        protected string GetString(string url)
+        protected bool MetricReported(string name, out JToken metric, Context context)
+        {
+            var jsonResponse = GetString(MonitoredEndpointsUrl);
+            var response = JArray.Parse(jsonResponse);
+
+            metric = response.Count > 0 ? response[0][name] : null;
+
+            context.MetricsReport = jsonResponse;
+
+            return metric != null && metric["average"].Value<double>() > 0d;
+        }
+
+        string GetString(string url)
         {
             return httpClient.GetStringAsync(url).GetAwaiter().GetResult();
         }
 
-        protected string MonitoredEndpointsUrl = "http://localhost:1234/monitored-endpoints";
+        string MonitoredEndpointsUrl = "http://localhost:1234/monitored-endpoints";
         HttpClient httpClient;
-
-        public class SampleMessage : IMessage
-        {
-        }
 
         protected class Context : ScenarioContext
         {
-            public bool ReportReceived { get; set; }
+            public string MetricsReport { get; set; }
+        }
+        public class SampleMessage : IMessage
+        {
         }
     }
 }

@@ -7,18 +7,14 @@
 
     class QueueLengthCalculator : IQueueLengthCalculator
     {
-        public bool UpdateReceivedSequence(VirtualQueueId virtualQueueId, double value)
+        public void UpdateReceivedSequence(VirtualQueueId virtualQueueId, double value)
         {
             receivedSequences.AddOrUpdate(virtualQueueId, _ => value, (_, previousValue) => Math.Max(previousValue, value));
-
-            return sentSequences.ContainsKey(virtualQueueId.SessionKey);
         }
 
-        public List<VirtualQueueId> UpdateSentSequence(string key, double value)
+        public void UpdateSentSequence(string key, double value)
         {
             sentSequences.AddOrUpdate(key, _ => value, (_, previousValue) => Math.Max(previousValue, value));
-
-            return receivedSequences.Where(kv => kv.Key.SessionKey == key).Select(kv => kv.Key).ToList();
         }
 
         public Dictionary<VirtualQueueId, double> GetQueueLengths()

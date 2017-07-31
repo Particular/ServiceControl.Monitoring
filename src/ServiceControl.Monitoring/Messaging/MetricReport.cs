@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Metrics
+﻿//NOTE: this class needs to stay in NServiceBus.Metrics to be properly deserialized
+namespace NServiceBus.Metrics
 {
     using global::Newtonsoft.Json.Linq;
     using NServiceBus;
