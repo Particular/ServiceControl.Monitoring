@@ -34,7 +34,7 @@
 
         public void Store(EndpointInstanceId instanceId, RawMessage.Entry[] entries)
         {
-            foreach (var kvHistory in histories.ToArray())
+            foreach (var kvHistory in histories)
             {
                 kvHistory.Value.Store(instanceId, entries);
             }
