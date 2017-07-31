@@ -1,22 +1,22 @@
 ﻿namespace ServiceControl.Monitoring.Infrastructure
 {
     using System;
-    using System.Collections.Concurrent;
     using Messaging;
+    using System.Collections.Generic;
 
     public abstract class VariableHistoryIntervalStore
     {
-        ConcurrentDictionary<HistoryPeriod, IntervalsStore> histories;
+        Dictionary<HistoryPeriod, IntervalsStore> histories;
 
         protected VariableHistoryIntervalStore()
         {
-            histories = new ConcurrentDictionary<HistoryPeriod, IntervalsStore>();
+            histories = new Dictionary<HistoryPeriod, IntervalsStore>();
 
             foreach (var period in HistoryPeriod.All)
             {
                 var intervalSize = TimeSpan.FromTicks(period.Value.Ticks / IntervalsPerStore);
 
-                histories.TryAdd(period, new IntervalsStore(intervalSize, IntervalsPerStore));
+                histories.Add(period, new IntervalsStore(intervalSize, IntervalsPerStore));
             }
         }
 
