@@ -23,7 +23,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
             Get["/monitored-endpoints"] = parameters =>
             {
                 var endpoints = GetMonitoredEndpoints(endpointRegistry);
-                var period = HistoryPeriod.FromMinutes((int?)Request.Query["history"] ?? DefaultHistory);
+                var period = HistoryPeriod.FromMinutes(Request.Query["history"] == null || Request.Query["history"] == "undefined" ? DefaultHistory : (int)Request.Query["history"]);
 
                 FillInEndpointData(endpoints, criticalTimeStore, period, (e, v) => e.CriticalTime = v, IntervalsAggregator.AggregateTimings);
                 FillInEndpointData(endpoints, processingTimeStore, period, (e, v) => e.ProcessingTime = v, IntervalsAggregator.AggregateTimings);
@@ -38,7 +38,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 var endpointName = (string)parameters.EndpointName;
 
                 var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName);
-                var period = HistoryPeriod.FromMinutes((int?)Request.Query["history"] ?? DefaultHistory);
+                var period = HistoryPeriod.FromMinutes(Request.Query["history"] == null || Request.Query["history"] == "undefined" ? DefaultHistory : (int)Request.Query["history"]);
 
                 FillInInstanceData(instances, criticalTimeStore, period, (e, v) => e.CriticalTime = v, IntervalsAggregator.AggregateTimings);
                 FillInInstanceData(instances, processingTimeStore, period, (e, v) => e.ProcessingTime = v, IntervalsAggregator.AggregateTimings);
