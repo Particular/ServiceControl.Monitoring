@@ -3,39 +3,38 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Messaging;
     using Monitoring.Infrastructure;
     using NUnit.Framework;
 
     [TestFixture]
     public class IntervalStoreTests
     {
-        IntervalsStore store;
         DateTime now;
         EndpointInstanceId endpointInstanceId;
 
         [SetUp]
         public void SetUp()
         {
-            store = new SomeStore();
             now = DateTime.UtcNow;
             endpointInstanceId = new EndpointInstanceId(string.Empty, string.Empty);
         }
 
         [Test]
-        public void Number_of_intervals_is_constant_per_know_endpoint_and_have_intervals_assigned()
+        public void Returned_number_of_intervals_per_know_endpoint_equals_history_size()
         {
-            var message = BuildMessage(new Dictionary<DateTime, long>
+            var entries = EntriesBuilder.Build(new Dictionary<DateTime, long>
             {
                 {now.AddSeconds(-9), 0L}
             });
 
-            store.Store(endpointInstanceId, message.Entries);
+            var store = new IntervalsStore(TimeSpan.FromSeconds(10), 33);
+
+            store.Store(endpointInstanceId, entries);
 
             var timings = store.GetIntervals(now);
 
             Assert.AreEqual(1, timings.Length);
-            Assert.AreEqual(IntervalsStore.NumberOfHistoricalIntervals, timings[0].Intervals.Length);
+            Assert.AreEqual(33, timings[0].Intervals.Length);
 
             // ordering of intervals
             var dateTimes = timings[0].Intervals.Select(i => i.IntervalStart).ToArray();
@@ -53,14 +52,16 @@
         }
 
         [Test]
-        public void With_single_interval_global_stats_equals_interval_stats()
+        public void With_single_measurement_global_stats_equals_interval_stats()
         {
-            var message = BuildMessage(new Dictionary<DateTime, long>
+            var entries = EntriesBuilder.Build(new Dictionary<DateTime, long>
             {
                 {now.AddSeconds(-9), 2L}
             });
 
-            store.Store(endpointInstanceId, message.Entries);
+            var store = AnyStore();
+
+            store.Store(endpointInstanceId, entries);
 
             var timings = store.GetIntervals(now);
 
@@ -69,14 +70,20 @@
         }
 
         [Test]
-        public void Intervals_older_than_5_minutes_are_discarded()
+        public void Intervals_older_than_history_size_are_discarded()
         {
-            var message = BuildMessage(new Dictionary<DateTime, long>
-            {
-                {now.AddMinutes(-5), 3L}
-            });
+            var intervalSize = TimeSpan.FromSeconds(10);
+            var numberOfIntervals = 100;
+            var historySize = TimeSpan.FromTicks(intervalSize.Ticks * numberOfIntervals);
 
-            store.Store(endpointInstanceId, message.Entries);
+            var entries = EntriesBuilder.Build(new Dictionary<DateTime, long>
+            {
+                {now.Subtract(historySize), 3L}
+            });
+            
+            var store = new IntervalsStore(intervalSize, numberOfIntervals);
+
+            store.Store(endpointInstanceId, entries);
 
             var timings = store.GetIntervals(now);
 
@@ -86,12 +93,14 @@
         [Test]
         public void Intervals_from_the_future_are_stored()
         {
-            var message = BuildMessage(new Dictionary<DateTime, long>
+            var entries = EntriesBuilder.Build(new Dictionary<DateTime, long>
             {
                 {now.AddMinutes(5), 1L}
             });
 
-            store.Store(endpointInstanceId, message.Entries);
+            var store = AnyStore();
+
+            store.Store(endpointInstanceId, entries);
 
             var currentTimings = store.GetIntervals(now);
 
@@ -103,22 +112,24 @@
         }
 
         [Test]
-        public void Intervals_can_store_data_from_two_messages()
+        public void Intervals_can_store_data_from_two_entry_arrays()
         {
-            var firstMessage = BuildMessage(new Dictionary<DateTime, long>
+            var firstEntries = EntriesBuilder.Build(new Dictionary<DateTime, long>
             {
                 {now.AddSeconds(-15), 1L},
                 {now, 1L}
             });
 
-            var secondMessage = BuildMessage(new Dictionary<DateTime, long>
+            var secondEntries = EntriesBuilder.Build(new Dictionary<DateTime, long>
             {
                 {now.AddSeconds(-30), 1L},
                 {now, 3L}
             });
 
-            store.Store(endpointInstanceId, firstMessage.Entries);
-            store.Store(endpointInstanceId, secondMessage.Entries);
+            var store = AnyStore();
+
+            store.Store(endpointInstanceId, firstEntries);
+            store.Store(endpointInstanceId, secondEntries);
 
             var timings = store.GetIntervals(now);
 
@@ -133,14 +144,16 @@
         [Test]
         public void Intervals_are_returned_in_descending_order()
         {
-            var message = BuildMessage(new Dictionary<DateTime, long>
+            var entries = EntriesBuilder.Build(new Dictionary<DateTime, long>
             {
                 {now.AddSeconds(-45), 1L},
                 {now.AddSeconds(-30), 1L},
                 {now, 1L}
             });
 
-            store.Store(endpointInstanceId, message.Entries);
+            var store = AnyStore();
+
+            store.Store(endpointInstanceId, entries);
 
             var timings = store.GetIntervals(now);
             var intervalStarts = timings[0].Intervals.Select(i => i.IntervalStart).ToArray();
@@ -149,21 +162,9 @@
             Assert.IsTrue(intervalStarts[1] > intervalStarts[2]);
         }
 
-        static LongValueOccurrences BuildMessage(Dictionary<DateTime, long> measurements)
+        IntervalsStore AnyStore()
         {
-            var sortedMeasurements = measurements.OrderBy(kv => kv.Key).ToList();
-            var message = new LongValueOccurrences();
-            
-            foreach (var kvp in sortedMeasurements)
-            {
-                Assert.True(message.TryRecord(kvp.Key.Ticks, kvp.Value));
-            }
-
-            return message;
-        }
-
-        class SomeStore : IntervalsStore
-        {
+            return new IntervalsStore(TimeSpan.FromSeconds(5), 127);
         }
     }
 }

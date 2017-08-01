@@ -2,7 +2,7 @@
 {
     using Infrastructure;
 
-    public class CriticalTimeStore : IntervalsStore
+    public class CriticalTimeStore : VariableHistoryIntervalStore
     {
     }
 }

@@ -7,7 +7,7 @@ namespace ServiceControl.Monitoring.QueueLength
     using Messaging;
     using Newtonsoft.Json.Linq;
 
-    public class QueueLengthStore : IntervalsStore
+    public class QueueLengthStore : VariableHistoryIntervalStore
     {
         public QueueLengthStore(IQueueLengthCalculator calculator)
         {
