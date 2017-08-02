@@ -6,7 +6,12 @@
     public class EndpointInstanceActivityTracker
     {
         ConcurrentDictionary<EndpointInstanceId, DateTime> endpointsInstances = new ConcurrentDictionary<EndpointInstanceId, DateTime>();
-        public static readonly TimeSpan StalenessThreshold = TimeSpan.FromMinutes(5);
+        readonly TimeSpan StalenessThreshold;
+
+        public EndpointInstanceActivityTracker(Settings settings)
+        {
+            StalenessThreshold = settings.EndpointUptimeGracePeriod;
+        }
 
         public void Record(EndpointInstanceId instanceId, DateTime utcNow)
         {

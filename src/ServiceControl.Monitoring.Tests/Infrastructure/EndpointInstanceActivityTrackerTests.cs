@@ -12,7 +12,8 @@
         [SetUp]
         public void Setup()
         {
-            tracker = new EndpointInstanceActivityTracker();
+            var settings = new Settings() { EndpointUptimeGracePeriod = TimeSpan.FromMinutes(5) };
+            tracker = new EndpointInstanceActivityTracker(settings);
         }
 
         [Test]

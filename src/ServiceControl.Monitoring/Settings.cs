@@ -4,6 +4,7 @@ namespace ServiceControl.Monitoring
     using System.Reflection;
     using NLog;
     using NServiceBus;
+    using System;
 
     public class Settings
     {
@@ -18,6 +19,7 @@ namespace ServiceControl.Monitoring
         public bool EnableInstallers { get; set; }
         public string HttpHostName { get; set; }
         public string HttpPort { get; set; }
+        public TimeSpan EndpointUptimeGracePeriod { get; set; }
 
         internal static Settings Load(SettingsReader reader)
         {
@@ -28,7 +30,8 @@ namespace ServiceControl.Monitoring
                 LogPath = reader.Read("Monitoring/LogPath", DefautLogLocation()),
                 ErrorQueue = reader.Read("Monitoring/ErrorQueue", "error"),
                 HttpHostName = reader.Read<string>("Monitoring/HttpHostname"),
-                HttpPort = reader.Read<string>("Monitoring/HttpPort")
+                HttpPort = reader.Read<string>("Monitoring/HttpPort"),
+                EndpointUptimeGracePeriod = TimeSpan.Parse(reader.Read<string>("Monitoring/EndpointUptimeGracePeriod", "00:00:40"))
             };
             return settings;
         }

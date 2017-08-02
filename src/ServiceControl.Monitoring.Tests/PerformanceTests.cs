@@ -35,7 +35,8 @@
             processingTimeStore = new ProcessingTimeStore();
             retriesStore = new RetriesStore();
             queueLengthStore = new QueueLengthStore(new QueueLengthCalculator());
-            activityTracker = new EndpointInstanceActivityTracker();
+            var settings = new Settings() { EndpointUptimeGracePeriod = TimeSpan.FromMinutes(5) };
+            activityTracker = new EndpointInstanceActivityTracker(settings);
 
             var monitoredEndpointsModule = new MonitoredEndpointsModule(endpointRegistry, activityTracker, criticalTimeStore, processingTimeStore, retriesStore, queueLengthStore)
             {
