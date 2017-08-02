@@ -107,6 +107,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 {
                     Name = endpoint.Key,
                     EndpointInstanceIds = endpoint.Value.Select(i => i.InstanceId).ToArray(),
+                    IsStale = endpoint.Value.Any(i => activityTracker.IsStale(i))
                 }).ToArray();
         }
     }

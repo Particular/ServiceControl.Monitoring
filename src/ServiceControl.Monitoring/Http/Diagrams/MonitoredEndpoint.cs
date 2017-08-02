@@ -3,6 +3,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
     public class MonitoredEndpoint
     {
         public string Name { get; set; }
+        public bool IsStale { get; set; }
         public string[] EndpointInstanceIds { get; set; }
         public MonitoredEndpointValues ProcessingTime { get; set; }
         public MonitoredEndpointValues CriticalTime { get; set; }
