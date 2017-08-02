@@ -6,7 +6,7 @@
     public class EndpointInstanceActivityTracker
     {
         ConcurrentDictionary<EndpointInstanceId, DateTime> endpointsInstances = new ConcurrentDictionary<EndpointInstanceId, DateTime>();
-        readonly TimeSpan StalenessThreshold;
+        internal readonly TimeSpan StalenessThreshold;
 
         public EndpointInstanceActivityTracker(Settings settings)
         {

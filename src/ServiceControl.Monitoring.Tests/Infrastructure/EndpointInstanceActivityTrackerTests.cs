@@ -35,7 +35,7 @@
         public void When_endpoint_not_reported_for_longer_than_staleness_period()
         {
             var now = DateTime.UtcNow
-                .Subtract(EndpointInstanceActivityTracker.StalenessThreshold)
+                .Subtract(tracker.StalenessThreshold)
                 .Subtract(TimeSpan.FromSeconds(1));
 
             tracker.Record(A1, now);
@@ -46,7 +46,7 @@
         public void When_endpoint_not_reported_for_longer_than_staleness_period_and_reporter_again()
         {
             var now = DateTime.UtcNow
-                .Subtract(EndpointInstanceActivityTracker.StalenessThreshold)
+                .Subtract(tracker.StalenessThreshold)
                 .Subtract(TimeSpan.FromSeconds(1));
 
             tracker.Record(A1, now);
