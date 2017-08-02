@@ -230,7 +230,8 @@
                     {
                         new IntervalsStore.TimeInterval { IntervalStart = now, TotalValue = ridiculouslyBigLong1, TotalMeasurements = 4},
                         new IntervalsStore.TimeInterval { IntervalStart = now.AddSeconds(2), TotalValue = ridiculouslyBigLong2, TotalMeasurements = 5}
-                    }
+                    },
+                    TotalMeasurements = 4 + 5
                 },
                 new IntervalsStore.EndpointInstanceIntervals
                 {
@@ -239,7 +240,8 @@
                     {
                         new IntervalsStore.TimeInterval { IntervalStart = now, TotalValue = ridiculouslyBigLong1, TotalMeasurements = 6},
                         new IntervalsStore.TimeInterval { IntervalStart = now.AddSeconds(2), TotalValue = ridiculouslyBigLong2, TotalMeasurements = 7},
-                    }
+                    },
+                    TotalMeasurements = 6 + 7
                 }
             };
 
@@ -247,9 +249,10 @@
             var seconds = VariableHistoryIntervalStore.GetIntervalSize(period).TotalSeconds;
             var values = IntervalsAggregator.AggregateTotalMeasurementsPerSecond(intervals, period);
 
+            Assert.AreEqual((4d + 5d + 6d + 7d) / 4 / seconds, values.Average);
             Assert.AreEqual(2, values.Points.Length);
-            Assert.AreEqual((4d + 6d) / 2 / seconds, values.Points[0]);
-            Assert.AreEqual((5d + 7d) / 2 / seconds, values.Points[1]);
+            Assert.AreEqual((4d + 6d) / seconds, values.Points[0]);
+            Assert.AreEqual((5d + 7d) / seconds, values.Points[1]);
         }
 
         [Test]
@@ -290,7 +293,7 @@
 
             var values = IntervalsAggregator.AggregateTotalMeasurementsPerSecond(intervals, period);
 
-            Assert.AreEqual((7d + 9d) / 2 / seconds, values.Average);
+            Assert.AreEqual((7d + 9d) / 5 / seconds, values.Average);
         }
     }
 }

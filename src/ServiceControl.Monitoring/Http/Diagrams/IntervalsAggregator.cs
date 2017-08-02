@@ -59,15 +59,17 @@
 
         public static MonitoredEndpointValues AggregateTotalMeasurementsPerSecond(List<IntervalsStore.EndpointInstanceIntervals> intervals, HistoryPeriod period)
         {
+            Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
+
             var seconds = VariableHistoryIntervalStore.GetIntervalSize(period).TotalSeconds;
 
             return new MonitoredEndpointValues
             {
-                Average = (double) intervals.Sum(t => t.TotalMeasurements) / intervals.Count / seconds,
+                Average = intervals.Sum(t => t.TotalMeasurements) / returnOneIfZero(intervals.Sum(t => t.Intervals.Length)) / seconds,
                 Points = intervals.SelectMany(t => t.Intervals)
                     .GroupBy(i => i.IntervalStart)
                     .OrderBy(g => g.Key)
-                    .Select(g => (double)g.Sum(i => i.TotalMeasurements) / g.Count() / seconds)
+                    .Select(g => g.Sum(i => i.TotalMeasurements) / seconds)
                     .ToArray()
             };
         }
