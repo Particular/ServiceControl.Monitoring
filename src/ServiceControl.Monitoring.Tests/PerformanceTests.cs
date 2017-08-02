@@ -25,6 +25,7 @@
         RetriesStore retriesStore;
         QueueLengthStore queueLengthStore;
         Func<Task> GetMonitoredEndpoints;
+        EndpointInstanceActivityTracker activityTracker;
 
         [SetUp]
         public void Setup()
@@ -34,10 +35,11 @@
             processingTimeStore = new ProcessingTimeStore();
             retriesStore = new RetriesStore();
             queueLengthStore = new QueueLengthStore(new QueueLengthCalculator());
+            activityTracker = new EndpointInstanceActivityTracker();
 
-            var monitoredEndpointsModule = new MonitoredEndpointsModule(endpointRegistry, criticalTimeStore, processingTimeStore, retriesStore, queueLengthStore)
+            var monitoredEndpointsModule = new MonitoredEndpointsModule(endpointRegistry, activityTracker, criticalTimeStore, processingTimeStore, retriesStore, queueLengthStore)
             {
-                Context = new NancyContext() {  Request = new Request("Get", "/monitored-endpoints", "HTTP") }
+                Context = new NancyContext() { Request = new Request("Get", "/monitored-endpoints", "HTTP") }
             };
 
             var dictionary = monitoredEndpointsModule.Routes.ToDictionary(r => r.Description.Path, r => r.Action);
