@@ -31,7 +31,7 @@
         public static void MakeMetricsReceiver(EndpointConfiguration config, Settings settings)
         {
             config.UseContainer<AutofacBuilder>(
-                c => c.ExistingLifetimeScope(CreateContainer())
+                c => c.ExistingLifetimeScope(CreateContainer(settings))
             );
 
             var selectedTransportType = DetermineTransportType(settings);
@@ -61,11 +61,12 @@
             config.EnableFeature<HttpEndpoint>();
         }
 
-        static IContainer CreateContainer()
+        static IContainer CreateContainer(Settings settings)
         {
             var containerBuilder = new ContainerBuilder();
 
             containerBuilder.RegisterModule<ApplicationModule>();
+            containerBuilder.RegisterInstance(settings).As<Settings>().SingleInstance();
 
             var container = containerBuilder.Build();
             return container;

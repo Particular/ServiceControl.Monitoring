@@ -18,11 +18,13 @@ namespace ServiceControl.Monitoring.Http.Diagrams
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        public MonitoredEndpointsModule(EndpointRegistry endpointRegistry, CriticalTimeStore criticalTimeStore, ProcessingTimeStore processingTimeStore, RetriesStore retriesStore, QueueLengthStore queueLengthStore)
+        // ReSharper disable SuggestBaseTypeForParameter
+        public MonitoredEndpointsModule(EndpointRegistry endpointRegistry, EndpointInstanceActivityTracker activityTracker, CriticalTimeStore criticalTimeStore, ProcessingTimeStore processingTimeStore, RetriesStore retriesStore, QueueLengthStore queueLengthStore)
+        // ReSharper restore SuggestBaseTypeForParameter
         {
             Get["/monitored-endpoints"] = parameters =>
             {
-                var endpoints = GetMonitoredEndpoints(endpointRegistry);
+                var endpoints = GetMonitoredEndpoints(endpointRegistry, activityTracker);
                 var period = ExtractHistoryPeriod();
                
                 FillInEndpointData(endpoints, criticalTimeStore, period, (e, v) => e.CriticalTime = v, IntervalsAggregator.AggregateTimings);
@@ -38,7 +40,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
             {
                 var endpointName = (string)parameters.EndpointName;
 
-                var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName);
+                var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName, activityTracker);
                 var period = ExtractHistoryPeriod();
 
                 FillInInstanceData(instances, criticalTimeStore, period, (e, v) => e.CriticalTime = v, IntervalsAggregator.AggregateTimings);
@@ -87,23 +89,25 @@ namespace ServiceControl.Monitoring.Http.Diagrams
             }
         }
 
-        static MonitoredEndpointInstance[] GetMonitoredEndpointInstances(EndpointRegistry endpointRegistry, string endpointName)
+        static MonitoredEndpointInstance[] GetMonitoredEndpointInstances(EndpointRegistry endpointRegistry, string endpointName, EndpointInstanceActivityTracker activityTracker)
         {
             return endpointRegistry.GetEndpointInstances(endpointName)
                 .Select(endpointInstance => new MonitoredEndpointInstance
                 {
                     Id = endpointInstance.InstanceId,
-                    Name = endpointInstance.EndpointName
+                    Name = endpointInstance.EndpointName,
+                    IsStale = activityTracker.IsStale(endpointInstance)
                 }).ToArray();
         }
 
-        static MonitoredEndpoint[] GetMonitoredEndpoints(EndpointRegistry endpointRegistry)
+        static MonitoredEndpoint[] GetMonitoredEndpoints(EndpointRegistry endpointRegistry, EndpointInstanceActivityTracker activityTracker)
         {
             return endpointRegistry.GetAllEndpoints()
                 .Select(endpoint => new MonitoredEndpoint
                 {
                     Name = endpoint.Key,
-                    EndpointInstanceIds = endpoint.Value.Select(i => i.InstanceId).ToArray()
+                    EndpointInstanceIds = endpoint.Value.Select(i => i.InstanceId).ToArray(),
+                    IsStale = endpoint.Value.Any(i => activityTracker.IsStale(i))
                 }).ToArray();
         }
     }
