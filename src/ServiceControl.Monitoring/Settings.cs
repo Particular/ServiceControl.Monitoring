@@ -31,7 +31,7 @@ namespace ServiceControl.Monitoring
                 ErrorQueue = reader.Read("Monitoring/ErrorQueue", "error"),
                 HttpHostName = reader.Read<string>("Monitoring/HttpHostname"),
                 HttpPort = reader.Read<string>("Monitoring/HttpPort"),
-                EndpointUptimeGracePeriod = TimeSpan.Parse(reader.Read<string>("Monitoring/EndpointUptimeGracePeriod", "00:00:40"))
+                EndpointUptimeGracePeriod = TimeSpan.Parse(reader.Read("Monitoring/EndpointUptimeGracePeriod", "00:00:40"))
             };
             return settings;
         }
