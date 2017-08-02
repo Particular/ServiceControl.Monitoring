@@ -23,12 +23,12 @@
             }
         }
 
-        private void RunInteractive()
+        void RunInteractive()
         {
             OnStart(null);
         }
 
-        private void RunAsService()
+        void RunAsService()
         {
             Run(this);
         }

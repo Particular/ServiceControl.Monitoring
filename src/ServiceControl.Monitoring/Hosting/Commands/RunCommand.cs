@@ -52,7 +52,7 @@ namespace ServiceControl.Monitoring
         {
             Action action;
 
-            private OnConsoleCancel(Action action)
+            OnConsoleCancel(Action action)
             {
                 this.action = action;
             }

@@ -38,9 +38,15 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HdrHistogram, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HdrHistogram.2.0.0\lib\net45\HdrHistogram.dll</HintPath>
+    </Reference>
     <Reference Include="Metrics, Version=0.4.8.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Metrics.NET.0.4.8\lib\net45\Metrics.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Nancy, Version=1.4.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nancy.1.4.4\lib\net40\Nancy.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -68,7 +74,9 @@
     <Compile Include="Infrastructure\EntriesBuilder.cs" />
     <Compile Include="Infrastructure\VariableHistoryIntervalStoreTests.cs" />
     <Compile Include="MonitoredEndpoints\AggregatorTests.cs" />
+    <Compile Include="PerformanceTests.cs" />
     <Compile Include="QueueLength\CalculatorTests.cs" />
+    <Compile Include="QueueLength\MessageBuilder.cs" />
     <Compile Include="QueueLength\QueueLengthStoreTests.cs" />
     <Compile Include="Infrastructure\RawMessagePollTests.cs" />
     <Compile Include="Infrastructure\IntervalStoreTests.cs" />

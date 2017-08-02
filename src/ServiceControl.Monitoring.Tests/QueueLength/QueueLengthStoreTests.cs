@@ -5,7 +5,6 @@
     using System.Linq;
     using Monitoring.Infrastructure;
     using Monitoring.QueueLength;
-    using Newtonsoft.Json.Linq;
     using NUnit.Framework;
 
     [TestFixture]
@@ -14,11 +13,11 @@
         [Test]
         public void It_extracts_sent_sequence()
         {
-            var message = BuildMessage(
+            var message = MessageBuilder.BuildMessage(
                 sendCounters: new[]
                 {
-                    new Counter("seq-1", 2),
-                    new Counter("seq-2", 1),
+                    new MessageBuilder.Counter("seq-1", 2),
+                    new MessageBuilder.Counter("seq-2", 1),
                 });
             
             var calculator = new FakeCalculator();
@@ -33,10 +32,10 @@
         [Test]
         public void It_ignores_counters_of_different_type()
         {
-            var message = BuildMessage(
+            var message = MessageBuilder.BuildMessage(
                 sendCounters: new[]
                 {
-                    new Counter("seq", 10, type: "someType"),
+                    new MessageBuilder.Counter("seq", 10, type: "someType"),
                 });
 
             var calculator = new FakeCalculator();
@@ -50,10 +49,10 @@
         [Test]
         public void It_extracts_received_sequence()
         {
-            var message = BuildMessage(
+            var message = MessageBuilder.BuildMessage(
                 receiveGauges: new[]
                 {
-                    new Gauge(42, "fc3b1c43-7964-4a75-81e1-3260b85d6065", "ReceivingMessage.Receiver@SIMON-MAC"),
+                    new MessageBuilder.Gauge(42, "fc3b1c43-7964-4a75-81e1-3260b85d6065", "ReceivingMessage.Receiver@SIMON-MAC"),
                 });
 
             var calculator = new FakeCalculator();
@@ -67,10 +66,10 @@
         [Test]
         public void It_ignores_gauges_of_different_type()
         {
-            var report = BuildMessage(
+            var report = MessageBuilder.BuildMessage(
                 receiveGauges: new[]
                 {
-                    new Gauge(42, "someKey", type: "someType"),
+                    new MessageBuilder.Gauge(42, "someKey", type: "someType"),
                 });
             
             var calculator = new FakeCalculator();
@@ -86,24 +85,24 @@
         [Test]
         public void It_calculates_endpoint_queue_length_as_sum_of_all_input_queue_lengths()
         {
-            var receiverReport = BuildMessage(
+            var receiverReport = MessageBuilder.BuildMessage(
                 receiveGauges: new[]
                 {
-                    new Gauge(42, "seq-1", "ReceiverQueue-1"),
-                    new Gauge(11, "seq-2", "ReceiverQueue-2")
+                    new MessageBuilder.Gauge(42, "seq-1", "ReceiverQueue-1"),
+                    new MessageBuilder.Gauge(11, "seq-2", "ReceiverQueue-2")
                 });
 
-            var senderAReport = BuildMessage(
+            var senderAReport = MessageBuilder.BuildMessage(
                 sendCounters: new[]
                 {
-                    new Counter("seq-1", 47)
+                    new MessageBuilder.Counter("seq-1", 47)
                 }
             );
 
-            var senderBReport = BuildMessage(
+            var senderBReport = MessageBuilder.BuildMessage(
                 sendCounters: new[]
                 {
-                    new Counter("seq-2", 15),
+                    new MessageBuilder.Counter("seq-2", 15),
                 });
 
             var consumer = new QueueLengthStore(new QueueLengthCalculator());
@@ -125,10 +124,10 @@
         [Test]
         public void If_there_is_only_send_sequence_no_value_snapshot_is_not_taken()
         {
-            var report = BuildMessage(
+            var report = MessageBuilder.BuildMessage(
                 sendCounters: new[]
                 {
-                    new Counter("seq-1", 1)
+                    new MessageBuilder.Counter("seq-1", 1)
                 });
 
             var consumer = new QueueLengthStore(new QueueLengthCalculator());
@@ -148,10 +147,10 @@
         [Test]
         public void If_there_is_only_receive_sequence_no_value_snapshot_is_taken()
         {
-            var report = BuildMessage(
+            var report = MessageBuilder.BuildMessage(
                 receiveGauges: new[]
                 {
-                    new Gauge(1, "seq"),
+                    new MessageBuilder.Gauge(1, "seq"),
                 });
 
             var consumer = new QueueLengthStore(new QueueLengthCalculator());
@@ -171,19 +170,19 @@
         [Test]
         public void If_send_report_is_received_value_snapshot_is_taken_for_endpoints_with_matching_receive_sequences()
         {
-            var receiverAReport = BuildMessage(receiveGauges: new[]
+            var receiverAReport = MessageBuilder.BuildMessage(receiveGauges: new[]
             {
-                new Gauge(1, "seq-A")
+                new MessageBuilder.Gauge(1, "seq-A")
             });
 
-            var receiverBReport = BuildMessage(receiveGauges: new[]
+            var receiverBReport = MessageBuilder.BuildMessage(receiveGauges: new[]
             {
-                new Gauge(1, "seq-B"),
+                new MessageBuilder.Gauge(1, "seq-B"),
             });
 
-            var sendReport = BuildMessage(sendCounters: new[]
+            var sendReport = MessageBuilder.BuildMessage(sendCounters: new[]
             {
-                new Counter("seq-A", 3)
+                new MessageBuilder.Counter("seq-A", 3)
             });
 
             var consumer = new QueueLengthStore(new QueueLengthCalculator());
@@ -202,74 +201,9 @@
 
         }
 
-        static JObject BuildMessage(Counter[] sendCounters = null, Gauge[] receiveGauges = null)
-        {
-            sendCounters = sendCounters ?? new Counter[0];
-            receiveGauges = receiveGauges ?? new Gauge[0];
-
-            var counters = string.Join(",", sendCounters.Select(c => $@"{{
-                    ""Name"": ""Sent sequence for {c.SequenceKey}"",
-                    ""Count"": {c.Value},
-                    ""Unit"": ""Sequence"",
-                    ""Tags"": [""key:{c.SequenceKey}"",
-                    ""type:{c.Type}""]
-                }}"));
-
-            var gauges = string.Join(",", receiveGauges.Select(g => $@"{{
-                    ""Name"": ""Received sequence for {g.SequenceKey}"",
-                    ""Value"": {g.Value},
-                    ""Unit"": ""Sequence"",
-                    ""Tags"": [""key:{g.SequenceKey}"",
-                    ""queue:{g.QueueName}"",
-                    ""type:{g.Type}""]
-                }}"));
-
-            var json = $@"{{
-                    ""Version"": ""2"",
-                    ""Timestamp"": ""2017-05-11T07:13:28.5918Z"",
-                    ""Context"": ""Whatever"",
-                    ""Counters"": [{counters}],
-                    ""Gauges"": [{gauges}],
-                    ""Meters"": [],
-                    ""Timers"": []
-                  }}";
-
-            return JObject.Parse(json);
-        }
-
         static EndpointInstanceId EmptyEndpointInstanceId()
         {
             return new EndpointInstanceId(String.Empty, string.Empty);
-        }
-
-        class Counter
-        {
-            public Counter(string sequenceKey, int value, string type = "queue-length.sent")
-            {
-                Value = value;
-                SequenceKey = sequenceKey;
-                Type = type;
-            }
-
-            public int Value { get; }
-            public string SequenceKey { get; }
-            public string Type { get; }
-        }
-
-        class Gauge
-        {
-            public Gauge(int value, string sequenceKey, string queueName = "queue", string type = "queue-length.received")
-            {
-                Value = value;
-                SequenceKey = sequenceKey;
-                QueueName = queueName;
-                Type = type;
-            }
-
-            public int Value { get; }
-            public string SequenceKey { get; }
-            public string QueueName { get; }
-            public string Type { get; }
         }
 
         class FakeCalculator : IQueueLengthCalculator

@@ -20,10 +20,13 @@ namespace ServiceControl.Monitoring.QueueLength
         {
             var prefix = $"{key}:";
 
-            value = tags
-                .Where(t => t.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                .Select(x => x.Substring(key.Length + 1).Trim())
-                .FirstOrDefault();
+            value = tags.FirstOrDefault(t => t.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+
+            // ReSharper disable once UseNullPropagation
+            if (value != null)
+            {
+                value = value.Substring(prefix.Length).Trim();
+            }
 
             return value != null;
         }
