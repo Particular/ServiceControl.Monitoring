@@ -8,5 +8,8 @@
         public MonitoredEndpointValues ProcessingTime { get; set; }
         public MonitoredEndpointValues CriticalTime { get; set; }
         public MonitoredEndpointValues Retries { get; set; }
+
+        // Unit: [msg/s]
+        public MonitoredEndpointValues Throughput { get; set; }
     }
 }

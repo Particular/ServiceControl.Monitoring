@@ -214,5 +214,83 @@
             Assert.AreEqual(1, values.Points.Length);
             Assert.AreEqual((3d + 5d) / (4d + 6d), values.Points[0]);
         }
+
+        [Test]
+        public void Total_measurements_per_second_are_merged_by_interval_start()
+        {
+            const long ridiculouslyBigLong1 = 374859734593849583;
+            const long ridiculouslyBigLong2 = 898394895890348954;
+
+            var intervals = new List<IntervalsStore.EndpointInstanceIntervals>
+            {
+                new IntervalsStore.EndpointInstanceIntervals
+                {
+                    Id = new EndpointInstanceId(string.Empty, string.Empty),
+                    Intervals = new []
+                    {
+                        new IntervalsStore.TimeInterval { IntervalStart = now, TotalValue = ridiculouslyBigLong1, TotalMeasurements = 4},
+                        new IntervalsStore.TimeInterval { IntervalStart = now.AddSeconds(2), TotalValue = ridiculouslyBigLong2, TotalMeasurements = 5}
+                    }
+                },
+                new IntervalsStore.EndpointInstanceIntervals
+                {
+                    Id = new EndpointInstanceId(string.Empty, string.Empty),
+                    Intervals = new []
+                    {
+                        new IntervalsStore.TimeInterval { IntervalStart = now, TotalValue = ridiculouslyBigLong1, TotalMeasurements = 6},
+                        new IntervalsStore.TimeInterval { IntervalStart = now.AddSeconds(2), TotalValue = ridiculouslyBigLong2, TotalMeasurements = 7},
+                    }
+                }
+            };
+
+            var period = HistoryPeriod.FromMinutes(5);
+            var seconds = VariableHistoryIntervalStore.GetIntervalSize(period).TotalSeconds;
+            var values = IntervalsAggregator.AggregateTotalMeasurementsPerSecond(intervals, period);
+
+            Assert.AreEqual(2, values.Points.Length);
+            Assert.AreEqual((4d + 6d) / 2 / seconds, values.Points[0]);
+            Assert.AreEqual((5d + 7d) / 2 / seconds, values.Points[1]);
+        }
+
+        [Test]
+        public void Total_measurements_per_second_are_sum_of_total_measurements_by_number_of_intervals_by_seconds()
+        {
+            const long ridiculouslyBigLong1 = 374859734593849583;
+            const long ridiculouslyBigLong2 = 898394895890348954;
+
+            var intervals = new List<IntervalsStore.EndpointInstanceIntervals>
+            {
+                new IntervalsStore.EndpointInstanceIntervals
+                {
+                    Id = new EndpointInstanceId(string.Empty, string.Empty),
+                    TotalValue = ridiculouslyBigLong1,
+                    TotalMeasurements = 7,
+                    Intervals = new []
+                    {
+                        new IntervalsStore.TimeInterval { IntervalStart = now },
+                        new IntervalsStore.TimeInterval { IntervalStart = now.AddSeconds(1) }
+                    }
+                },
+                new IntervalsStore.EndpointInstanceIntervals
+                {
+                    Id = new EndpointInstanceId(string.Empty, string.Empty),
+                    TotalValue = ridiculouslyBigLong2,
+                    TotalMeasurements = 9,
+                    Intervals = new []
+                    {
+                        new IntervalsStore.TimeInterval { IntervalStart = now },
+                        new IntervalsStore.TimeInterval { IntervalStart = now.AddSeconds(1) },
+                        new IntervalsStore.TimeInterval { IntervalStart = now }
+                    }
+                }
+            };
+
+            var period = HistoryPeriod.FromMinutes(5);
+            var seconds = VariableHistoryIntervalStore.GetIntervalSize(period).TotalSeconds;
+
+            var values = IntervalsAggregator.AggregateTotalMeasurementsPerSecond(intervals, period);
+
+            Assert.AreEqual((7d + 9d) / 2 / seconds, values.Average);
+        }
     }
 }

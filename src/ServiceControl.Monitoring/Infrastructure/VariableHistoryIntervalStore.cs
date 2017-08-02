@@ -14,10 +14,15 @@
 
             foreach (var period in HistoryPeriod.All)
             {
-                var intervalSize = TimeSpan.FromTicks(period.Value.Ticks / IntervalsPerStore);
+                var intervalSize = GetIntervalSize(period);
 
                 histories.Add(period, new IntervalsStore(intervalSize, IntervalsPerStore));
             }
+        }
+
+        public static TimeSpan GetIntervalSize(HistoryPeriod period)
+        {
+            return TimeSpan.FromTicks(period.Value.Ticks / IntervalsPerStore);
         }
 
         public IntervalsStore.EndpointInstanceIntervals[] GetIntervals(HistoryPeriod period, DateTime now)

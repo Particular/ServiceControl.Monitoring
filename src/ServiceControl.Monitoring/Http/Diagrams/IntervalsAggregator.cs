@@ -56,5 +56,20 @@
                     .ToArray()
             };
         }
+
+        public static MonitoredEndpointValues AggregateTotalMeasurementsPerSecond(List<IntervalsStore.EndpointInstanceIntervals> intervals, HistoryPeriod period)
+        {
+            var seconds = VariableHistoryIntervalStore.GetIntervalSize(period).TotalSeconds;
+
+            return new MonitoredEndpointValues
+            {
+                Average = (double) intervals.Sum(t => t.TotalMeasurements) / intervals.Count / seconds,
+                Points = intervals.SelectMany(t => t.Intervals)
+                    .GroupBy(i => i.IntervalStart)
+                    .OrderBy(g => g.Key)
+                    .Select(g => (double)g.Sum(i => i.TotalMeasurements) / g.Count() / seconds)
+                    .ToArray()
+            };
+        }
     }
 }

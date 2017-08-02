@@ -8,5 +8,6 @@ namespace ServiceControl.Monitoring.Http.Diagrams
         public MonitoredEndpointValues CriticalTime { get; set; }
         public MonitoredEndpointValues Retries { get; set; }
         public MonitoredEndpointValues QueueLength { get; set; }
+        public MonitoredEndpointValues Throughput { get; set; }
     }
 }
