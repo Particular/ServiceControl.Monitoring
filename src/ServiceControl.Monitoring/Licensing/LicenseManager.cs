@@ -14,10 +14,10 @@ namespace ServiceControl.Monitoring.Licensing
         public void Refresh()
         {
             Logger.Debug("Checking License Status");
-            var result = ActiveLicense.Find("ServiceControl",
-                new LicenseSourceHKLMRegKey(),
-                new LicenseSourceFilePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License", "License.xml")),
-                new LicenseSourceFilePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ParticularPlatformLicense.xml")));
+            var sources = LicenseSource.GetStandardLicenseSources();
+            sources.Add(new LicenseSourceFilePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License", "License.xml")));
+            sources.Add(new LicenseSourceFilePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ParticularPlatformLicense.xml")));
+            var result = ActiveLicense.Find("ServiceControl", sources.ToArray());
 
             if (result.HasExpired)
             {

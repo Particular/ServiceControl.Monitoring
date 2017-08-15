@@ -1,6 +1,8 @@
 ﻿namespace Particular.Licensing
 {
     using System;
+    using System.Collections.Generic;
+    using System.IO;
 
     abstract class LicenseSource
     {
@@ -50,6 +52,22 @@
                 result.Result = $"License found in {location} was not valid for '{applicationName}'. Valid apps: '{string.Join(",", license.ValidApplications)}'";
             }
             return result;
+        }
+
+        public static List<LicenseSource> GetStandardLicenseSources()
+        {
+            var sources = new List<LicenseSource>();
+
+            sources.Add(new LicenseSourceFilePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "license.xml")));
+            sources.Add(new LicenseSourceFilePath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ParticularSoftware", "license.xml")));
+            sources.Add(new LicenseSourceFilePath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "ParticularSoftware", "license.xml")));
+
+#if REGISTRYLICENSESOURCE
+            sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\ParticularSoftware"));
+            sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\ParticularSoftware"));
+#endif
+
+            return sources;
         }
     }
 }
