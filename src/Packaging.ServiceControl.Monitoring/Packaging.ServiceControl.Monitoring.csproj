@@ -45,6 +45,11 @@
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="marker.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <UsingTask AssemblyFile="..\..\buildsupport\DeploymentZipTask.Dll" TaskName="DeploymentZipTask.AddToZip" />
   <Import Project="..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets')" />
@@ -78,5 +83,4 @@
     <AddToZip IncludeMask="*.exe" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.dll" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
   </Target>
-
 </Project>
