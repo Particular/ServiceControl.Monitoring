@@ -1,0 +1,1 @@
+﻿This file prevents MsBuild from deleting empty output directory expected by zip task running on TC.
