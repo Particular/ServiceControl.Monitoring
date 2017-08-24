@@ -153,6 +153,8 @@
     <Compile Include="Infrastructure\EndpointRegistry.cs" />
     <Compile Include="Infrastructure\EndpointTracker.cs" />
     <Compile Include="Infrastructure\HistoryPeriod.cs" />
+    <Compile Include="Messaging\TaggedLongValueOccurrence.cs" />
+    <Compile Include="Messaging\TaggedLongValueWriterOccurrenceSerializerDefinition.cs" />
     <Compile Include="Timings\ProcessingTimeStore.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="EndpointFactory.cs" />
