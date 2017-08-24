@@ -41,29 +41,20 @@
                     return NoMessages;
                 }
 
-                var tagKeyToValue = new Dictionary<int, string>();
+                var tagsCount = reader.ReadInt32();
+
+                var tagKeyToValue = DeserializeTags(tagsCount, reader);
+
                 var tagKeyToMessage = new Dictionary<int, TaggedLongValueOccurrence>();
 
-                var tagDecoder = new UTF8Encoding(false);
-
-                var tagCount = reader.ReadInt32();
-                var messagePool = RawMessage.Pool<TaggedLongValueOccurrence>.Default;
-
-                for (var i = 0; i < tagCount; i++)
+                foreach (var keyToValue in tagKeyToValue)
                 {
-                    var tagKey = reader.ReadInt32();
-                    var tagLen = reader.ReadInt32();
-                    var tagValue = tagDecoder.GetString(reader.ReadBytes(tagLen));
+                    var message = CreateMessageForTag(keyToValue.Value);
 
-                    tagKeyToValue.Add(tagKey, tagValue);
-
-                    var message = messagePool.Lease();
-                    message.TagValue = tagValue;
-
-                    tagKeyToMessage.Add(tagKey, messagePool.Lease());
+                    tagKeyToMessage.Add(keyToValue.Key, message);
                 }
 
-                var allMessages = new List<TaggedLongValueOccurrence>(tagCount); // usual case
+                var allMessages = new List<TaggedLongValueOccurrence>(tagsCount); // usual case
 
                 for (var i = 0; i < count; i++)
                 {
@@ -78,8 +69,7 @@
                     {
                         allMessages.Add(message);
 
-                        message = messagePool.Lease();
-                        message.TagValue = tagKeyToValue[tagKey];
+                        message = CreateMessageForTag(tagKeyToValue[tagKey]);
 
                         tagKeyToMessage[tagKey] = message;
                     }
@@ -96,6 +86,32 @@
             }
 
             throw new Exception($"The message version number '{version}' cannot be handled properly.");
+        }
+
+        static TaggedLongValueOccurrence CreateMessageForTag(string keyValue)
+        {
+            var message = RawMessage.Pool<TaggedLongValueOccurrence>.Default.Lease();
+            message.TagValue = keyValue;
+
+            return message;
+        }
+
+        static Dictionary<int, string> DeserializeTags(int tagCount, BinaryReader reader)
+        {
+            var tagDecoder = new UTF8Encoding(false);
+
+            var tagKeyToValue = new Dictionary<int, string>();
+
+            for (var i = 0; i < tagCount; i++)
+            {
+                var tagKey = reader.ReadInt32();
+                var tagLen = reader.ReadInt32();
+                var tagValue = tagDecoder.GetString(reader.ReadBytes(tagLen));
+
+                tagKeyToValue.Add(tagKey, tagValue);
+            }
+
+            return tagKeyToValue;
         }
 
         public string ContentType { get; } = "TaggedLongValueWriterOccurrence";
