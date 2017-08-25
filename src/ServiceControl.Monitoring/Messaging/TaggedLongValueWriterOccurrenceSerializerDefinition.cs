@@ -98,15 +98,13 @@
 
         static Dictionary<int, string> DeserializeTags(int tagCount, BinaryReader reader)
         {
-            var tagDecoder = new UTF8Encoding(false);
-
             var tagKeyToValue = new Dictionary<int, string>();
 
             for (var i = 0; i < tagCount; i++)
             {
                 var tagKey = reader.ReadInt32();
                 var tagLen = reader.ReadInt32();
-                var tagValue = tagDecoder.GetString(reader.ReadBytes(tagLen));
+                var tagValue = TagDecoder.GetString(reader.ReadBytes(tagLen));
 
                 tagKeyToValue.Add(tagKey, tagValue);
             }
@@ -115,5 +113,7 @@
         }
 
         public string ContentType { get; } = "TaggedLongValueWriterOccurrence";
+
+        private static UTF8Encoding TagDecoder = new UTF8Encoding(false);
     }
 }
