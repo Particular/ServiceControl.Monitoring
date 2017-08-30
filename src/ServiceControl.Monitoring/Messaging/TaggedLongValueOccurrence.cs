@@ -1,9 +1,10 @@
 ﻿namespace ServiceControl.Monitoring.Messaging
 {
-
-    public class Occurrences : RawMessage
+    public class TaggedLongValueOccurrence : RawMessage
     {
-        public bool TryRecord(long dateTicks)
+        public string TagValue { get; set; }
+
+        public bool TryRecord(long dateTicks, long value)
         {
             if (IsFull)
             {
@@ -11,14 +12,11 @@
             }
 
             Entries[Index].DateTicks = dateTicks;
-            Entries[Index].Value = 1;
+            Entries[Index].Value = value;
 
             Index += 1;
 
             return true;
         }
-
-        public long MinDateTick => Entries[0].DateTicks;
-        public long MaxDateTick => Entries[Index].DateTicks;
     }
 }

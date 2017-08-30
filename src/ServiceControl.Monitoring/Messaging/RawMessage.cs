@@ -20,6 +20,8 @@
         public const int MaxEntries = 512;
         protected const int InitialIndex = 0;
 
+        public bool IsFull => Index == MaxEntries;
+
         public struct Entry
         {
             public long DateTicks;

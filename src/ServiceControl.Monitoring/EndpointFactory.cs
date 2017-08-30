@@ -56,6 +56,7 @@
             recoverability.AddUnrecoverableException<UnknownOccurrenceMessageType>();
             config.AddDeserializer<LongValueOccurrenceSerializerDefinition>();
             config.AddDeserializer<OccurrenceSerializerDefinition>();
+            config.AddDeserializer<TaggedLongValueWriterOccurrenceSerializerDefinition>();
             config.EnableFeature<QueueLength.QueueLength>();
 
             config.EnableFeature<HttpEndpoint>();
