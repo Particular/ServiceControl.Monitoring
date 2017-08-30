@@ -6,7 +6,7 @@
 
         public bool TryRecord(long dateTicks, long value)
         {
-            if (Index == MaxEntries)
+            if (IsFull)
             {
                 return false;
             }

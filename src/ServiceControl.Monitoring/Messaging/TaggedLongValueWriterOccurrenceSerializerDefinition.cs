@@ -65,7 +65,7 @@
 
                     var message = tagKeyToMessage[tagKey];
 
-                    if (message.Length == RawMessage.MaxEntries)
+                    if (message.IsFull)
                     {
                         allMessages.Add(message);
 
