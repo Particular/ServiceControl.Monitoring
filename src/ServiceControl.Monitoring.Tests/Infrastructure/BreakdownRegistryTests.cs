@@ -4,7 +4,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class EndpointRegistryTests
+    public class BreakdownRegistryTests
     {
         EndpointRegistry registry;
 
@@ -23,7 +23,7 @@
             registry.Record(instanceA);
             registry.Record(instanceB);
 
-            var instances = registry.GetEndpointInstances("EndpointA");
+            var instances = registry.GetForEndpointName("EndpointA");
 
             CollectionAssert.AreEquivalent(new []{instanceA}, instances);
         }
@@ -39,7 +39,7 @@
             registry.Record(instanceB);
             registry.Record(instanceC);
 
-            var instances = registry.GetEndpointInstances("EndpointA");
+            var instances = registry.GetForEndpointName("EndpointA");
 
             CollectionAssert.AreEquivalent(new []{instanceA, instanceC}, instances);
         }
@@ -53,7 +53,7 @@
             registry.Record(instanceA);
             registry.Record(instanceB);
 
-            var endpoints = registry.GetAllEndpoints();
+            var endpoints = registry.GetGroupedByEndpointName();
 
             CollectionAssert.AreEquivalent(new[] { "EndpointA", "EndpointB" }, endpoints.Keys);
         }
@@ -67,7 +67,7 @@
             registry.Record(instanceA);
             registry.Record(instanceB);
 
-            var endpoints = registry.GetAllEndpoints();
+            var endpoints = registry.GetGroupedByEndpointName();
 
             CollectionAssert.AreEquivalent(new[] { "EndpointA"}, endpoints.Keys);
         }
@@ -81,7 +81,7 @@
             registry.Record(instanceA);
             registry.Record(instanceB);
 
-            var instances = registry.GetEndpointInstances("EndpointA");
+            var instances = registry.GetForEndpointName("EndpointA");
 
             CollectionAssert.AreEquivalent(new[] { instanceA }, instances);
         }

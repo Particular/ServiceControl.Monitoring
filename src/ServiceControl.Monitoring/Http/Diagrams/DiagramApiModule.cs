@@ -13,85 +13,119 @@ namespace ServiceControl.Monitoring.Http.Diagrams
     /// </summary>
     public class MonitoredEndpointsModule : ApiModule
     {
-        const int DefaultHistory = 5;
-
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
         // ReSharper disable SuggestBaseTypeForParameter
-        public MonitoredEndpointsModule(EndpointRegistry endpointRegistry, EndpointInstanceActivityTracker activityTracker, CriticalTimeStore criticalTimeStore, ProcessingTimeStore processingTimeStore, RetriesStore retriesStore, QueueLengthStore queueLengthStore)
-        // ReSharper restore SuggestBaseTypeForParameter
+        public MonitoredEndpointsModule(IProvideBreakdownBy<EndpointInstanceId>[] metricByInstance, IProvideBreakdownBy<EndpointMessageType>[] metricByMessageType, EndpointRegistry endpointRegistry, EndpointInstanceActivityTracker activityTracker, MessageTypeRegistry messageTypeRegistry)
+            // ReSharper restore SuggestBaseTypeForParameter
         {
+            var metricByInstanceLookup = metricByInstance.ToDictionary(i => i.GetType());
+
+            var metricByMessageTypeLookup = metricByMessageType.ToDictionary(i => i.GetType());
+
+            var instanceMetric = new[]
+            {
+                CreateMetric<EndpointInstanceId, ProcessingTimeStore>("ProcessingTime", IntervalsAggregator.AggregateTimings),
+                CreateMetric<EndpointInstanceId, CriticalTimeStore>("CriticalTime", IntervalsAggregator.AggregateTimings),
+                CreateMetric<EndpointInstanceId, RetriesStore>("Retries", IntervalsAggregator.AggregateRetries),
+                CreateMetric<EndpointInstanceId, QueueLengthStore>("QueueLength", IntervalsAggregator.AggregateQueueLength),
+                CreateMetric<EndpointInstanceId, ProcessingTimeStore>("Throughput", IntervalsAggregator.AggregateTotalMeasurementsPerSecond)
+            };
+
+            var messageTypeMetric = new[]
+            {
+                CreateMetric<EndpointMessageType, ProcessingTimeStore>("ProcessingTime", IntervalsAggregator.AggregateTimings),
+                CreateMetric<EndpointMessageType, CriticalTimeStore>("CriticalTime", IntervalsAggregator.AggregateTimings),
+                CreateMetric<EndpointMessageType, RetriesStore>("Retries", IntervalsAggregator.AggregateRetries),
+                CreateMetric<EndpointMessageType, ProcessingTimeStore>("Throughput", IntervalsAggregator.AggregateTotalMeasurementsPerSecond)
+            };
+
             Get["/monitored-endpoints"] = parameters =>
             {
                 var endpoints = GetMonitoredEndpoints(endpointRegistry, activityTracker);
                 var period = ExtractHistoryPeriod();
-               
-                FillInEndpointData(endpoints, criticalTimeStore, period, (e, v) => e.CriticalTime = v, IntervalsAggregator.AggregateTimings);
-                FillInEndpointData(endpoints, processingTimeStore, period, (e, v) => e.ProcessingTime = v, IntervalsAggregator.AggregateTimings);
-                FillInEndpointData(endpoints, retriesStore, period, (e, v) => e.Retries = v, IntervalsAggregator.AggregateRetries);
-                FillInEndpointData(endpoints, queueLengthStore, period, (e, v) => e.QueueLength = v, IntervalsAggregator.AggregateQueueLength);
-                FillInEndpointData(endpoints, processingTimeStore, period, (e, v) => e.Throughput = v, intervals => IntervalsAggregator.AggregateTotalMeasurementsPerSecond (intervals, period));
+
+                foreach (var metric in instanceMetric)
+                {
+                    var store = metricByInstanceLookup[metric.StoreType];
+                    var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
+
+                    foreach (var endpoint in endpoints)
+                    {
+                        var values = metric.Aggregate(intervals[endpoint.Name].ToList(), period);
+
+                        endpoint.Metrics.Add(metric.ReturnName, values);
+                    }
+                }
 
                 return Negotiate.WithModel(endpoints);
             };
 
             Get["/monitored-endpoints/{endpointName}"] = parameters =>
             {
-                var endpointName = (string)parameters.EndpointName;
-
-                var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName, activityTracker);
+                var endpointName = (string) parameters.EndpointName;
                 var period = ExtractHistoryPeriod();
 
-                FillInInstanceData(instances, criticalTimeStore, period, (e, v) => e.CriticalTime = v, IntervalsAggregator.AggregateTimings);
-                FillInInstanceData(instances, processingTimeStore, period, (e, v) => e.ProcessingTime = v, IntervalsAggregator.AggregateTimings);
-                FillInInstanceData(instances, retriesStore, period, (e, v) => e.Retries = v, IntervalsAggregator.AggregateRetries);
-                FillInInstanceData(instances, processingTimeStore, period, (e, v) => e.Throughput = v, intervals => IntervalsAggregator.AggregateTotalMeasurementsPerSecond(intervals, period));
+                var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName, activityTracker);
 
-                return Negotiate.WithModel(instances);
+                foreach (var metric in instanceMetric)
+                {
+                    var store = metricByInstanceLookup[metric.StoreType];
+                    var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.InstanceId);
+
+                    foreach (var instance in instances)
+                    {
+                        var values = metric.Aggregate(intervals[instance.Id].ToList(), period);
+
+                        instance.Metrics.Add(metric.ReturnName, values);
+                    }
+                }
+
+                var messageTypes = GetMonitoredMessageTypes(messageTypeRegistry, endpointName);
+
+                foreach (var metric in messageTypeMetric)
+                {
+                    var store = metricByMessageTypeLookup[metric.StoreType];
+                    var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id);
+
+                    foreach (var messageType in messageTypes)
+                    {
+                        var values = metric.Aggregate(intervals[new EndpointMessageType(endpointName, messageType.MessageType)].ToList(), period);
+
+                        messageType.Metrics.Add(metric.ReturnName, values);
+                    }
+                }
+
+                var data = new MonitoredEndpointDetails
+                {
+                    Instances = instances,
+                    MessageTypes = messageTypes
+                };
+
+                return Negotiate.WithModel(data);
+            };
+        }
+
+        static MonitoredMetric<BreakdownT> CreateMetric<BreakdownT, StoreT>(string name, Aggregation<BreakdownT> aggregation)
+            where StoreT : IProvideBreakdownBy<BreakdownT>
+        {
+            return new MonitoredMetric<BreakdownT>
+            {
+                StoreType = typeof(StoreT),
+                ReturnName = name,
+                Aggregate = aggregation
             };
         }
 
         HistoryPeriod ExtractHistoryPeriod()
         {
-            return HistoryPeriod.FromMinutes(Request.Query["history"] == null || Request.Query["history"] == "undefined" ? DefaultHistory : (int)Request.Query["history"]);
-        }
-
-        static void FillInEndpointData(MonitoredEndpoint[] endpoints,
-            VariableHistoryIntervalStore store,
-            HistoryPeriod period,
-            Action<MonitoredEndpoint, MonitoredEndpointValues> setter,
-            Func<List<IntervalsStore.EndpointInstanceIntervals>, MonitoredEndpointValues> aggregate)
-        {
-            var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
-
-            foreach (var endpoint in endpoints)
-            {
-                var values = aggregate(intervals[endpoint.Name].ToList());
-
-                setter(endpoint, values);
-            }
-        }
-
-        static void FillInInstanceData(MonitoredEndpointInstance[] instances,
-            VariableHistoryIntervalStore store,
-            HistoryPeriod period,
-            Action<MonitoredEndpointInstance, MonitoredEndpointValues> setter,
-            Func<List<IntervalsStore.EndpointInstanceIntervals>, MonitoredEndpointValues> aggregate)
-        {
-            var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.InstanceId);
-
-            foreach (var instance in instances)
-            {
-                var values = aggregate(intervals[instance.Id].ToList());
-
-                setter(instance, values);
-            }
+            return HistoryPeriod.FromMinutes(Request.Query["history"] == null || Request.Query["history"] == "undefined" ? DefaultHistory : (int) Request.Query["history"]);
         }
 
         static MonitoredEndpointInstance[] GetMonitoredEndpointInstances(EndpointRegistry endpointRegistry, string endpointName, EndpointInstanceActivityTracker activityTracker)
         {
-            return endpointRegistry.GetEndpointInstances(endpointName)
+            return endpointRegistry.GetForEndpointName(endpointName)
                 .Select(endpointInstance => new MonitoredEndpointInstance
                 {
                     Id = endpointInstance.InstanceId,
@@ -102,13 +136,35 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
         static MonitoredEndpoint[] GetMonitoredEndpoints(EndpointRegistry endpointRegistry, EndpointInstanceActivityTracker activityTracker)
         {
-            return endpointRegistry.GetAllEndpoints()
+            return endpointRegistry.GetGroupedByEndpointName()
                 .Select(endpoint => new MonitoredEndpoint
                 {
                     Name = endpoint.Key,
                     EndpointInstanceIds = endpoint.Value.Select(i => i.InstanceId).ToArray(),
-                    IsStale = endpoint.Value.Any(i => activityTracker.IsStale(i))
-                }).ToArray();
+                    IsStale = endpoint.Value.Any(activityTracker.IsStale)
+                })
+                .ToArray();
+        }
+
+        static MonitoredEndpointMessageType[] GetMonitoredMessageTypes(MessageTypeRegistry registry, string endpointName)
+        {
+            return registry.GetForEndpointName(endpointName)
+                .Select(mt => new MonitoredEndpointMessageType
+                {
+                    MessageType = mt.MessageType
+                })
+                .ToArray();
+        }
+
+        const int DefaultHistory = 5;
+
+        delegate MonitoredValues Aggregation<T>(List<IntervalsStore<T>.IntervalsBreakdown> intervals, HistoryPeriod period);
+
+        class MonitoredMetric<T>
+        {
+            public Type StoreType { get; set; }
+            public string ReturnName { get; set; }
+            public Aggregation<T> Aggregate { get; set; }
         }
     }
 }

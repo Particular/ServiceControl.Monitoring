@@ -6,29 +6,29 @@
     using System.Threading;
     using Messaging;
 
-    public class IntervalsStore
+    public class IntervalsStore<BreakdownT>
     {
-        ConcurrentDictionary<EndpointInstanceId, Measurement> intervals = new ConcurrentDictionary<EndpointInstanceId, Measurement>();
+        ConcurrentDictionary<BreakdownT, Measurement> intervals = new ConcurrentDictionary<BreakdownT, Measurement>();
 
-        public void Store(EndpointInstanceId instanceId, RawMessage.Entry[] entries)
+        public void Store(BreakdownT breakdownId, RawMessage.Entry[] entries)
         {
-            var measurement = intervals.GetOrAdd(instanceId, _ => new Measurement(intervalSize, numberOfIntervals));
+            var measurement = intervals.GetOrAdd(breakdownId, _ => new Measurement(intervalSize, numberOfIntervals));
 
             measurement.Report(entries);
         }
 
-        public EndpointInstanceIntervals[] GetIntervals(DateTime now)
+        public IntervalsBreakdown[] GetIntervals(DateTime now)
         {
-            var result = new List<EndpointInstanceIntervals>();
+            var result = new List<IntervalsBreakdown>();
 
             foreach (var interval in intervals)
             {
-                var instanceId = interval.Key;
+                var breakdownId = interval.Key;
                 var measurement = interval.Value;
 
-                var item = new EndpointInstanceIntervals
+                var item = new IntervalsBreakdown
                 {
-                    Id = instanceId,
+                    Id = breakdownId,
                     Intervals = new TimeInterval[numberOfIntervals]
                 };
 
@@ -55,7 +55,7 @@
             }
 
             // ReSharper disable once SuggestBaseTypeForParameter
-            public void ReportTimeIntervals(DateTime now, EndpointInstanceIntervals item)
+            public void ReportTimeIntervals(DateTime now, IntervalsBreakdown item)
             {
                 var epoch = GetEpoch(now.Ticks);
                 var intervalsToFill = item.Intervals;
@@ -167,8 +167,8 @@
             }
         }
         
-        public class EndpointInstanceIntervals { 
-            public EndpointInstanceId Id { get; set; }
+        public class IntervalsBreakdown { 
+            public BreakdownT Id { get; set; }
             public TimeInterval[] Intervals { get; set; }
             public long TotalValue { get; set; }
             public long TotalMeasurements { get; set; }

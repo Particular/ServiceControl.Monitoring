@@ -136,6 +136,9 @@
     <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
+    <Compile Include="Http\Diagrams\MonitoredEndpointDetails.cs" />
+    <Compile Include="Http\Diagrams\MonitoredEndpointMessageType.cs" />
+    <Compile Include="Infrastructure\BreakdownRegistry.cs" />
     <Compile Include="Infrastructure\EndpointInstanceActivityTracker.cs" />
     <Compile Include="Infrastructure\EndpointInstanceId.cs" />
     <Compile Include="Hosting\Commands\CommandRunner.cs" />
@@ -145,7 +148,7 @@
     <Compile Include="Http\BaseModule.cs" />
     <Compile Include="Http\Diagrams\MonitoredEndpoint.cs" />
     <Compile Include="Http\Diagrams\MonitoredEndpointInstance.cs" />
-    <Compile Include="Http\Diagrams\MonitoredEndpointValues.cs" />
+    <Compile Include="Http\Diagrams\MonitoredValues.cs" />
     <Compile Include="Http\LicenseApiModule.cs" />
     <Compile Include="Http\RootApiModule.cs" />
     <Compile Include="Http\ApiModule.cs" />
@@ -153,8 +156,12 @@
     <Compile Include="Infrastructure\EndpointRegistry.cs" />
     <Compile Include="Infrastructure\EndpointTracker.cs" />
     <Compile Include="Infrastructure\HistoryPeriod.cs" />
+    <Compile Include="Infrastructure\EndpointMessageType.cs" />
+    <Compile Include="Infrastructure\MessageTypeRegistry.cs" />
+    <Compile Include="Infrastructure\MessageTypeTracker.cs" />
     <Compile Include="Messaging\TaggedLongValueOccurrence.cs" />
     <Compile Include="Messaging\TaggedLongValueWriterOccurrenceSerializerDefinition.cs" />
+    <Compile Include="Infrastructure\IProvideBreakdownBy.cs" />
     <Compile Include="Timings\ProcessingTimeStore.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="EndpointFactory.cs" />
@@ -169,12 +176,11 @@
     <Compile Include="MonitorLogs.cs" />
     <Compile Include="Messaging\LongValueOccurenceSerializerDefinition.cs" />
     <Compile Include="QueueLength\QueueLength.cs" />
-    <Compile Include="Retries\OccurrenceHandler.cs" />
+    <Compile Include="Retries\TaggedLongValueOccurrenceHandler.cs" />
     <Compile Include="Retries\RetriesStore.cs" />
     <Compile Include="Retries\UnknownOccurrenceMessageType.cs" />
     <Compile Include="Timings\CriticalTimeStore.cs" />
     <Compile Include="Http\Diagrams\IntervalsAggregator.cs" />
-    <Compile Include="Timings\LongValueOccurrenceHandler.cs" />
     <Compile Include="Messaging\LongValueOccurrences.cs" />
     <Compile Include="Infrastructure\VariableHistoryIntervalStore.cs" />
     <Compile Include="Infrastructure\IntervalsStore.cs" />
@@ -189,6 +195,7 @@
     <Compile Include="QueueLength\QueueLengthCalculator.cs" />
     <Compile Include="QueueLength\QueueLengthStore.cs" />
     <Compile Include="QueueLength\TagExtensions.cs" />
+    <Compile Include="Timings\TaggedLongValueOccurrenceHandler.cs" />
     <Compile Include="VersionInfo.cs" />
     <Compile Include="Messaging\MetricReport.cs" />
     <Compile Include="TaskEx.cs" />

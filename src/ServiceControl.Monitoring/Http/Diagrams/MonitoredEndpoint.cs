@@ -1,14 +1,12 @@
 namespace ServiceControl.Monitoring.Http.Diagrams
 {
+    using System.Collections.Generic;
+
     public class MonitoredEndpoint
     {
         public string Name { get; set; }
         public bool IsStale { get; set; }
         public string[] EndpointInstanceIds { get; set; }
-        public MonitoredEndpointValues ProcessingTime { get; set; }
-        public MonitoredEndpointValues CriticalTime { get; set; }
-        public MonitoredEndpointValues Retries { get; set; }
-        public MonitoredEndpointValues QueueLength { get; set; }
-        public MonitoredEndpointValues Throughput { get; set; }
+        public Dictionary<string, MonitoredValues> Metrics { get; } = new Dictionary<string, MonitoredValues>();
     }
 }

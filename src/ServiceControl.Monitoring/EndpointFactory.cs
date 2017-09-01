@@ -11,6 +11,7 @@
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
     using NServiceBus.Logging;
+    using NServiceBus.Pipeline;
     using Timings;
 
     public class EndpointFactory
@@ -57,6 +58,7 @@
             config.AddDeserializer<LongValueOccurrenceSerializerDefinition>();
             config.AddDeserializer<OccurrenceSerializerDefinition>();
             config.AddDeserializer<TaggedLongValueWriterOccurrenceSerializerDefinition>();
+            config.Pipeline.Register(typeof(MessagePoolReleasingBehavior), "Releases pooled message.");
             config.EnableFeature<QueueLength.QueueLength>();
 
             config.EnableFeature<HttpEndpoint>();
@@ -87,6 +89,40 @@
         }
 
         static ILog Logger = LogManager.GetLogger<EndpointFactory>();
+    }
+
+    class MessagePoolReleasingBehavior : Behavior<IIncomingLogicalMessageContext>
+    {
+        public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+        {
+            try
+            {
+                await next().ConfigureAwait(false);
+            }
+            finally
+            {
+                var messageType = context.Message.MessageType;
+                var instance = context.Message.Instance;
+
+                if (messageType == typeof(TaggedLongValueOccurrence))
+                {
+                    ReleaseMessage<TaggedLongValueOccurrence>(instance);
+                }
+                else if (messageType == typeof(LongValueOccurrences))
+                {
+                    ReleaseMessage<LongValueOccurrences>(instance);
+                }
+                else if (messageType == typeof(Occurrences))
+                {
+                    ReleaseMessage<Occurrences>(instance);
+                }
+            }
+        }
+
+        static void ReleaseMessage<T>(object instance) where T : RawMessage, new()
+        {
+            RawMessage.Pool<T>.Default.Release((T) instance);
+        }
     }
 
     class ApplicationModule : Module

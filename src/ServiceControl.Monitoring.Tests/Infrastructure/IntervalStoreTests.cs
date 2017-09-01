@@ -10,13 +10,11 @@
     public class IntervalStoreTests
     {
         DateTime now;
-        EndpointInstanceId endpointInstanceId;
 
         [SetUp]
         public void SetUp()
         {
             now = DateTime.UtcNow;
-            endpointInstanceId = new EndpointInstanceId(string.Empty, string.Empty);
         }
 
         [Test]
@@ -27,9 +25,9 @@
                 {now.AddSeconds(-9), 0L}
             });
 
-            var store = new IntervalsStore(TimeSpan.FromSeconds(10), 33);
+            var store = new IntervalsStore<int>(TimeSpan.FromSeconds(10), 33);
 
-            store.Store(endpointInstanceId, entries);
+            store.Store(0, entries);
 
             var timings = store.GetIntervals(now);
 
@@ -61,7 +59,7 @@
 
             var store = AnyStore();
 
-            store.Store(endpointInstanceId, entries);
+            store.Store(0, entries);
 
             var timings = store.GetIntervals(now);
 
@@ -81,9 +79,9 @@
                 {now.Subtract(historySize), 3L}
             });
             
-            var store = new IntervalsStore(intervalSize, numberOfIntervals);
+            var store = new IntervalsStore<int>(intervalSize, numberOfIntervals);
 
-            store.Store(endpointInstanceId, entries);
+            store.Store(0, entries);
 
             var timings = store.GetIntervals(now);
 
@@ -100,7 +98,7 @@
 
             var store = AnyStore();
 
-            store.Store(endpointInstanceId, entries);
+            store.Store(0, entries);
 
             var currentTimings = store.GetIntervals(now);
 
@@ -128,8 +126,8 @@
 
             var store = AnyStore();
 
-            store.Store(endpointInstanceId, firstEntries);
-            store.Store(endpointInstanceId, secondEntries);
+            store.Store(0, firstEntries);
+            store.Store(0, secondEntries);
 
             var timings = store.GetIntervals(now);
 
@@ -153,7 +151,7 @@
 
             var store = AnyStore();
 
-            store.Store(endpointInstanceId, entries);
+            store.Store(0, entries);
 
             var timings = store.GetIntervals(now);
             var intervalStarts = timings[0].Intervals.Select(i => i.IntervalStart).ToArray();
@@ -162,9 +160,9 @@
             Assert.IsTrue(intervalStarts[1] > intervalStarts[2]);
         }
 
-        IntervalsStore AnyStore()
+        IntervalsStore<int> AnyStore()
         {
-            return new IntervalsStore(TimeSpan.FromSeconds(5), 127);
+            return new IntervalsStore<int>(TimeSpan.FromSeconds(5), 127);
         }
     }
 }

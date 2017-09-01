@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Dynamic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -20,11 +21,13 @@
     public class PerformanceTests
     {
         EndpointRegistry endpointRegistry;
+        MessageTypeRegistry messageTypeRegistry;
         CriticalTimeStore criticalTimeStore;
         ProcessingTimeStore processingTimeStore;
         RetriesStore retriesStore;
         QueueLengthStore queueLengthStore;
         Func<Task> GetMonitoredEndpoints;
+        Func<string, Task> GetMonitoredSingleEndpoint;
         EndpointInstanceActivityTracker activityTracker;
 
         [SetUp]
@@ -35,10 +38,28 @@
             processingTimeStore = new ProcessingTimeStore();
             retriesStore = new RetriesStore();
             queueLengthStore = new QueueLengthStore(new QueueLengthCalculator());
-            var settings = new Settings() { EndpointUptimeGracePeriod = TimeSpan.FromMinutes(5) };
+
+            var settings = new Settings { EndpointUptimeGracePeriod = TimeSpan.FromMinutes(5) };
             activityTracker = new EndpointInstanceActivityTracker(settings);
 
-            var monitoredEndpointsModule = new MonitoredEndpointsModule(endpointRegistry, activityTracker, criticalTimeStore, processingTimeStore, retriesStore, queueLengthStore)
+            messageTypeRegistry = new MessageTypeRegistry();
+
+            var instanceMetricStores = new IProvideBreakdownBy<EndpointInstanceId>[]
+            {
+                criticalTimeStore,
+                processingTimeStore,
+                retriesStore,
+                queueLengthStore
+            };
+
+            var messageTypeStores = new IProvideBreakdownBy<EndpointMessageType>[]
+            {
+                criticalTimeStore,
+                processingTimeStore,
+                retriesStore
+            };
+
+            var monitoredEndpointsModule = new MonitoredEndpointsModule(instanceMetricStores, messageTypeStores, endpointRegistry, activityTracker, messageTypeRegistry)
             {
                 Context = new NancyContext() { Request = new Request("Get", "/monitored-endpoints", "HTTP") }
             };
@@ -46,6 +67,7 @@
             var dictionary = monitoredEndpointsModule.Routes.ToDictionary(r => r.Description.Path, r => r.Action);
 
             GetMonitoredEndpoints = () => dictionary["/monitored-endpoints"](new object(), new CancellationToken(false));
+            GetMonitoredSingleEndpoint = endpointName => dictionary["/monitored-endpoints/{endpointName}"](new { EndpointName = endpointName }.ToDynamic(), new CancellationToken());
         }
 
         [TestCase(10, 5, 4)]
@@ -132,7 +154,7 @@
         [TestCase(1, 1, 100, 1000, 100, 1000)]
         [TestCase(10, 10, 100, 1000, 100, 1000)]
         [TestCase(100, 10, 100, 1000, 100, 1000)]
-        public async Task CriticalTime_ProcessingTime_Retries_Combined(int numberOfEndpoints, int numberOfInstances, int sendReportEvery, int numberOfEntriesInReport, int queryEveryInMilliseconds, int numberOfQueries)
+        public async Task GetMonitoredEndpointsQueryTest(int numberOfEndpoints, int numberOfInstances, int sendReportEvery, int numberOfEntriesInReport, int queryEveryInMilliseconds, int numberOfQueries)
         {
             var instances = BuildInstances(numberOfEndpoints, numberOfInstances);
             foreach (var instance in instances)
@@ -142,10 +164,13 @@
 
             var source = new CancellationTokenSource();
 
-            var reporters = BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, criticalTimeStore).Concat(
-                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, processingTimeStore))
-                .Concat(BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, retriesStore))
-                .ToArray();
+            var reporters =
+                new[]
+                {
+                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => criticalTimeStore.Store(e, i, EndpointMessageType.Unknown(i.EndpointName))),
+                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => processingTimeStore.Store(e, i, EndpointMessageType.Unknown(i.EndpointName))),
+                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => retriesStore.Store(e, i, EndpointMessageType.Unknown(i.EndpointName)))
+                }.SelectMany(i => i).ToArray();
 
             var histogram = CreateTimeHistogram();
 
@@ -166,14 +191,69 @@
             Report("Reporters", reportFinalHistogram, TimeSpan.FromMilliseconds(20));
         }
 
-        static IEnumerable<Task<LongHistogram>> BuildReporters(int sendReportEvery, int numberOfEntriesInReport, EndpointInstanceId[] instances, CancellationTokenSource source, VariableHistoryIntervalStore store)
+        [TestCase(1, 100, 100, 1000, 100, 1000)]
+        [TestCase(10, 100, 100, 1000, 100, 1000)]
+        public async Task GetMonitoredSingleEndpointQueryTest(int numberOfInstances, int numberOfMessageTypes, int sendReportEvery, int numberOfEntriesInReport, int queryEveryInMilliseconds, int numberOfQueries)
+        {
+            var instances = BuildInstances(1, numberOfInstances);
+            foreach (var instance in instances)
+            {
+                endpointRegistry.Record(instance);
+            }
+
+            var endpointName = instances.First().EndpointName;
+
+            for (var i = 0; i < numberOfMessageTypes; i++)
+            {
+                var messageType = new Guid(i, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0).ToString();
+                messageTypeRegistry.Record(new EndpointMessageType(endpointName, messageType));
+            }
+
+            var source = new CancellationTokenSource();
+
+            var messageTypes = messageTypeRegistry.GetForEndpointName(endpointName).ToArray();
+            long counter = 0;
+            Func<EndpointMessageType> getter = () =>
+            {
+                var value = Interlocked.Increment(ref counter) % messageTypes.Length;
+                return messageTypes[value];
+            };
+
+            var reporters =
+                new[]
+                {
+                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => criticalTimeStore.Store(e, i, getter())),
+                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => processingTimeStore.Store(e, i, getter())),
+                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => retriesStore.Store(e, i, getter()))
+                }.SelectMany(i => i).ToArray();
+
+            var histogram = CreateTimeHistogram();
+
+            for (var i = 0; i < numberOfQueries; i++)
+            {
+                var start = Stopwatch.GetTimestamp();
+                await GetMonitoredSingleEndpoint(endpointName).ConfigureAwait(false);
+                var elapsed = Stopwatch.GetTimestamp() - start;
+                histogram.RecordValue(elapsed);
+            }
+
+            source.Cancel();
+            await Task.WhenAll(reporters).ConfigureAwait(false);
+
+            var reportFinalHistogram = MergeHistograms(reporters);
+
+            Report("Querying", histogram, TimeSpan.FromMilliseconds(20));
+            Report("Reporters", reportFinalHistogram, TimeSpan.FromMilliseconds(20));
+        }
+
+        static IEnumerable<Task<LongHistogram>> BuildReporters(int sendReportEvery, int numberOfEntriesInReport, EndpointInstanceId[] instances, CancellationTokenSource source, Action<RawMessage.Entry[], EndpointInstanceId> store)
         {
             return instances
                 .Select(instance => StartReporter(sendReportEvery, numberOfEntriesInReport, source, instance, store))
                 .ToArray();
         }
 
-        static Task<LongHistogram> StartReporter(int sendReportEvery, int numberOfEntriesInReport, CancellationTokenSource source, EndpointInstanceId instance, VariableHistoryIntervalStore store)
+        static Task<LongHistogram> StartReporter(int sendReportEvery, int numberOfEntriesInReport, CancellationTokenSource source, EndpointInstanceId instance, Action<RawMessage.Entry[], EndpointInstanceId> store)
         {
             return Task.Run(async () =>
             {
@@ -191,7 +271,7 @@
                     }
 
                     var start = Stopwatch.GetTimestamp();
-                    store.Store(instance, entries);
+                    store(entries, instance);
                     var elapsed = Stopwatch.GetTimestamp() - start;
                     histogram.RecordValue(elapsed);
 
@@ -243,6 +323,21 @@
 
                 Assert.LessOrEqual(actualMean, max, $"The actual mean for {name} was '{actualMean}' and was bigger than maximum allowed mean '{max}'.");
             }
+        }
+    }
+
+    public static class DynamicExtensions
+    {
+        public static dynamic ToDynamic<T>(this T obj)
+        {
+            IDictionary<string, object> expando = new ExpandoObject();
+
+            foreach (var propertyInfo in typeof(T).GetProperties())
+            {
+                var currentValue = propertyInfo.GetValue(obj);
+                expando.Add(propertyInfo.Name, currentValue);
+            }
+            return (ExpandoObject) expando;
         }
     }
 }

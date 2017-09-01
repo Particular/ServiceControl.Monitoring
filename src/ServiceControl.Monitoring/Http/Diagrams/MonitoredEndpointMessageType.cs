@@ -2,11 +2,10 @@
 {
     using System.Collections.Generic;
 
-    public class MonitoredEndpointInstance
+    public class MonitoredEndpointMessageType
     {
-        public string Name { get; set; }
-        public string Id { get; set; }
-        public bool IsStale { get; set; }
+        public string MessageType { get; set; }
+
         public Dictionary<string, MonitoredValues> Metrics { get; } = new Dictionary<string, MonitoredValues>();
     }
 }

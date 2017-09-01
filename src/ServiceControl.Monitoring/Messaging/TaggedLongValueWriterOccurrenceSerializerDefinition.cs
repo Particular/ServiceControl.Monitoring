@@ -25,6 +25,17 @@
             throw new NotImplementedException();
         }
 
+        // 0                   1                   2                   3
+        // 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        //+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        //|     Version   | Min date time |tag cnt|tag1key|tag1len| tag1..|
+        //+-------+-------+-------+-------+---------------+-------+-------+
+        //| ..bytes       |tag2key|tag2len| tag2 bytes .................  |
+        //+-------+-------+-------+-------+---------------+-------+-------+
+        //| tag2 bytes continued                  | count | date1 | tag1  |
+        //+-------+-------+-------+-------+---------------+-------+-------+
+        //|    value 1    | date2 | tag2  |     value 2   | date3 | ...   |
+        //+-------+---------------+-------+---------------+-------+-------+
         public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
         {
             var reader = new BinaryReader(stream);
@@ -34,16 +45,17 @@
             if (version == 1)
             {
                 var baseTicks = reader.ReadInt64();
+
+                var tagsCount = reader.ReadInt32();
+
+                var tagKeyToValue = DeserializeTags(tagsCount, reader);
+
                 var count = reader.ReadInt32();
 
                 if (count == 0)
                 {
                     return NoMessages;
                 }
-
-                var tagsCount = reader.ReadInt32();
-
-                var tagKeyToValue = DeserializeTags(tagsCount, reader);
 
                 var tagKeyToMessage = new Dictionary<int, TaggedLongValueOccurrence>();
 

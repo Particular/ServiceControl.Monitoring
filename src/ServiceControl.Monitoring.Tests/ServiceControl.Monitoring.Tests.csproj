@@ -71,7 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\EndpointInstanceActivityTrackerTests.cs" />
-    <Compile Include="Infrastructure\EndpointRegistryTests.cs" />
+    <Compile Include="Infrastructure\BreakdownRegistryTests.cs" />
     <Compile Include="Infrastructure\EntriesBuilder.cs" />
     <Compile Include="Infrastructure\VariableHistoryIntervalStoreTests.cs" />
     <Compile Include="MonitoredEndpoints\AggregatorTests.cs" />

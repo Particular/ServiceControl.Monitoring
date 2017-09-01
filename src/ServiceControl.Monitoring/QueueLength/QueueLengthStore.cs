@@ -7,11 +7,18 @@ namespace ServiceControl.Monitoring.QueueLength
     using Messaging;
     using Newtonsoft.Json.Linq;
 
-    public class QueueLengthStore : VariableHistoryIntervalStore
+    public class QueueLengthStore : IProvideBreakdownBy<EndpointInstanceId>
     {
         public QueueLengthStore(IQueueLengthCalculator calculator)
         {
             this.calculator = calculator;
+        }
+
+        VariableHistoryIntervalStore<EndpointInstanceId> byInstance = new VariableHistoryIntervalStore<EndpointInstanceId>();
+
+        public IntervalsStore<EndpointInstanceId>.IntervalsBreakdown[] GetIntervals(HistoryPeriod period, DateTime now)
+        {
+            return byInstance.GetIntervals(period, now);
         }
 
         public void Store(EndpointInstanceId endpointId, JObject data)
@@ -35,17 +42,15 @@ namespace ServiceControl.Monitoring.QueueLength
                     Entry = new RawMessage.Entry
                     {
                         DateTicks = now.Ticks,
-                        Value = (long)g.Sum(i => i.Value)
+                        Value = (long) g.Sum(i => i.Value)
                     }
                 });
 
             foreach (var queueLength in queueLengths)
-            {
-                Store(queueLength.Id, new[]
+                byInstance.Store(queueLength.Id, new[]
                 {
                     queueLength.Entry
                 });
-            }
         }
 
         void UpdateSends(IEnumerable<JToken> sends)

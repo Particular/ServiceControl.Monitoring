@@ -9,26 +9,24 @@
     public class VariableHistoryIntervalStoreTests
     {
         DateTime now;
-        EndpointInstanceId endpointInstanceId;
 
         [SetUp]
         public void SetUp()
         {
             now = DateTime.UtcNow;
-            endpointInstanceId = new EndpointInstanceId(string.Empty, string.Empty);
         }
 
         [Test]
         public void Store_updates_all_supported_historical_periods()
         {
-            var store = new SomeStore();
+            var store = new VariableHistoryIntervalStore<int>();
 
             var entries = EntriesBuilder.Build(new Dictionary<DateTime, long>
             {
                 {now, 5L}
             });
 
-            store.Store(endpointInstanceId, entries);
+            store.Store(0, entries);
 
             foreach (var period in HistoryPeriod.All)
             {
@@ -39,9 +37,5 @@
                 Assert.AreEqual(1L, intervals[0].TotalMeasurements);
             }
         }
-    }
-
-    public class SomeStore : VariableHistoryIntervalStore
-    {
     }
 }

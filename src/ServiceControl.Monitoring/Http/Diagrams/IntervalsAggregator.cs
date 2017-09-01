@@ -7,11 +7,11 @@
 
     public static class IntervalsAggregator
     {
-        internal static MonitoredEndpointValues AggregateTimings(List<IntervalsStore.EndpointInstanceIntervals> intervals)
+        internal static MonitoredValues AggregateTimings<T>(List<IntervalsStore<T>.IntervalsBreakdown> intervals, HistoryPeriod period)
         {
             Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
 
-            return new MonitoredEndpointValues
+            return new MonitoredValues
             {
                 Average = intervals.Sum(t => t.TotalValue) / returnOneIfZero(intervals.Sum(t => t.TotalMeasurements)),
                 Points = intervals.SelectMany(t => t.Intervals)
@@ -22,11 +22,11 @@
             };
         }
 
-        internal static MonitoredEndpointValues AggregateRetries(List<IntervalsStore.EndpointInstanceIntervals> intervals)
+        internal static MonitoredValues AggregateRetries<T>(List<IntervalsStore<T>.IntervalsBreakdown> intervals, HistoryPeriod period)
         {
             Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
 
-            return new MonitoredEndpointValues
+            return new MonitoredValues
             {
                 Average = intervals.Sum(t => t.TotalValue) / returnOneIfZero(intervals.Sum(t => t.Intervals.Length)),
                 Points = intervals.SelectMany(t => t.Intervals)
@@ -37,11 +37,11 @@
             };
         }
 
-        internal static MonitoredEndpointValues AggregateQueueLength(List<IntervalsStore.EndpointInstanceIntervals> intervals)
+        internal static MonitoredValues AggregateQueueLength<T>(List<IntervalsStore<T>.IntervalsBreakdown> intervals, HistoryPeriod period)
         {
             Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
 
-            return new MonitoredEndpointValues
+            return new MonitoredValues
             {
                 // To calculate the average we count TotalMeasurements instead of the number of intervals. 
                 // This means that if in a specific interval value was not snapshotted (and recorded in the store)
@@ -57,13 +57,13 @@
             };
         }
 
-        public static MonitoredEndpointValues AggregateTotalMeasurementsPerSecond(List<IntervalsStore.EndpointInstanceIntervals> intervals, HistoryPeriod period)
+        public static MonitoredValues AggregateTotalMeasurementsPerSecond<T>(List<IntervalsStore<T>.IntervalsBreakdown> intervals, HistoryPeriod period)
         {
             Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
 
-            var seconds = VariableHistoryIntervalStore.GetIntervalSize(period).TotalSeconds;
+            var seconds = VariableHistoryIntervalStore<T>.GetIntervalSize(period).TotalSeconds;
 
-            return new MonitoredEndpointValues
+            return new MonitoredValues
             {
                 Average = intervals.Sum(t => t.TotalMeasurements) / returnOneIfZero(intervals.Sum(t => t.Intervals.Length)) / seconds,
                 Points = intervals.SelectMany(t => t.Intervals)

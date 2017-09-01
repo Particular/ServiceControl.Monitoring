@@ -4,19 +4,19 @@
     using Messaging;
     using System.Collections.Generic;
 
-    public abstract class VariableHistoryIntervalStore
+    public class VariableHistoryIntervalStore<BreakdownT> : IProvideBreakdownBy<BreakdownT>
     {
-        Dictionary<HistoryPeriod, IntervalsStore> histories;
+        Dictionary<HistoryPeriod, IntervalsStore<BreakdownT>> histories;
 
-        protected VariableHistoryIntervalStore()
+        public VariableHistoryIntervalStore()
         {
-            histories = new Dictionary<HistoryPeriod, IntervalsStore>();
+            histories = new Dictionary<HistoryPeriod, IntervalsStore<BreakdownT>>();
 
             foreach (var period in HistoryPeriod.All)
             {
                 var intervalSize = GetIntervalSize(period);
 
-                histories.Add(period, new IntervalsStore(intervalSize, IntervalsPerStore));
+                histories.Add(period, new IntervalsStore<BreakdownT>(intervalSize, IntervalsPerStore));
             }
         }
 
@@ -25,9 +25,9 @@
             return TimeSpan.FromTicks(period.Value.Ticks / IntervalsPerStore);
         }
 
-        public IntervalsStore.EndpointInstanceIntervals[] GetIntervals(HistoryPeriod period, DateTime now)
+        public IntervalsStore<BreakdownT>.IntervalsBreakdown[] GetIntervals(HistoryPeriod period, DateTime now)
         {
-            IntervalsStore store;
+            IntervalsStore<BreakdownT> store;
 
             if (histories.TryGetValue(period, out store))
             {
@@ -37,11 +37,11 @@
             throw new Exception("Unsupported history size.");
         }
 
-        public void Store(EndpointInstanceId instanceId, RawMessage.Entry[] entries)
+        public void Store(BreakdownT id, RawMessage.Entry[] entries)
         {
             foreach (var kvHistory in histories)
             {
-                kvHistory.Value.Store(instanceId, entries);
+                kvHistory.Value.Store(id, entries);
             }
         }
 
