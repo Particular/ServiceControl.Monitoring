@@ -24,7 +24,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
             var metricByMessageTypeLookup = metricByMessageType.ToDictionary(i => i.GetType());
 
-            var instanceMetric = new[]
+            var instanceMetrics = new[]
             {
                 CreateMetric<EndpointInstanceId, ProcessingTimeStore>("ProcessingTime", IntervalsAggregator.AggregateTimings),
                 CreateMetric<EndpointInstanceId, CriticalTimeStore>("CriticalTime", IntervalsAggregator.AggregateTimings),
@@ -33,7 +33,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 CreateMetric<EndpointInstanceId, ProcessingTimeStore>("Throughput", IntervalsAggregator.AggregateTotalMeasurementsPerSecond)
             };
 
-            var messageTypeMetric = new[]
+            var messageTypeMetrics = new[]
             {
                 CreateMetric<EndpointMessageType, ProcessingTimeStore>("ProcessingTime", IntervalsAggregator.AggregateTimings),
                 CreateMetric<EndpointMessageType, CriticalTimeStore>("CriticalTime", IntervalsAggregator.AggregateTimings),
@@ -46,7 +46,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 var endpoints = GetMonitoredEndpoints(endpointRegistry, activityTracker);
                 var period = ExtractHistoryPeriod();
 
-                foreach (var metric in instanceMetric)
+                foreach (var metric in instanceMetrics)
                 {
                     var store = metricByInstanceLookup[metric.StoreType];
                     var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
@@ -96,7 +96,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                 var messageTypes = GetMonitoredMessageTypes(messageTypeRegistry, endpointName);
 
-                foreach (var metric in messageTypeMetric)
+                foreach (var metric in messageTypeMetrics)
                 {
                     var store = metricByMessageTypeLookup[metric.StoreType];
                     var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id);
