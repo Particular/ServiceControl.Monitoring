@@ -69,6 +69,18 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                 var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName, activityTracker);
 
+                var digest = new MonitoredEndpointDigest();
+
+                foreach (var metric in instanceMetric)
+                {
+                    var store = metricByInstanceLookup[metric.StoreType];
+                    var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
+
+                    var values = metric.Aggregate(intervals[endpointName].ToList(), period);
+
+                    digest.Metrics.Add(metric.ReturnName, new MonitoredEndpointMetricDigest{Latest = values.Points.LastOrDefault(), Average = values.Average});
+                }
+
                 foreach (var metric in instanceMetric)
                 {
                     var store = metricByInstanceLookup[metric.StoreType];
@@ -99,6 +111,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                 var data = new MonitoredEndpointDetails
                 {
+                    Digest = digest,
                     Instances = instances,
                     MessageTypes = messageTypes
                 };
