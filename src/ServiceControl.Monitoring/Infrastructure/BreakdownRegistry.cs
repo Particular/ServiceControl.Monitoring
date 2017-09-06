@@ -37,7 +37,16 @@ namespace ServiceControl.Monitoring.Infrastructure
 
         public IEnumerable<BreakdownT> GetForEndpointName(string endpointName)
         {
-            return lookup[endpointName];
+            IEnumerable<BreakdownT> endpointBreakdowns;
+
+            if (lookup.TryGetValue(endpointName, out endpointBreakdowns))
+            {
+                return endpointBreakdowns;
+            }
+
+            return emptyResult;
         }
+
+        static IEnumerable<BreakdownT> emptyResult = new BreakdownT[0];
     }
 }

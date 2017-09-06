@@ -8,7 +8,7 @@
         [Test]
         public void Message_lifecycle_is_preserved()
         {
-            var pool = new RawMessage.Pool<LongValueOccurrences>();
+            var pool = new RawMessage.Pool<TaggedLongValueOccurrence>();
             var message = pool.Lease();
 
             message.TryRecord(3, 4);
