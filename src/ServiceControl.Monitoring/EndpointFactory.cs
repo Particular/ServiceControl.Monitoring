@@ -12,7 +12,6 @@
     using NServiceBus.Features;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
-    using Timings;
 
     public class EndpointFactory
     {
@@ -52,11 +51,6 @@
             config.SendFailedMessagesTo(settings.ErrorQueue);
             config.DisableFeature<AutoSubscribe>();
 
-            var recoverability = config.Recoverability();
-            recoverability.AddUnrecoverableException<UnknownLongValueOccurrenceMessageType>();
-            recoverability.AddUnrecoverableException<UnknownOccurrenceMessageType>();
-            config.AddDeserializer<LongValueOccurrenceSerializerDefinition>();
-            config.AddDeserializer<OccurrenceSerializerDefinition>();
             config.AddDeserializer<TaggedLongValueWriterOccurrenceSerializerDefinition>();
             config.Pipeline.Register(typeof(MessagePoolReleasingBehavior), "Releases pooled message.");
             config.EnableFeature<QueueLength.QueueLength>();
@@ -107,14 +101,6 @@
                 if (messageType == typeof(TaggedLongValueOccurrence))
                 {
                     ReleaseMessage<TaggedLongValueOccurrence>(instance);
-                }
-                else if (messageType == typeof(LongValueOccurrences))
-                {
-                    ReleaseMessage<LongValueOccurrences>(instance);
-                }
-                else if (messageType == typeof(Occurrences))
-                {
-                    ReleaseMessage<Occurrences>(instance);
                 }
             }
         }

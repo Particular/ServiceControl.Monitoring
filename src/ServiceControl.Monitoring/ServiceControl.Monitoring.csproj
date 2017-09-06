@@ -172,19 +172,14 @@
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Licensing\LicenseCheckFeature.cs" />
     <Compile Include="Infrastructure\MetricHeaders.cs" />
-    <Compile Include="Messaging\Occurrences.cs" />
-    <Compile Include="Messaging\OccurrenceSerializerDefinition.cs" />
     <Compile Include="Messaging\RawMessage.cs" />
     <Compile Include="Messaging\RawMessageSerializer.cs" />
     <Compile Include="MonitorLogs.cs" />
-    <Compile Include="Messaging\LongValueOccurenceSerializerDefinition.cs" />
     <Compile Include="QueueLength\QueueLength.cs" />
     <Compile Include="Retries\TaggedLongValueOccurrenceHandler.cs" />
     <Compile Include="Retries\RetriesStore.cs" />
-    <Compile Include="Retries\UnknownOccurrenceMessageType.cs" />
     <Compile Include="Timings\CriticalTimeStore.cs" />
     <Compile Include="Http\Diagrams\IntervalsAggregator.cs" />
-    <Compile Include="Messaging\LongValueOccurrences.cs" />
     <Compile Include="Infrastructure\VariableHistoryIntervalStore.cs" />
     <Compile Include="Infrastructure\IntervalsStore.cs" />
     <Compile Include="Program.cs" />
@@ -202,7 +197,6 @@
     <Compile Include="VersionInfo.cs" />
     <Compile Include="Messaging\MetricReport.cs" />
     <Compile Include="TaskEx.cs" />
-    <Compile Include="Timings\UnknownLongValueOccurrenceMessageType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

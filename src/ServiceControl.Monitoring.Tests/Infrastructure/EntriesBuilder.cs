@@ -11,7 +11,7 @@
         public static RawMessage.Entry[] Build(Dictionary<DateTime, long> measurements)
         {
             var sortedMeasurements = measurements.OrderBy(kv => kv.Key).ToList();
-            var message = new LongValueOccurrences();
+            var message = new TaggedLongValueOccurrence();
 
             foreach (var kvp in sortedMeasurements)
             {
