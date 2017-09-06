@@ -41,6 +41,11 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 CreateMetric<EndpointMessageType, ProcessingTimeStore>("Throughput", IntervalsAggregator.AggregateTotalMeasurementsPerSecond)
             };
 
+            var detailedMetrics = new[]
+            {
+                "Throughput"
+            };
+
             Get["/monitored-endpoints"] = parameters =>
             {
                 var endpoints = GetMonitoredEndpoints(endpointRegistry, activityTracker);
@@ -68,11 +73,10 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 var period = ExtractHistoryPeriod();
 
                 var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName, activityTracker);
-                var metricDetails = new MonitoredEndpointMetricDetails();
 
                 var digest = new MonitoredEndpointDigest();
 
-                foreach (var metric in instanceMetric)
+                foreach (var metric in instanceMetrics)
                 {
                     var store = metricByInstanceLookup[metric.StoreType];
                     var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
@@ -82,31 +86,37 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                     digest.Metrics.Add(metric.ReturnName, new MonitoredEndpointMetricDigest{Latest = values.Points.LastOrDefault(), Average = values.Average});
                 }
 
-                foreach (var metric in instanceMetric)
+                var metricDetails = new MonitoredEndpointMetricDetails();
+
+                foreach (var metric in instanceMetrics)
                 {
                     var store = metricByInstanceLookup[metric.StoreType];
-                    var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.InstanceId);
+                    var intervals = store.GetIntervals(period, DateTime.UtcNow);
+                    var intervalsByInstanceId = intervals.ToLookup(k => k.Id.InstanceId);
+                    var intervalsByEndpoint = intervals.ToLookup(k => k.Id.EndpointName);
 
                     foreach (var instance in instances)
                     {
-                        var values = metric.Aggregate(intervals[instance.Id].ToList(), period);
+                        var values = metric.Aggregate(intervalsByInstanceId[instance.Id].ToList(), period);
 
                         instance.Metrics.Add(metric.ReturnName, values);
+                    }
 
-                        if (metric.ReturnName.Equals("Throughput"))
-                        {
-                            var throughputDetails = new MonitoredValuesWithTimings();
-                            throughputDetails.Points = values.Points;
-                            throughputDetails.Average = values.Average;
+                    if (detailedMetrics.Contains(metric.ReturnName))
+                    {
+                        var detailedValues = metric.Aggregate(intervalsByEndpoint[endpointName].ToList(), period);
 
-                            var intervalsForEndpoint = store.GetIntervals(period, DateTime.UtcNow).SingleOrDefault(x => x.Id.EndpointName == endpointName);
-                            if (intervalsForEndpoint != null)
-                            {
-                                throughputDetails.TimeAxisValues = intervalsForEndpoint.Intervals.Select(x => x.IntervalStart.ToUniversalTime()).ToArray();
-                            }
+                        var details = new MonitoredValuesWithTimings();
+                        details.Points = detailedValues.Points;
+                        details.Average = detailedValues.Average;
 
-                            metricDetails.Metrics.Add("Throughput", throughputDetails);
-                        }
+                        details.TimeAxisValues = intervalsByEndpoint[endpointName]
+                            .SelectMany(ib => ib.Intervals.Select(x => x.IntervalStart.ToUniversalTime()))
+                            .Distinct()
+                            .OrderBy(i => i)
+                            .ToArray();
+
+                        metricDetails.Metrics.Add(metric.ReturnName, details);
                     }
                 }
 
