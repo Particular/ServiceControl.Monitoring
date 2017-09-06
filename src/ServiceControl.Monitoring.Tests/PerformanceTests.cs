@@ -187,7 +187,7 @@
 
             var reportFinalHistogram = MergeHistograms(reporters);
 
-            Report("Querying", histogram, TimeSpan.FromMilliseconds(20));
+            Report("Querying", histogram, TimeSpan.FromMilliseconds(50));
             Report("Reporters", reportFinalHistogram, TimeSpan.FromMilliseconds(20));
         }
 
@@ -319,7 +319,7 @@
             if (maximumMean != null)
             {
                 var max = maximumMean.Value;
-                var actualMean = TimeSpan.FromMilliseconds(histogram.GetValueAtPercentile(0.5) / OutputScalingFactor.TimeStampToMilliseconds);
+                var actualMean = TimeSpan.FromMilliseconds(histogram.GetValueAtPercentile(50) / OutputScalingFactor.TimeStampToMilliseconds);
 
                 Assert.LessOrEqual(actualMean, max, $"The actual mean for {name} was '{actualMean}' and was bigger than maximum allowed mean '{max}'.");
             }
