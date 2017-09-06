@@ -68,7 +68,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 var period = ExtractHistoryPeriod();
 
                 var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName, activityTracker);
-                var graph = new GraphData();
+                var metricDetails = new MonitoredEndpointMetricDetails();
 
                 var digest = new MonitoredEndpointDigest();
 
@@ -95,13 +95,17 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                         if (metric.ReturnName.Equals("Throughput"))
                         {
-                            graph.Throughput = values;
+                            var throughputDetails = new MonitoredValuesWithTimings();
+                            throughputDetails.Points = values.Points;
+                            throughputDetails.Average = values.Average;
 
                             var intervalsForEndpoint = store.GetIntervals(period, DateTime.UtcNow).SingleOrDefault(x => x.Id.EndpointName == endpointName);
                             if (intervalsForEndpoint != null)
                             {
-                                graph.TimeAxisValues = intervalsForEndpoint.Intervals.Select(x => x.IntervalStart.ToUniversalTime()).ToArray();
+                                throughputDetails.TimeAxisValues = intervalsForEndpoint.Intervals.Select(x => x.IntervalStart.ToUniversalTime()).ToArray();
                             }
+
+                            metricDetails.Metrics.Add("Throughput", throughputDetails);
                         }
                     }
                 }
@@ -126,7 +130,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                     Digest = digest,
                     Instances = instances,
                     MessageTypes = messageTypes,
-                    GraphData = graph
+                    MetricDetails = metricDetails
 
                 };
 

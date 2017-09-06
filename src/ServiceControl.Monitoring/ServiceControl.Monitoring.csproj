@@ -140,6 +140,7 @@
     <Compile Include="Http\Diagrams\MonitoredEndpointDetails.cs" />
     <Compile Include="Http\Diagrams\MonitoredEndpointDigest.cs" />
     <Compile Include="Http\Diagrams\MonitoredEndpointMessageType.cs" />
+    <Compile Include="Http\Diagrams\MonitoredEndpointMetricDetails.cs" />
     <Compile Include="Infrastructure\BreakdownRegistry.cs" />
     <Compile Include="Infrastructure\EndpointInstanceActivityTracker.cs" />
     <Compile Include="Infrastructure\EndpointInstanceId.cs" />
