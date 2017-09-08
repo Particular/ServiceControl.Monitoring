@@ -75,40 +75,22 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 var instances = GetMonitoredEndpointInstances(endpointRegistry, endpointName, activityTracker);
 
                 var digest = new MonitoredEndpointDigest();
-
-                foreach (var metric in instanceMetrics)
-                {
-                    var store = metricByInstanceLookup[metric.StoreType];
-                    var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
-
-                    var values = metric.Aggregate(intervals[endpointName].ToList(), period);
-
-                    digest.Metrics.Add(metric.ReturnName, new MonitoredEndpointMetricDigest{Latest = values.Points.LastOrDefault(), Average = values.Average});
-                }
-
                 var metricDetails = new MonitoredEndpointMetricDetails();
 
                 foreach (var metric in instanceMetrics)
                 {
                     var store = metricByInstanceLookup[metric.StoreType];
                     var intervals = store.GetIntervals(period, DateTime.UtcNow);
-                    var intervalsByInstanceId = intervals.ToLookup(k => k.Id.InstanceId);
+
                     var intervalsByEndpoint = intervals.ToLookup(k => k.Id.EndpointName);
 
-                    foreach (var instance in instances)
-                    {
-                        var values = metric.Aggregate(intervalsByInstanceId[instance.Id].ToList(), period);
-
-                        instance.Metrics.Add(metric.ReturnName, values);
-                    }
+                    var endpointValues = metric.Aggregate(intervalsByEndpoint[endpointName].ToList(), period);
 
                     if (detailedMetrics.Contains(metric.ReturnName))
                     {
-                        var detailedValues = metric.Aggregate(intervalsByEndpoint[endpointName].ToList(), period);
-
                         var details = new MonitoredValuesWithTimings();
-                        details.Points = detailedValues.Points;
-                        details.Average = detailedValues.Average;
+                        details.Points = endpointValues.Points;
+                        details.Average = endpointValues.Average;
 
                         details.TimeAxisValues = intervalsByEndpoint[endpointName]
                             .SelectMany(ib => ib.Intervals.Select(x => x.IntervalStart.ToUniversalTime()))
@@ -117,6 +99,17 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                             .ToArray();
 
                         metricDetails.Metrics.Add(metric.ReturnName, details);
+                    }
+
+                    digest.Metrics.Add(metric.ReturnName, new MonitoredEndpointMetricDigest{Latest = endpointValues.Points.LastOrDefault(), Average = endpointValues.Average});
+
+                    var intervalsByInstanceId = intervals.ToLookup(k => k.Id.InstanceId);
+
+                    foreach (var instance in instances)
+                    {
+                        var instanceValues = metric.Aggregate(intervalsByInstanceId[instance.Id].ToList(), period);
+
+                        instance.Metrics.Add(metric.ReturnName, instanceValues);
                     }
                 }
 
