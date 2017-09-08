@@ -41,7 +41,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 CreateMetric<EndpointMessageType, ProcessingTimeStore>("Throughput", IntervalsAggregator.AggregateTotalMeasurementsPerSecond)
             };
 
-            var detailedMetrics = new[]
+            var detailedMetrics = new HashSet<string>
             {
                 "Throughput"
             };
