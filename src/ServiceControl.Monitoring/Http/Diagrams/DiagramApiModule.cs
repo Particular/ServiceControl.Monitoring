@@ -88,20 +88,23 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                     if (detailedMetrics.Contains(metric.ReturnName))
                     {
-                        var details = new MonitoredValuesWithTimings();
-                        details.Points = endpointValues.Points;
-                        details.Average = endpointValues.Average;
-
-                        details.TimeAxisValues = intervalsByEndpoint[endpointName]
-                            .SelectMany(ib => ib.Intervals.Select(x => x.IntervalStart.ToUniversalTime()))
-                            .Distinct()
-                            .OrderBy(i => i)
-                            .ToArray();
+                        var details = new MonitoredValuesWithTimings
+                        {
+                            Points = endpointValues.Points,
+                            Average = endpointValues.Average,
+                            TimeAxisValues = GetTimeAxisValues(intervalsByEndpoint[endpointName])
+                        };
 
                         metricDetails.Metrics.Add(metric.ReturnName, details);
                     }
 
-                    digest.Metrics.Add(metric.ReturnName, new MonitoredEndpointMetricDigest{Latest = endpointValues.Points.LastOrDefault(), Average = endpointValues.Average});
+                    var metricDigest = new MonitoredEndpointMetricDigest
+                    {
+                        Latest = endpointValues.Points.LastOrDefault(),
+                        Average = endpointValues.Average
+                    };
+
+                    digest.Metrics.Add(metric.ReturnName, metricDigest);
 
                     var intervalsByInstanceId = intervals.ToLookup(k => k.Id.InstanceId);
 
@@ -139,6 +142,15 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                 return Negotiate.WithModel(data);
             };
+        }
+
+        static DateTime[] GetTimeAxisValues(IEnumerable<IntervalsStore<EndpointInstanceId>.IntervalsBreakdown> intervals)
+        {
+            return intervals
+                .SelectMany(ib => ib.Intervals.Select(x => x.IntervalStart.ToUniversalTime()))
+                .Distinct()
+                .OrderBy(i => i)
+                .ToArray();
         }
 
         static MonitoredMetric<BreakdownT> CreateMetric<BreakdownT, StoreT>(string name, Aggregation<BreakdownT> aggregation)
