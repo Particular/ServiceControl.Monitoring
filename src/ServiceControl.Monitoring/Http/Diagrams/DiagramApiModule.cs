@@ -43,7 +43,8 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
             var detailedMetrics = new HashSet<string>
             {
-                "Throughput"
+                "Throughput",
+                "QueueLength"
             };
 
             Get["/monitored-endpoints"] = parameters =>
