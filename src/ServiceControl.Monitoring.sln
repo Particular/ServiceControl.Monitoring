@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceControl.Monitoring", "ServiceControl.Monitoring\ServiceControl.Monitoring.csproj", "{768BE338-20F1-4106-A3EB-DCE7686FCBF0}"
 EndProject
@@ -27,9 +27,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packaging.ServiceControl.Mo
 		{F253D994-9321-494E-A45C-F9C6EA8947AC} = {F253D994-9321-494E-A45C-F9C6EA8947AC}
 		{8659F8A1-31BE-497B-B0A4-500B703D99AF} = {8659F8A1-31BE-497B-B0A4-500B703D99AF}
 		{F74A93BB-2B27-45D3-857F-66165DEBE383} = {F74A93BB-2B27-45D3-857F-66165DEBE383}
+		{F30AC7F6-FD0A-43D2-BC75-889F9A7D2872} = {F30AC7F6-FD0A-43D2-BC75-889F9A7D2872}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packaging.NServiceBus.MSMQ", "Packaging.NServiceBus.MSMQ\Packaging.NServiceBus.MSMQ.csproj", "{8659F8A1-31BE-497B-B0A4-500B703D99AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceControl.Transports.LearningTransport", "ServiceControl.LearningTransport\ServiceControl.Transports.LearningTransport.csproj", "{F820752B-5F01-40F1-AE26-1604F3C85F55}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CustomTransportConfigurations", "CustomTransportConfigurations", "{ED6CE213-D704-4695-97AB-3E6EA4859795}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packaging.NServiceBus.Learning", "Packaging.NServiceBus.Learning\Packaging.NServiceBus.Learning.csproj", "{F30AC7F6-FD0A-43D2-BC75-889F9A7D2872}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,6 +80,14 @@ Global
 		{8659F8A1-31BE-497B-B0A4-500B703D99AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8659F8A1-31BE-497B-B0A4-500B703D99AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8659F8A1-31BE-497B-B0A4-500B703D99AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F820752B-5F01-40F1-AE26-1604F3C85F55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F820752B-5F01-40F1-AE26-1604F3C85F55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F820752B-5F01-40F1-AE26-1604F3C85F55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F820752B-5F01-40F1-AE26-1604F3C85F55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F30AC7F6-FD0A-43D2-BC75-889F9A7D2872}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F30AC7F6-FD0A-43D2-BC75-889F9A7D2872}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F30AC7F6-FD0A-43D2-BC75-889F9A7D2872}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F30AC7F6-FD0A-43D2-BC75-889F9A7D2872}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,5 +99,10 @@ Global
 		{F74A93BB-2B27-45D3-857F-66165DEBE383} = {AC16BCB1-A7CA-4E50-B6BD-11518421382E}
 		{B7A9DC11-2199-448F-A51F-049D36003176} = {AC16BCB1-A7CA-4E50-B6BD-11518421382E}
 		{8659F8A1-31BE-497B-B0A4-500B703D99AF} = {AC16BCB1-A7CA-4E50-B6BD-11518421382E}
+		{F820752B-5F01-40F1-AE26-1604F3C85F55} = {ED6CE213-D704-4695-97AB-3E6EA4859795}
+		{F30AC7F6-FD0A-43D2-BC75-889F9A7D2872} = {AC16BCB1-A7CA-4E50-B6BD-11518421382E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D3D78742-599D-471F-AC9B-77C0807D9515}
 	EndGlobalSection
 EndGlobal
