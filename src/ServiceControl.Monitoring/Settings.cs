@@ -8,7 +8,7 @@ namespace ServiceControl.Monitoring
 
     public class Settings
     {
-        const string DEFAULT_ENDPOINT_NAME = "Particular.ServiceControl.Monitoring";
+        const string DEFAULT_ENDPOINT_NAME = "Particular.Monitoring";
 
         public string EndpointName { get; set; } = DEFAULT_ENDPOINT_NAME;
         public string TransportType { get; set; }
