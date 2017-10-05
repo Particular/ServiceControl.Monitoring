@@ -114,7 +114,8 @@
             var now = DateTime.UtcNow;
             consumer.SnapshotCurrentQueueLengthEstimations(now);
 
-            var lengths = consumer.GetIntervals(HistoryPeriod.FromMinutes(5), now);
+            var period = HistoryPeriod.FromMinutes(5);
+            var lengths = consumer.GetIntervals(period, now.Add(period.IntervalSize));
 
             Assert.AreEqual(1, lengths.Length);
             Assert.AreEqual(9, lengths[0].Intervals.First().TotalValue);
@@ -194,7 +195,8 @@
             var now = DateTime.UtcNow;
             consumer.SnapshotCurrentQueueLengthEstimations(now);
 
-            var lengths = consumer.GetIntervals(HistoryPeriod.FromMinutes(5), now);
+            var period = HistoryPeriod.FromMinutes(5);
+            var lengths = consumer.GetIntervals(period, now.Add(period.IntervalSize));
 
             Assert.AreEqual(1, lengths.Length);
             Assert.AreEqual(3 - 1, lengths[0].Intervals.First().TotalValue);

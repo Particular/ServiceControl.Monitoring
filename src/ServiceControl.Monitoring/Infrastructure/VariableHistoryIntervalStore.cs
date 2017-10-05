@@ -14,15 +14,8 @@
 
             foreach (var period in HistoryPeriod.All)
             {
-                var intervalSize = GetIntervalSize(period);
-
-                histories.Add(period, new IntervalsStore<BreakdownT>(intervalSize, IntervalsPerStore));
+                histories.Add(period, new IntervalsStore<BreakdownT>(period.IntervalSize, period.NumberOfIntervals));
             }
-        }
-
-        public static TimeSpan GetIntervalSize(HistoryPeriod period)
-        {
-            return TimeSpan.FromTicks(period.Value.Ticks / IntervalsPerStore);
         }
 
         public IntervalsStore<BreakdownT>.IntervalsBreakdown[] GetIntervals(HistoryPeriod period, DateTime now)
@@ -45,6 +38,5 @@
             }
         }
 
-        const int IntervalsPerStore = 20;
     }
 }

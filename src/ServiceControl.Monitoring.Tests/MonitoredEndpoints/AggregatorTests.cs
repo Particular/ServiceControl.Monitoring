@@ -246,7 +246,7 @@
             };
 
             var period = HistoryPeriod.FromMinutes(5);
-            var seconds = VariableHistoryIntervalStore<BreakdownId>.GetIntervalSize(period).TotalSeconds;
+            var seconds = period.IntervalSize.TotalSeconds;
             var values = IntervalsAggregator.AggregateTotalMeasurementsPerSecond(intervals, period);
 
             Assert.AreEqual((4d + 5d + 6d + 7d) / 4 / seconds, values.Average);
@@ -289,7 +289,7 @@
             };
 
             var period = HistoryPeriod.FromMinutes(5);
-            var seconds = VariableHistoryIntervalStore<BreakdownId>.GetIntervalSize(period).TotalSeconds;
+            var seconds = period.IntervalSize.TotalSeconds;
 
             var values = IntervalsAggregator.AggregateTotalMeasurementsPerSecond(intervals, period);
 

@@ -12,7 +12,7 @@
 
         public void Store(BreakdownT breakdownId, RawMessage.Entry[] entries)
         {
-            var measurement = intervals.GetOrAdd(breakdownId, _ => new Measurement(intervalSize, numberOfIntervals));
+            var measurement = intervals.GetOrAdd(breakdownId, _ => new Measurement(IntervalSize, numberOfIntervals));
 
             measurement.Report(entries);
         }
@@ -57,7 +57,8 @@
             // ReSharper disable once SuggestBaseTypeForParameter
             public void ReportTimeIntervals(DateTime now, IntervalsBreakdown item)
             {
-                var epoch = GetEpoch(now.Ticks);
+                var currentEpoch = GetEpoch(now.Ticks);
+                
                 var intervalsToFill = item.Intervals;
                 var numberOfIntervalsToFill = intervalsToFill.Length;
 
@@ -67,6 +68,8 @@
                 rwl.EnterReadLock();
                 try
                 {
+                    var epoch = currentEpoch - 1;
+                    
                     for (var i = 0; i < numberOfIntervalsToFill ; i++)
                     {
                         var epochIndex = epoch % size;
@@ -183,12 +186,13 @@
 
         public IntervalsStore(TimeSpan intervalSize, int numberOfIntervals)
         {
-            this.intervalSize = intervalSize;
+            IntervalSize = intervalSize;
+
             this.numberOfIntervals = numberOfIntervals;
         }
 
         /// Number of 15s intervals in 5 minutes
         int numberOfIntervals;
-        TimeSpan intervalSize;
+        public TimeSpan IntervalSize { get; }
     }
 }

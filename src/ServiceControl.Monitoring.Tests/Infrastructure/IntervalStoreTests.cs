@@ -29,7 +29,7 @@
 
             store.Store(0, entries);
 
-            var timings = store.GetIntervals(now);
+            var timings = store.GetIntervals(now.Add(store.IntervalSize));
 
             Assert.AreEqual(1, timings.Length);
             Assert.AreEqual(33, timings[0].Intervals.Length);
@@ -61,7 +61,7 @@
 
             store.Store(0, entries);
 
-            var timings = store.GetIntervals(now);
+            var timings = store.GetIntervals(now.Add(store.IntervalSize));
 
             Assert.AreEqual(1, timings[0].TotalMeasurements);
             Assert.AreEqual(2L, timings[0].TotalValue);
@@ -83,7 +83,7 @@
 
             store.Store(0, entries);
 
-            var timings = store.GetIntervals(now);
+            var timings = store.GetIntervals(now.Add(store.IntervalSize));
 
             Assert.IsTrue(timings[0].Intervals.All(i => i.TotalMeasurements == 0));
         }
@@ -104,7 +104,7 @@
 
             Assert.IsTrue(currentTimings[0].TotalMeasurements == 0);
 
-            var futureTimings = store.GetIntervals(now.AddMinutes(6));
+            var futureTimings = store.GetIntervals(now.Add(store.IntervalSize).AddMinutes(6));
 
             Assert.IsTrue(futureTimings[0].TotalMeasurements == 1);
         }
@@ -129,7 +129,7 @@
             store.Store(0, firstEntries);
             store.Store(0, secondEntries);
 
-            var timings = store.GetIntervals(now);
+            var timings = store.GetIntervals(now.Add(store.IntervalSize));
 
             var nonEmptyIntervals = timings[0].Intervals.Where(i => i.TotalMeasurements > 0).ToArray();
 

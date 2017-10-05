@@ -30,7 +30,7 @@
 
             foreach (var period in HistoryPeriod.All)
             {
-                var intervals = store.GetIntervals(period, now);
+                var intervals = store.GetIntervals(period, now.Add(period.IntervalSize));
 
                 Assert.AreEqual(1, intervals.Length);
                 Assert.AreEqual(5L, intervals[0].TotalValue);

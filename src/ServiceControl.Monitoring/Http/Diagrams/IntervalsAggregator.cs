@@ -61,7 +61,7 @@
         {
             Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
 
-            var seconds = VariableHistoryIntervalStore<T>.GetIntervalSize(period).TotalSeconds;
+            var seconds = period.IntervalSize.TotalSeconds;
 
             return new MonitoredValues
             {

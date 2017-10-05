@@ -21,9 +21,15 @@
         HistoryPeriod(TimeSpan value)
         {
             Value = value;
+            NumberOfIntervals = 20; //Number of points on the graph
+            IntervalSize = TimeSpan.FromTicks(value.Ticks / NumberOfIntervals);
         }
 
         public TimeSpan Value { get; }
+
+        public int NumberOfIntervals { get; }
+
+        public TimeSpan IntervalSize { get; }
 
         public static HistoryPeriod FromMinutes(int minutes)
         {
