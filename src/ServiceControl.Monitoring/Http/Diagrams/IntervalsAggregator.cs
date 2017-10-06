@@ -26,11 +26,12 @@
         {
             Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
 
+            var uniqueIntervals = intervals.SelectMany(t => t.Intervals).GroupBy(i => i.IntervalStart).ToList();
+
             return new MonitoredValues
             {
-                Average = intervals.Sum(t => t.TotalValue) / returnOneIfZero(intervals.Sum(t => t.Intervals.Length)),
-                Points = intervals.SelectMany(t => t.Intervals)
-                    .GroupBy(i => i.IntervalStart)
+                Average = uniqueIntervals.Sum(ig => ig.Sum(i => i.TotalValue)) / returnOneIfZero(uniqueIntervals.Count),
+                Points = uniqueIntervals
                     .OrderBy(g => g.Key)
                     .Select(g => (double)g.Sum(i => i.TotalValue))
                     .ToArray()
@@ -63,11 +64,12 @@
 
             var seconds = period.IntervalSize.TotalSeconds;
 
+            var uniqueIntervals = intervals.SelectMany(t => t.Intervals).GroupBy(i => i.IntervalStart).ToList();
+
             return new MonitoredValues
             {
-                Average = intervals.Sum(t => t.TotalMeasurements) / returnOneIfZero(intervals.Sum(t => t.Intervals.Length)) / seconds,
-                Points = intervals.SelectMany(t => t.Intervals)
-                    .GroupBy(i => i.IntervalStart)
+                Average = uniqueIntervals.Sum(ig => ig.Sum(i => i.TotalMeasurements)) / returnOneIfZero(uniqueIntervals.Count) / seconds,
+                Points = uniqueIntervals
                     .OrderBy(g => g.Key)
                     .Select(g => g.Sum(i => i.TotalMeasurements) / seconds)
                     .ToArray()

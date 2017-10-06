@@ -68,28 +68,26 @@
         }
 
         [Test]
-        public void Retires_average_is_sum_of_total_values_by_number_of_intervals()
+        public void Retires_average_is_sum_of_total_values_by_number_of_unique_intervals()
         {
             var intervals = new List<IntervalsStore<BreakdownId>.IntervalsBreakdown>
             {
                 new IntervalsStore<BreakdownId>.IntervalsBreakdown
                 {
                     Id = new BreakdownId{Id = 0},
-                    TotalValue = 2,
                     Intervals = new []
                     {
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now },
+                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now, TotalValue = 2},
                         new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now.AddSeconds(1) }
                     }
                 },
                 new IntervalsStore<BreakdownId>.IntervalsBreakdown
                 {
                     Id = new BreakdownId{Id = 0},
-                    TotalValue = 4,
                     Intervals = new []
                     {
                         new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now },
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now.AddSeconds(1) },
+                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now.AddSeconds(1), TotalValue = 4},
                         new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now }
                     }
                 }
@@ -97,7 +95,7 @@
 
             var values = IntervalsAggregator.AggregateRetries(intervals, HistoryPeriod.FromMinutes(5));
 
-            Assert.AreEqual(6d / 5d, values.Average);
+            Assert.AreEqual(6d / 2d, values.Average);
         }
 
         [Test]
@@ -249,40 +247,33 @@
             var seconds = period.IntervalSize.TotalSeconds;
             var values = IntervalsAggregator.AggregateTotalMeasurementsPerSecond(intervals, period);
 
-            Assert.AreEqual((4d + 5d + 6d + 7d) / 4 / seconds, values.Average);
+            Assert.AreEqual((4d + 5d + 6d + 7d) / 2 / seconds, values.Average);
             Assert.AreEqual(2, values.Points.Length);
             Assert.AreEqual((4d + 6d) / seconds, values.Points[0]);
             Assert.AreEqual((5d + 7d) / seconds, values.Points[1]);
         }
 
         [Test]
-        public void Total_measurements_per_second_are_sum_of_total_measurements_by_number_of_intervals_by_seconds()
+        public void Total_measurements_per_second_are_sum_of_total_measurements_by_number_of_unique_intervals_by_seconds()
         {
-            const long ridiculouslyBigLong1 = 374859734593849583;
-            const long ridiculouslyBigLong2 = 898394895890348954;
-
             var intervals = new List<IntervalsStore<BreakdownId>.IntervalsBreakdown>
             {
                 new IntervalsStore<BreakdownId>.IntervalsBreakdown
                 {
                     Id = new BreakdownId{Id = 0},
-                    TotalValue = ridiculouslyBigLong1,
-                    TotalMeasurements = 7,
                     Intervals = new []
                     {
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now },
+                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now, TotalMeasurements = 7},
                         new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now.AddSeconds(1) }
                     }
                 },
                 new IntervalsStore<BreakdownId>.IntervalsBreakdown
                 {
                     Id = new BreakdownId{Id = 0},
-                    TotalValue = ridiculouslyBigLong2,
-                    TotalMeasurements = 9,
                     Intervals = new []
                     {
                         new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now },
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now.AddSeconds(1) },
+                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now.AddSeconds(1), TotalMeasurements = 9},
                         new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now }
                     }
                 }
@@ -293,7 +284,7 @@
 
             var values = IntervalsAggregator.AggregateTotalMeasurementsPerSecond(intervals, period);
 
-            Assert.AreEqual((7d + 9d) / 5 / seconds, values.Average);
+            Assert.AreEqual((7d + 9d) / 2 / seconds, values.Average);
         }
 
         class BreakdownId
