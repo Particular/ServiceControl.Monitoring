@@ -44,6 +44,12 @@
                 config.EnableInstallers(settings.Username);
             }
 
+            config.DefineCriticalErrorAction(c =>
+            {
+                Environment.FailFast("NServiceBus Critical Error", c.Exception);
+                return TaskEx.Completed;
+            });
+
             config.GetSettings().Set<Settings>(settings);
 
             config.UseSerialization<NewtonsoftSerializer>();
