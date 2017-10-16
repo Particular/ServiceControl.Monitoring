@@ -28,7 +28,7 @@
             return config;
         }
 
-        public static void MakeMetricsReceiver(EndpointConfiguration config, Settings settings)
+        public static void MakeMetricsReceiver(EndpointConfiguration config, Settings settings, string explicitConnectionStringValue = null)
         {
             config.UseContainer<AutofacBuilder>(
                 c => c.ExistingLifetimeScope(CreateContainer(settings))
@@ -37,7 +37,14 @@
             var selectedTransportType = DetermineTransportType(settings);
             var transport = config.UseTransport(selectedTransportType);
 
-            transport.ConnectionStringName("NServiceBus/Transport");
+            if (explicitConnectionStringValue != null)
+            {
+                transport.ConnectionString(explicitConnectionStringValue);
+            }
+            else
+            {
+                transport.ConnectionStringName("NServiceBus/Transport");
+            }
 
             if (settings.EnableInstallers)
             {
