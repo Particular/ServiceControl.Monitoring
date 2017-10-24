@@ -22,22 +22,6 @@
             };
         }
 
-        internal static MonitoredValues AggregateRetries<T>(List<IntervalsStore<T>.IntervalsBreakdown> intervals, HistoryPeriod period)
-        {
-            Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
-
-            var uniqueIntervals = intervals.SelectMany(t => t.Intervals).GroupBy(i => i.IntervalStart).ToList();
-
-            return new MonitoredValues
-            {
-                Average = uniqueIntervals.Sum(ig => ig.Sum(i => i.TotalValue)) / returnOneIfZero(uniqueIntervals.Count),
-                Points = uniqueIntervals
-                    .OrderBy(g => g.Key)
-                    .Select(g => (double)g.Sum(i => i.TotalValue))
-                    .ToArray()
-            };
-        }
-
         internal static MonitoredValues AggregateQueueLength<T>(List<IntervalsStore<T>.IntervalsBreakdown> intervals, HistoryPeriod period)
         {
             Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;

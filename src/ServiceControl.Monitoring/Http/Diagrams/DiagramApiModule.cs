@@ -28,7 +28,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
             {
                 CreateMetric<EndpointInstanceId, ProcessingTimeStore>("ProcessingTime", IntervalsAggregator.AggregateTimings),
                 CreateMetric<EndpointInstanceId, CriticalTimeStore>("CriticalTime", IntervalsAggregator.AggregateTimings),
-                CreateMetric<EndpointInstanceId, RetriesStore>("Retries", IntervalsAggregator.AggregateRetries),
+                CreateMetric<EndpointInstanceId, RetriesStore>("Retries", IntervalsAggregator.AggregateTotalMeasurementsPerSecond),
                 CreateMetric<EndpointInstanceId, QueueLengthStore>("QueueLength", IntervalsAggregator.AggregateQueueLength),
                 CreateMetric<EndpointInstanceId, ProcessingTimeStore>("Throughput", IntervalsAggregator.AggregateTotalMeasurementsPerSecond)
             };
@@ -37,7 +37,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
             {
                 CreateMetric<EndpointMessageType, ProcessingTimeStore>("ProcessingTime", IntervalsAggregator.AggregateTimings),
                 CreateMetric<EndpointMessageType, CriticalTimeStore>("CriticalTime", IntervalsAggregator.AggregateTimings),
-                CreateMetric<EndpointMessageType, RetriesStore>("Retries", IntervalsAggregator.AggregateRetries),
+                CreateMetric<EndpointMessageType, RetriesStore>("Retries", IntervalsAggregator.AggregateTotalMeasurementsPerSecond),
                 CreateMetric<EndpointMessageType, ProcessingTimeStore>("Throughput", IntervalsAggregator.AggregateTotalMeasurementsPerSecond)
             };
 

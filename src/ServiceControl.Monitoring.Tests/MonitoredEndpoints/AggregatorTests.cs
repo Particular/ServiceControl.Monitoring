@@ -68,67 +68,6 @@
         }
 
         [Test]
-        public void Retires_average_is_sum_of_total_values_by_number_of_unique_intervals()
-        {
-            var intervals = new List<IntervalsStore<BreakdownId>.IntervalsBreakdown>
-            {
-                new IntervalsStore<BreakdownId>.IntervalsBreakdown
-                {
-                    Id = new BreakdownId{Id = 0},
-                    Intervals = new []
-                    {
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now, TotalValue = 2},
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now.AddSeconds(1) }
-                    }
-                },
-                new IntervalsStore<BreakdownId>.IntervalsBreakdown
-                {
-                    Id = new BreakdownId{Id = 0},
-                    Intervals = new []
-                    {
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now },
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now.AddSeconds(1), TotalValue = 4},
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now }
-                    }
-                }
-            };
-
-            var values = IntervalsAggregator.AggregateRetries(intervals, HistoryPeriod.FromMinutes(5));
-
-            Assert.AreEqual(6d / 2d, values.Average);
-        }
-
-        [Test]
-        public void Retires_intervals_are_merged_by_interval_start()
-        {
-            var intervals = new List<IntervalsStore<BreakdownId>.IntervalsBreakdown>
-            {
-                new IntervalsStore<BreakdownId>.IntervalsBreakdown
-                {
-                    Id = new BreakdownId{Id = 0},
-                    Intervals = new []
-                    {
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now },
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now.AddSeconds(1) }
-                    }
-                },
-                new IntervalsStore<BreakdownId>.IntervalsBreakdown
-                {
-                    Id = new BreakdownId{Id = 0},
-                    Intervals = new []
-                    {
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now },
-                        new IntervalsStore<BreakdownId>.TimeInterval { IntervalStart = now.AddSeconds(2) },
-                    }
-                }
-            };
-
-            var values = IntervalsAggregator.AggregateRetries(intervals, HistoryPeriod.FromMinutes(5));
-
-            Assert.AreEqual(3, values.Points.Length);
-        }
-
-        [Test]
         public void Queue_length_average_is_sum_of_total_values_by_number_of_intervals()
         {
             var intervals = new List<IntervalsStore<BreakdownId>.IntervalsBreakdown>
