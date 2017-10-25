@@ -11,6 +11,7 @@
     using ServiceControl.Monitoring;
     using Transport;
 
+    [Category("Integration")]
     public class When_querying_queue_length_data : ApiIntegrationTest
     {
         static string ReceiverEndpointName => Conventions.EndpointNamingConvention(typeof(Receiver));

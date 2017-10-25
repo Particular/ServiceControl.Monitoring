@@ -18,14 +18,14 @@
         }
 
         [Test]
-        public void Returned_number_of_intervals_per_know_endpoint_equals_history_size()
+        public void Returned_number_of_intervals_per_known_endpoint_equals_history_size()
         {
             var entries = EntriesBuilder.Build(new Dictionary<DateTime, long>
             {
                 {now.AddSeconds(-9), 0L}
             });
 
-            var store = new IntervalsStore<int>(TimeSpan.FromSeconds(10), 33);
+            var store = new IntervalsStore<int>(TimeSpan.FromSeconds(10), 33, 0);
 
             store.Store(0, entries);
 
@@ -79,7 +79,7 @@
                 {now.Subtract(historySize), 3L}
             });
             
-            var store = new IntervalsStore<int>(intervalSize, numberOfIntervals);
+            var store = new IntervalsStore<int>(intervalSize, numberOfIntervals, 0);
 
             store.Store(0, entries);
 
@@ -160,9 +160,34 @@
             Assert.IsTrue(intervalStarts[1] > intervalStarts[2]);
         }
 
+        [Test]
+        public void Delayed_intervals_are_not_reported()
+        {
+            const int delayedIntervals = 5;
+            var intervalSize = TimeSpan.FromSeconds(1);
+            var delay = TimeSpan.FromTicks(delayedIntervals * intervalSize.Ticks);
+
+            var entries = EntriesBuilder.Build(new Dictionary<DateTime, long>
+            {
+                {now.AddSeconds(-4), 1L},
+                {now.AddSeconds(-3), 1L},
+                {now, 1L}
+            });
+
+            var store = new IntervalsStore<int>(intervalSize, 10, delayedIntervals);
+
+            store.Store(0, entries);
+
+            var timings = store.GetIntervals(now);
+            var delayedTimings = store.GetIntervals(now.Add(delay));
+
+            Assert.AreEqual(0, timings[0].TotalMeasurements);
+            Assert.AreEqual(3, delayedTimings[0].TotalMeasurements);
+        }
+
         IntervalsStore<int> AnyStore()
         {
-            return new IntervalsStore<int>(TimeSpan.FromSeconds(5), 127);
+            return new IntervalsStore<int>(TimeSpan.FromSeconds(5), 127, 0);
         }
     }
 }

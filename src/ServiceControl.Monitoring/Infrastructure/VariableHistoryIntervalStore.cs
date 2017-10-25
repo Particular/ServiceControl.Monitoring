@@ -14,7 +14,7 @@
 
             foreach (var period in HistoryPeriod.All)
             {
-                histories.Add(period, new IntervalsStore<BreakdownT>(period.IntervalSize, period.NumberOfIntervals));
+                histories.Add(period, new IntervalsStore<BreakdownT>(period.IntervalSize, period.NumberOfIntervals, period.DelayedIntervals));
             }
         }
 

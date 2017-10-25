@@ -9,6 +9,7 @@
     using ServiceControl.Monitoring;
     using Conventions = AcceptanceTesting.Customization;
 
+    [Category("Integration")]
     public class When_querying_timings_data : ApiIntegrationTest
     {
         static string ReceiverEndpointName => Conventions.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));
@@ -25,7 +26,7 @@
                 .Run();
 
             Assert.IsTrue(processingTime["average"].Value<int>() > 0);
-            Assert.AreEqual(20, processingTime["points"].Value<JArray>().Count);
+            Assert.AreEqual(30, processingTime["points"].Value<JArray>().Count);
         }
 
         class MonitoredEndpoint : EndpointConfigurationBuilder

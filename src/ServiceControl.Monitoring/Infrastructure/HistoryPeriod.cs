@@ -8,26 +8,29 @@
     {
         static HistoryPeriod()
         {
-            All = new List<HistoryPeriod>()
+            All = new List<HistoryPeriod>
             {
-                new HistoryPeriod(TimeSpan.FromMinutes(5)),
-                new HistoryPeriod(TimeSpan.FromMinutes(10)),
-                new HistoryPeriod(TimeSpan.FromMinutes(15)),
-                new HistoryPeriod(TimeSpan.FromMinutes(30)),
-                new HistoryPeriod(TimeSpan.FromMinutes(60))
+                new HistoryPeriod(TimeSpan.FromMinutes(1),  numberOfIntervals: 30, delayedIntervals: 5),
+                new HistoryPeriod(TimeSpan.FromMinutes(5),  numberOfIntervals: 20, delayedIntervals: 1),
+                new HistoryPeriod(TimeSpan.FromMinutes(10), numberOfIntervals: 20, delayedIntervals: 1),
+                new HistoryPeriod(TimeSpan.FromMinutes(15), numberOfIntervals: 20, delayedIntervals: 1),
+                new HistoryPeriod(TimeSpan.FromMinutes(30), numberOfIntervals: 20, delayedIntervals: 1),
+                new HistoryPeriod(TimeSpan.FromMinutes(60), numberOfIntervals: 20, delayedIntervals: 1)
             };
         }
 
-        HistoryPeriod(TimeSpan value)
+        HistoryPeriod(TimeSpan value, short numberOfIntervals, short delayedIntervals)
         {
             Value = value;
-            NumberOfIntervals = 20; //Number of points on the graph
+            NumberOfIntervals = numberOfIntervals;
+            DelayedIntervals = delayedIntervals;
             IntervalSize = TimeSpan.FromTicks(value.Ticks / NumberOfIntervals);
         }
 
         public TimeSpan Value { get; }
 
-        public int NumberOfIntervals { get; }
+        public short NumberOfIntervals { get; }
+        public short DelayedIntervals { get; }
 
         public TimeSpan IntervalSize { get; }
 
@@ -35,9 +38,7 @@
         {
             var period = All.FirstOrDefault(p => p.Value == TimeSpan.FromMinutes(minutes));
             if (period != null)
-            {
                 return period;
-            }
 
             throw new Exception("Unknown history period.");
         }

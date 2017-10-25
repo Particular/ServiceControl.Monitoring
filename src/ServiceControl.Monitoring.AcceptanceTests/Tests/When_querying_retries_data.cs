@@ -8,6 +8,7 @@
     using NUnit.Framework;
     using ServiceControl.Monitoring;
 
+    [Category("Integration")]
     public class When_querying_retries_data : ApiIntegrationTest
     {
         static string ReceiverEndpointName => AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));
@@ -29,7 +30,7 @@
                 .Run();
 
             Assert.IsTrue(retries["average"].Value<double>() > 0);
-            Assert.AreEqual(20, retries["points"].Value<JArray>().Count);
+            Assert.AreEqual(30, retries["points"].Value<JArray>().Count);
         }
 
         class MonitoredEndpoint : EndpointConfigurationBuilder

@@ -42,7 +42,7 @@
             return httpClient.GetStringAsync(url).GetAwaiter().GetResult();
         }
 
-        string MonitoredEndpointsUrl = "http://localhost:1234/monitored-endpoints";
+        string MonitoredEndpointsUrl = "http://localhost:1234/monitored-endpoints?history=1";
         HttpClient httpClient;
 
         protected class Context : ScenarioContext

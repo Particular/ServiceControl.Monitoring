@@ -10,6 +10,7 @@
     using NUnit.Framework;
     using Conventions = NServiceBus.AcceptanceTesting.Customization;
 
+    [Category("TransportSmokeTests")]
     public class When_querying_timings_data : ApiIntegrationTest
     {
         static string ReceiverEndpointName => Conventions.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));

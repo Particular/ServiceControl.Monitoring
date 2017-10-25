@@ -12,7 +12,7 @@
 
         public void Store(BreakdownT breakdownId, RawMessage.Entry[] entries)
         {
-            var measurement = intervals.GetOrAdd(breakdownId, _ => new Measurement(IntervalSize, numberOfIntervals));
+            var measurement = intervals.GetOrAdd(breakdownId, _ => new Measurement(IntervalSize, numberOfIntervals, delayedIntervals));
 
             measurement.Report(entries);
         }
@@ -43,14 +43,19 @@
         {
             int size;
             TimeSpan intervalSize;
+            int delayedIntervals;
+
             MeasurementInterval[] intervals;
 
             ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
 
-            public Measurement(TimeSpan intervalSize, int numberOfIntervals)
+            public Measurement(TimeSpan intervalSize, int numberOfIntervals, int delayedIntervals)
             {
                 this.intervalSize = intervalSize;
+                this.delayedIntervals = delayedIntervals;
+
                 size = numberOfIntervals * 2;
+
                 intervals = new MeasurementInterval[size];
             }
 
@@ -68,7 +73,7 @@
                 rwl.EnterReadLock();
                 try
                 {
-                    var epoch = currentEpoch - 1;
+                    var epoch = currentEpoch - delayedIntervals;
                     
                     for (var i = 0; i < numberOfIntervalsToFill ; i++)
                     {
@@ -184,15 +189,17 @@
             public long TotalMeasurements { get; set; }
         }
 
-        public IntervalsStore(TimeSpan intervalSize, int numberOfIntervals)
+        public IntervalsStore(TimeSpan intervalSize, int numberOfIntervals, int delayedIntervals)
         {
             IntervalSize = intervalSize;
 
             this.numberOfIntervals = numberOfIntervals;
+            this.delayedIntervals = delayedIntervals;
         }
 
-        /// Number of 15s intervals in 5 minutes
         int numberOfIntervals;
+        int delayedIntervals;
+
         public TimeSpan IntervalSize { get; }
     }
 }
