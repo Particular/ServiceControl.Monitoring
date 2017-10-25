@@ -26,7 +26,7 @@
                 .Run();
 
             Assert.IsTrue(processingTime["average"].Value<int>() > 0);
-            Assert.AreEqual(30, processingTime["points"].Value<JArray>().Count);
+            Assert.AreEqual(60, processingTime["points"].Value<JArray>().Count);
         }
 
         class MonitoredEndpoint : EndpointConfigurationBuilder

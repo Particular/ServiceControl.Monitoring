@@ -30,7 +30,7 @@
                 .Run();
 
             Assert.IsTrue(retries["average"].Value<double>() > 0);
-            Assert.AreEqual(30, retries["points"].Value<JArray>().Count);
+            Assert.AreEqual(60, retries["points"].Value<JArray>().Count);
         }
 
         class MonitoredEndpoint : EndpointConfigurationBuilder
