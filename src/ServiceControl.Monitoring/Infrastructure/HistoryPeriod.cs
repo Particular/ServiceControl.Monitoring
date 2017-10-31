@@ -11,11 +11,11 @@
             All = new List<HistoryPeriod>
             {
                 new HistoryPeriod(TimeSpan.FromMinutes(1),  numberOfIntervals: 60, delayedIntervals: 2),
-                new HistoryPeriod(TimeSpan.FromMinutes(5),  numberOfIntervals: 20, delayedIntervals: 1),
-                new HistoryPeriod(TimeSpan.FromMinutes(10), numberOfIntervals: 20, delayedIntervals: 1),
-                new HistoryPeriod(TimeSpan.FromMinutes(15), numberOfIntervals: 20, delayedIntervals: 1),
-                new HistoryPeriod(TimeSpan.FromMinutes(30), numberOfIntervals: 20, delayedIntervals: 1),
-                new HistoryPeriod(TimeSpan.FromMinutes(60), numberOfIntervals: 20, delayedIntervals: 1)
+                new HistoryPeriod(TimeSpan.FromMinutes(5),  numberOfIntervals: 60, delayedIntervals: 1),
+                new HistoryPeriod(TimeSpan.FromMinutes(10), numberOfIntervals: 60, delayedIntervals: 1),
+                new HistoryPeriod(TimeSpan.FromMinutes(15), numberOfIntervals: 60, delayedIntervals: 1),
+                new HistoryPeriod(TimeSpan.FromMinutes(30), numberOfIntervals: 60, delayedIntervals: 1),
+                new HistoryPeriod(TimeSpan.FromMinutes(60), numberOfIntervals: 60, delayedIntervals: 1)
             };
         }
 

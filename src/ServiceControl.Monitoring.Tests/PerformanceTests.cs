@@ -187,7 +187,7 @@
 
             var reportFinalHistogram = MergeHistograms(reporters);
 
-            Report("Querying", histogram, TimeSpan.FromMilliseconds(50));
+            Report("Querying", histogram, TimeSpan.FromMilliseconds(120));
             Report("Reporters", reportFinalHistogram, TimeSpan.FromMilliseconds(20));
         }
 
