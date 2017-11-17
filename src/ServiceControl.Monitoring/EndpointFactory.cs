@@ -1,6 +1,7 @@
 ﻿namespace ServiceControl.Monitoring
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Autofac;
@@ -84,7 +85,12 @@
 
         static Type DetermineTransportType(Settings settings)
         {
-            var transportType = Type.GetType(settings.TransportType);
+            var transportTypeName = transportCustomizations.ContainsKey(settings.TransportType) 
+                ? transportCustomizations[settings.TransportType] 
+                : settings.TransportType;
+                
+            var transportType = Type.GetType(transportTypeName);
+
             if (transportType != null)
             {
                 return transportType;
@@ -94,6 +100,14 @@
             Logger.Error(errorMsg);
             throw new Exception(errorMsg);
         }
+
+        static Dictionary<string, string> transportCustomizations = new Dictionary<string, string>
+        {
+            {
+              "NServiceBus.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus",
+              "ServiceControl.Transports.AzureServiceBus.ForwardingTopologyAzureServiceBusTransport, ServiceControl.Transports.AzureServiceBus"
+            }
+        };
 
         static ILog Logger = LogManager.GetLogger<EndpointFactory>();
     }
