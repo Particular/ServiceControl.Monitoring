@@ -70,6 +70,9 @@
             config.EnableFeature<QueueLength.QueueLength>();
 
             config.EnableFeature<HttpEndpoint>();
+
+            var recoverability = config.Recoverability();
+            recoverability.DisableLegacyRetriesSatellite();
         }
 
         static IContainer CreateContainer(Settings settings)
