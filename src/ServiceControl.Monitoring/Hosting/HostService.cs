@@ -11,7 +11,7 @@
     {
         public void Run(bool interactive)
         {
-            ServiceName = Settings.EndpointName;
+            ServiceName = Settings.ServiceName;
 
             if (interactive)
             {

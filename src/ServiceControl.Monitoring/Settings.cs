@@ -10,7 +10,14 @@ namespace ServiceControl.Monitoring
     {
         const string DEFAULT_ENDPOINT_NAME = "Particular.Monitoring";
 
-        public string EndpointName { get; set; } = DEFAULT_ENDPOINT_NAME;
+        string endpointName;
+
+        public string EndpointName
+        {
+            get { return endpointName ?? ServiceName; }
+            set { endpointName = value; }
+        }
+        public string ServiceName { get; set; } = DEFAULT_ENDPOINT_NAME;
         public string TransportType { get; set; }
         public string ErrorQueue { get; set; }
         public string LogPath { get; set; }
@@ -27,10 +34,11 @@ namespace ServiceControl.Monitoring
             {
                 TransportType = reader.Read("Monitoring/TransportType", typeof(MsmqTransport).AssemblyQualifiedName),
                 LogLevel = MonitorLogs.InitializeLevel(reader),
-                LogPath = reader.Read("Monitoring/LogPath", DefautLogLocation()),
+                LogPath = reader.Read("Monitoring/LogPath", DefaultLogLocation()),
                 ErrorQueue = reader.Read("Monitoring/ErrorQueue", "error"),
                 HttpHostName = reader.Read<string>("Monitoring/HttpHostname"),
                 HttpPort = reader.Read<string>("Monitoring/HttpPort"),
+                EndpointName = reader.Read<string>("Monitoring/EndpointName"),
                 EndpointUptimeGracePeriod = TimeSpan.Parse(reader.Read("Monitoring/EndpointUptimeGracePeriod", "00:00:40"))
             };
             return settings;
@@ -38,7 +46,7 @@ namespace ServiceControl.Monitoring
 
         // SC installer always populates LogPath in app.config on installation/change/upgrade so this will only be used when
         // debugging or if the entry is removed manually. In those circumstances default to the folder containing the exe
-        internal static string DefautLogLocation()
+        internal static string DefaultLogLocation()
         {
             var assemblyLocation = Assembly.GetEntryAssembly().Location;
             return Path.GetDirectoryName(assemblyLocation);
