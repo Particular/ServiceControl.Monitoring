@@ -180,6 +180,8 @@
                 await GetMonitoredEndpoints().ConfigureAwait(false);
                 var elapsed = Stopwatch.GetTimestamp() - start;
                 histogram.RecordValue(elapsed);
+
+                await Task.Delay(queryEveryInMilliseconds);
             }
 
             source.Cancel();
@@ -235,6 +237,8 @@
                 await GetMonitoredSingleEndpoint(endpointName).ConfigureAwait(false);
                 var elapsed = Stopwatch.GetTimestamp() - start;
                 histogram.RecordValue(elapsed);
+
+                await Task.Delay(queryEveryInMilliseconds).ConfigureAwait(false);
             }
 
             source.Cancel();
@@ -242,7 +246,7 @@
 
             var reportFinalHistogram = MergeHistograms(reporters);
 
-            Report("Querying", histogram, TimeSpan.FromMilliseconds(20));
+            Report("Querying", histogram, TimeSpan.FromMilliseconds(25));
             Report("Reporters", reportFinalHistogram, TimeSpan.FromMilliseconds(20));
         }
 
