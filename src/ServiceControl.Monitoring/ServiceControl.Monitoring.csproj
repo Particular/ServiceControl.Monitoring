@@ -136,6 +136,7 @@
     <Compile Include="App_Packages\Particular.Licensing\ReleaseDateReader.cs" />
     <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
     <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
+    <Compile Include="Http\Diagrams\MonitoredEndpointMessageTypeParser.cs" />
     <Compile Include="Http\Diagrams\MonitoredEndpointMetricDigest.cs" />
     <Compile Include="Http\Diagrams\MonitoredEndpointDetails.cs" />
     <Compile Include="Http\Diagrams\MonitoredEndpointDigest.cs" />

@@ -120,7 +120,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                     }
                 }
 
-                var messageTypes = GetMonitoredMessageTypes(messageTypeRegistry, endpointName);
+                var messageTypes = GetMonitoredMessageTypes(messageTypeRegistry.GetForEndpointName(endpointName));
 
                 foreach (var metric in messageTypeMetrics)
                 {
@@ -129,7 +129,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                     foreach (var messageType in messageTypes)
                     {
-                        var values = metric.Aggregate(intervals[new EndpointMessageType(endpointName, messageType.MessageType)].ToList(), period);
+                        var values = metric.Aggregate(intervals[new EndpointMessageType(endpointName, messageType.TypeName)].ToList(), period);
 
                         messageType.Metrics.Add(metric.ReturnName, values);
                     }
@@ -196,14 +196,10 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 .ToArray();
         }
 
-        static MonitoredEndpointMessageType[] GetMonitoredMessageTypes(MessageTypeRegistry registry, string endpointName)
+        static MonitoredEndpointMessageType[] GetMonitoredMessageTypes(IEnumerable<EndpointMessageType> messageTypes)
         {
-            return registry.GetForEndpointName(endpointName)
-                .Select(mt => new MonitoredEndpointMessageType
-                {
-                    MessageType = mt.MessageType
-                })
-                .ToArray();
+            return messageTypes.Select(mt => MonitoredEndpointMessageTypeParser.Parse(mt.MessageType))
+                               .ToArray();
         }
 
         const int DefaultHistory = 5;
