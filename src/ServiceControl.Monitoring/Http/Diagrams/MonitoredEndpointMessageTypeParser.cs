@@ -29,6 +29,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                     return new MonitoredEndpointMessageType
                     {
+                        Id = typeName,
                         TypeName = textBeforeComma,
                         AssemblyName = assemblyName.Name,
                         AssemblyVersion = assemblyName.Version.ToString(),
@@ -44,6 +45,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
             return new MonitoredEndpointMessageType
             {
+                Id = typeName,
                 TypeName = typeName
             };
         }

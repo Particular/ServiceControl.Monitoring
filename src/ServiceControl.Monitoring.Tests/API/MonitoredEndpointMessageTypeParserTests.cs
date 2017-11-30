@@ -13,6 +13,7 @@
         {
             var result = MonitoredEndpointMessageTypeParser.Parse("");
 
+            Assert.IsNull(result.Id);
             Assert.IsNull(result.TypeName);
             Assert.IsNull(result.AssemblyName);
             Assert.IsNull(result.AssemblyVersion);
@@ -27,6 +28,7 @@
 
             var result = MonitoredEndpointMessageTypeParser.Parse(typeName);
 
+            Assert.AreEqual(typeName, result.Id);
             Assert.AreEqual(typeName, result.TypeName);
             Assert.IsNull(result.AssemblyName);
             Assert.IsNull(result.AssemblyVersion);

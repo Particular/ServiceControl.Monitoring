@@ -129,7 +129,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                     foreach (var messageType in messageTypes)
                     {
-                        var values = metric.Aggregate(intervals[new EndpointMessageType(endpointName, messageType.TypeName)].ToList(), period);
+                        var values = metric.Aggregate(intervals[new EndpointMessageType(endpointName, messageType.Id)].ToList(), period);
 
                         messageType.Metrics.Add(metric.ReturnName, values);
                     }

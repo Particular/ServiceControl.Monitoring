@@ -4,6 +4,8 @@
 
     public class MonitoredEndpointMessageType
     {
+        public string Id { get; set; }
+
         public string TypeName { get; set; }
 
         public string AssemblyName { get; set; }
