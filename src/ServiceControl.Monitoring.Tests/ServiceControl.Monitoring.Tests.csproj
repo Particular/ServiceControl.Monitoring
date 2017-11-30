@@ -70,6 +70,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\AggregationTests.cs" />
     <Compile Include="API\MonitoredEndpointMessageTypeParserTests.cs" />
     <Compile Include="Infrastructure\EndpointInstanceActivityTrackerTests.cs" />
     <Compile Include="Infrastructure\BreakdownRegistryTests.cs" />

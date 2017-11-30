@@ -110,11 +110,11 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                     digest.Metrics.Add(metric.ReturnName, metricDigest);
 
-                    var intervalsByInstanceId = intervals.ToLookup(k => k.Id.InstanceId);
+                    var intervalsByInstanceId = intervals.ToLookup(k => k.Id);
 
                     foreach (var instance in instances)
                     {
-                        var instanceValues = metric.Aggregate(intervalsByInstanceId[instance.Id].ToList(), period);
+                        var instanceValues = metric.Aggregate(intervalsByInstanceId[new EndpointInstanceId(instance.Name, instance.Id)].ToList(), period);
 
                         instance.Metrics.Add(metric.ReturnName, instanceValues);
                     }
@@ -202,7 +202,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                                .ToArray();
         }
 
-        const int DefaultHistory = 5;
+        public const int DefaultHistory = 5;
 
         delegate MonitoredValues Aggregation<T>(List<IntervalsStore<T>.IntervalsBreakdown> intervals, HistoryPeriod period);
 
