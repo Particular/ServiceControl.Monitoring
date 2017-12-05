@@ -36,7 +36,8 @@
             );
 
             var selectedTransportType = DetermineTransportType(settings);
-            var transport = config.UseTransport(selectedTransportType);
+            var transport = config.UseTransport(selectedTransportType)
+                .Transactions(TransportTransactionMode.ReceiveOnly);
 
             if (explicitConnectionStringValue != null)
             {
