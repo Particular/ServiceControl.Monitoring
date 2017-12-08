@@ -114,7 +114,9 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
                     foreach (var instance in instances)
                     {
-                        var instanceValues = metric.Aggregate(intervalsByInstanceId[new EndpointInstanceId(instance.Name, instance.Id)].ToList(), period);
+                        var instanceId = new EndpointInstanceId(endpointName, instance.Id, instance.Name);
+
+                        var instanceValues = metric.Aggregate(intervalsByInstanceId[instanceId].ToList(), period);
 
                         instance.Metrics.Add(metric.ReturnName, instanceValues);
                     }
@@ -179,7 +181,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 .Select(endpointInstance => new MonitoredEndpointInstance
                 {
                     Id = endpointInstance.InstanceId,
-                    Name = endpointInstance.EndpointName,
+                    Name = endpointInstance.InstanceName,
                     IsStale = activityTracker.IsStale(endpointInstance)
                 }).ToArray();
         }
