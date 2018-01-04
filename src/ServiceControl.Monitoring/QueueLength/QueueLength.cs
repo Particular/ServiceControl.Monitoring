@@ -31,7 +31,14 @@
                 {
                     store.SnapshotCurrentQueueLengthEstimations(DateTime.UtcNow);
 
-                    await Task.Delay(snapshotInterval, stopTokenSource.Token);
+                    try
+                    {
+                        await Task.Delay(snapshotInterval, stopTokenSource.Token);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // It's OK. It's quitting time
+                    }
                 }
             });
 
