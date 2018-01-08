@@ -110,6 +110,10 @@
             {
               "NServiceBus.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus",
               "ServiceControl.Transports.AzureServiceBus.ForwardingTopologyAzureServiceBusTransport, ServiceControl.Transports.AzureServiceBus"
+            },
+            {
+                "NServiceBus.SqlServerTransport, NServiceBus.Transport.SQLServer",
+                "ServiceControl.Transports.SQLServer.ServiceControlSQLServerTransport, ServiceControl.Transports.SQLServer"
             }
         };
 

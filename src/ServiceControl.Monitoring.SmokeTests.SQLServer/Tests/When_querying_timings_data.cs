@@ -44,7 +44,7 @@
                 throw;
             }
             Assert.IsTrue(processingTime["average"].Value<int>() > 0);
-            Assert.AreEqual(20, processingTime["points"].Value<JArray>().Count);
+            Assert.AreEqual(60, processingTime["points"].Value<JArray>().Count);
         }
 
         class MonitoredEndpoint : EndpointConfigurationBuilder
@@ -53,9 +53,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-#pragma warning disable 618
                     c.EnableMetrics().SendMetricDataToServiceControl(ReceiverEndpointName, TimeSpan.FromSeconds(5));
-#pragma warning restore 618
                 });
             }
 
