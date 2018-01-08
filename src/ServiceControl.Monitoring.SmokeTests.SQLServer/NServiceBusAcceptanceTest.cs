@@ -2,7 +2,6 @@ namespace ServiceControl.Monitoring.SmokeTests.ASQ
 {
     using System.Linq;
     using System.Threading;
-    using NServiceBus;
     using NUnit.Framework;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
@@ -35,7 +34,7 @@ namespace ServiceControl.Monitoring.SmokeTests.ASQ
 
             Settings = new Settings
             {
-                TransportType = typeof(SqlServerTransport).AssemblyQualifiedName,
+                TransportType = "NServiceBus.SqlServerTransport, NServiceBus.Transport.SQLServer",
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",
