@@ -20,15 +20,14 @@
     }
 
     // ReSharper disable once PartialTypeWithSinglePart
-    public class TestSuiteConstraints : ITestSuiteConstraints
+    public partial class TestSuiteConstraints
     {
-        public static TestSuiteConstraints Current = new TestSuiteConstraints();
-        public bool SupportsDtc => true;
-        public bool SupportsCrossQueueTransactions => true;
+        public bool SupportsCrossQueueTransactions => false;
+        public bool SupportsDtc => false;
+        public bool SupportsNativeDeferral => true;
         public bool SupportsNativePubSub => false;
-        public bool SupportsNativeDeferral => false;
-        public bool SupportsOutbox => true;
-        public IConfigureEndpointTestExecution TransportConfiguration => new ConfigureEndpointSqsTransport();
-        public IConfigureEndpointTestExecution PersistenceConfiguration => new ConfigureEndpointInMemoryPersistence();
+        public bool SupportsOutbox => false;
+        public IConfigureEndpointTestExecution CreateTransportConfiguration() => new ConfigureEndpointSqsTransport();
+        public IConfigureEndpointTestExecution CreatePersistenceConfiguration() => new ConfigureEndpointInMemoryPersistence();
     }
 }
