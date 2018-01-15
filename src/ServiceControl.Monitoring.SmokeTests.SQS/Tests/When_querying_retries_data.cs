@@ -1,32 +1,36 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.ASQ.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.SQS.Tests
 {
     using System;
     using System.Threading.Tasks;
     using EndpointTemplates;
+    using Newtonsoft.Json.Linq;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
 
-
     [Category("TransportSmokeTests")]
-    public class When_running_on_custom_schema : ApiIntegrationTest
+    public class When_querying_retries_data : ApiIntegrationTest
     {
         static string ReceiverEndpointName => NServiceBus.AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));
-        const string CustomSchema = "nsb";
 
         [Test]
         public async Task Should_report_via_http()
         {
+            JToken retries = null;
+
             await Scenario.Define<Context>()
                 .WithEndpoint<MonitoredEndpoint>(c =>
                 {
+                    c.DoNotFailOnErrorMessages();
+                    c.CustomConfig(ec => ec.Recoverability().Immediate(i => i.NumberOfRetries(5)));
                     c.When(s => s.SendLocal(new SampleMessage()));
                 })
                 .WithEndpoint<MonitoringEndpoint>()
-                .Done(c => MetricReported("processingTime", out _, c))
+                .Done(c => MetricReported("retries", out retries, c))
                 .Run();
 
-            Assert.Pass("The monitoring instance is running on custom schema");
+            Assert.IsTrue(retries["average"].Value<double>() > 0);
+            Assert.AreEqual(60, retries["points"].Value<JArray>().Count);
         }
 
         class MonitoredEndpoint : EndpointConfigurationBuilder
@@ -35,7 +39,9 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnableMetrics().SendMetricDataToServiceControl($"{ReceiverEndpointName}@{CustomSchema}", TimeSpan.FromSeconds(1));
+#pragma warning disable 618
+                    c.EnableMetrics().SendMetricDataToServiceControl(ReceiverEndpointName, TimeSpan.FromSeconds(5));
+#pragma warning restore 618
                 });
             }
 
@@ -43,7 +49,7 @@
             {
                 public Task Handle(SampleMessage message, IMessageHandlerContext context)
                 {
-                    return Task.FromResult(0);
+                    throw new Exception("Boom!");
                 }
             }
         }
@@ -54,10 +60,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    var connectionString = $"{ConfigureEndpointSqlServerTransport.ConnectionString};Queue Schema={CustomSchema}";
-
-                    EndpointFactory.MakeMetricsReceiver(c, Settings, connectionString);
-
+                    EndpointFactory.MakeMetricsReceiver(c, Settings);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }
