@@ -17,8 +17,7 @@ namespace ServiceControl.Monitoring.Http
             var hostname = settings.HttpHostName;
             var port = settings.HttpPort;
 
-            int portValue;
-            if (!int.TryParse(port, out portValue))
+            if (!int.TryParse(port, out _))
             {
                 throw new Exception($"Http endpoint port is wrongly formatted. It should be a valid integer but it is '{port}'.");
             }

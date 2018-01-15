@@ -153,7 +153,6 @@
 
         [TestCase(1, 1, 100, 1000, 100, 1000)]
         [TestCase(10, 10, 100, 1000, 100, 1000)]
-        [TestCase(100, 10, 100, 1000, 100, 1000)]
         public async Task GetMonitoredEndpointsQueryTest(int numberOfEndpoints, int numberOfInstances, int sendReportEvery, int numberOfEntriesInReport, int queryEveryInMilliseconds, int numberOfQueries)
         {
             var instances = BuildInstances(numberOfEndpoints, numberOfInstances);

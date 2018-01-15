@@ -3,7 +3,6 @@ namespace ServiceControl.Transports.AzureServiceBus
     using NServiceBus;
     using NServiceBus.Settings;
     using NServiceBus.Transport;
-    using NServiceBus.Transport.AzureServiceBus;
 
     public class ForwardingTopologyAzureServiceBusTransport : AzureServiceBusTransport
     {
@@ -13,9 +12,7 @@ namespace ServiceControl.Transports.AzureServiceBus
             // As the monitoring instance is not performing pub/sub, it does not matter which topology is used. 
             // ForwardingTopology is the recommended topology for new projects
 
-#pragma warning disable 618
-            settings.Set<ITopology>(new ForwardingTopology());
-#pragma warning restore 618
+            settings.Set("AzureServiceBus.Settings.Topology.Selected", "ForwardingTopology");
 
             return base.Initialize(settings, connectionString);
         }

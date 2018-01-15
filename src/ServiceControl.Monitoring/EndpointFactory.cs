@@ -108,12 +108,16 @@
         static Dictionary<string, string> transportCustomizations = new Dictionary<string, string>
         {
             {
-              "NServiceBus.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus",
-              "ServiceControl.Transports.AzureServiceBus.ForwardingTopologyAzureServiceBusTransport, ServiceControl.Transports.AzureServiceBus"
+                "NServiceBus.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus",
+                "ServiceControl.Transports.AzureServiceBus.ForwardingTopologyAzureServiceBusTransport, ServiceControl.Transports.AzureServiceBus"
             },
             {
                 "NServiceBus.SqlServerTransport, NServiceBus.Transport.SQLServer",
                 "ServiceControl.Transports.SQLServer.ServiceControlSQLServerTransport, ServiceControl.Transports.SQLServer"
+            },
+            {
+                "NServiceBus.SqsTransport, NServiceBus.AmazonSQS",
+                "ServiceControl.Transports.AmazonSQS.ServiceControlSqsTransport, ServiceControl.Transports.AmazonSQS"
             }
         };
 
