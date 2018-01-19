@@ -9,6 +9,10 @@ namespace ServiceControl.Monitoring
         {
             var endpointConfig = EndpointFactory.PrepareConfiguration(settings);
             endpointConfig.EnableInstallers(settings.Username);
+            if (settings.SkipQueueCreation)
+            {
+                endpointConfig.DoNotCreateQueues();
+            }
             return Endpoint.Create(endpointConfig);
         }
     }

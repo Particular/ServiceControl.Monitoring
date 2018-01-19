@@ -27,6 +27,7 @@ namespace ServiceControl.Monitoring
         public string HttpHostName { get; set; }
         public string HttpPort { get; set; }
         public TimeSpan EndpointUptimeGracePeriod { get; set; }
+        public bool SkipQueueCreation { get; set; }
 
         internal static Settings Load(SettingsReader reader)
         {
