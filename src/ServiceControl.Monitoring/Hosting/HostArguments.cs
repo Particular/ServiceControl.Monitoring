@@ -30,6 +30,11 @@
                     "userName=",
                     "Username for the account the service should run under.",
                     s => overrides.Add(settings => settings.Username = s)
+                },
+                {
+                    "skip-queue-creation",
+                    @"Skip queue creation during install/update",
+                    s => overrides.Add(settings => settings.SkipQueueCreation = true)
                 }
             };
 
