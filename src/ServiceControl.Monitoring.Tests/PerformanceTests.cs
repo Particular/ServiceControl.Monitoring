@@ -72,7 +72,6 @@
 
         [TestCase(10, 5, 4)]
         [TestCase(1000, 5, 4)]
-        [TestCase(1000, 100, 4)]
         public async Task TestQueueLengthStore(int numberOfEndpoints, int numberOfReceivedSessionsPerEndpoint, int numberOfSentSessionsPerEndpoint)
         {
             const int totalQueryCount = 200;
@@ -151,7 +150,6 @@
             });
         }
 
-        [TestCase(1, 1, 100, 1000, 100, 1000)]
         [TestCase(10, 10, 100, 1000, 100, 1000)]
         public async Task GetMonitoredEndpointsQueryTest(int numberOfEndpoints, int numberOfInstances, int sendReportEvery, int numberOfEntriesInReport, int queryEveryInMilliseconds, int numberOfQueries)
         {
@@ -192,7 +190,6 @@
             Report("Reporters", reportFinalHistogram, TimeSpan.FromMilliseconds(20));
         }
 
-        [TestCase(1, 100, 100, 1000, 100, 1000)]
         [TestCase(10, 100, 100, 1000, 100, 1000)]
         public async Task GetMonitoredSingleEndpointQueryTest(int numberOfInstances, int numberOfMessageTypes, int sendReportEvery, int numberOfEntriesInReport, int queryEveryInMilliseconds, int numberOfQueries)
         {
