@@ -6,7 +6,7 @@ namespace ServiceControl.Monitoring.Infrastructure
 
     public abstract class BreakdownRegistry<BreakdownT>
     {
-        HashSet<BreakdownT> breakdowns = new HashSet<BreakdownT>();
+        Dictionary<BreakdownT, BreakdownT> breakdowns = new Dictionary<BreakdownT, BreakdownT>();
         volatile Dictionary<string, IEnumerable<BreakdownT>> lookup = new Dictionary<string, IEnumerable<BreakdownT>>();
         object @lock = new object();
 
@@ -21,13 +21,25 @@ namespace ServiceControl.Monitoring.Infrastructure
         {
             lock (@lock)
             {
-                if (breakdowns.Add(breakdown))
+                if (AddBreakdown(breakdown, breakdowns))
                 {
-                    lookup = breakdowns.ToArray()
+                    lookup = breakdowns.Values.ToArray()
                         .GroupBy(b => endpointNameExtractor(b))
                         .ToDictionary(g => g.Key, g => (IEnumerable<BreakdownT>)g.Select(i => i).ToArray());
                 }
             }
+        }
+
+        protected virtual bool AddBreakdown(BreakdownT breakdown, Dictionary<BreakdownT, BreakdownT> existingBreakdowns)
+        {
+            if (existingBreakdowns.ContainsKey(breakdown))
+            {
+                return false;
+            }
+
+            existingBreakdowns.Add(breakdown, breakdown);
+
+            return true;
         }
 
         public IReadOnlyDictionary<string, IEnumerable<BreakdownT>> GetGroupedByEndpointName()
@@ -37,9 +49,7 @@ namespace ServiceControl.Monitoring.Infrastructure
 
         public IEnumerable<BreakdownT> GetForEndpointName(string endpointName)
         {
-            IEnumerable<BreakdownT> endpointBreakdowns;
-
-            if (lookup.TryGetValue(endpointName, out endpointBreakdowns))
+            if (lookup.TryGetValue(endpointName, out var endpointBreakdowns))
             {
                 return endpointBreakdowns;
             }

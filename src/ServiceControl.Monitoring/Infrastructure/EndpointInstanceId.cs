@@ -9,11 +9,9 @@
         public string InstanceId { get; }       
         public string InstanceName { get; }
 
-
         public EndpointInstanceId(string endpointName, string instanceId) 
             : this(endpointName, instanceId, instanceId)
         {
-            
         }
 
         public EndpointInstanceId(string endpointName, string instanceId, string instanceName)
@@ -26,9 +24,8 @@
         public static EndpointInstanceId From(IReadOnlyDictionary<string, string> headers)
         {
             var endpointName = headers[Headers.OriginatingEndpoint];
-            string instanceId;
 
-            if (headers.TryGetValue(MetricHeaders.MetricInstanceId, out instanceId))
+            if (headers.TryGetValue(MetricHeaders.MetricInstanceId, out var instanceId))
             {
                 return new EndpointInstanceId(endpointName, instanceId);
             }
@@ -42,8 +39,7 @@
         protected bool Equals(EndpointInstanceId other)
         {
             return string.Equals(EndpointName, other.EndpointName) && 
-                   string.Equals(InstanceId, other.InstanceId) && 
-                   string.Equals(InstanceName, other.InstanceName);
+                   string.Equals(InstanceId, other.InstanceId);
         }
 
         public override bool Equals(object obj)
@@ -61,7 +57,6 @@
             {
                 var hashCode = (EndpointName != null ? EndpointName.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (InstanceId != null ? InstanceId.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (InstanceName != null ? InstanceName.GetHashCode() : 0);
                 return hashCode;
             }
         }
