@@ -1,15 +1,14 @@
 ﻿namespace NServiceBus.Metrics.AcceptanceTests
 {
+    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Features;
     using global::Newtonsoft.Json.Linq;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using ServiceControl.Monitoring;
-    using Transport;
 
     [Category("Integration")]
     public class When_querying_queue_length_data : ApiIntegrationTest
@@ -22,7 +21,10 @@
             JToken queueLength = null;
 
             await Scenario.Define<Context>()
-                .WithEndpoint<MonitoredEndpoint>()
+                .WithEndpoint<MonitoredEndpoint>(c =>
+                {
+                    c.When(s => s.SendLocal(new SampleMessage()));
+                })
                 .WithEndpoint<Receiver>()
                 .Done(c => MetricReported("queueLength", out queueLength, c))
                 .Run();
@@ -40,43 +42,16 @@
             Assert.IsTrue(points.Any(v => v == 10));
         }
 
-        const string Data = @"{
-    ""Version"": ""2"",
-    ""Timestamp"": ""2017-05-11T07:13:28.5918Z"",
-    ""Context"": ""Not used"",
-    ""Counters"": [{
-        ""Name"": ""Sent sequence for sendingmessage.receiver1-a328a49b-4212-4a34-8e90-726848230c03"",
-        ""Count"": 12,
-        ""Unit"": ""Sequence"",
-        ""Tags"": [""key:sendingmessage.receiver1-a328a49b-4212-4a34-8e90-726848230c03"",
-        ""type:queue-length.sent""]
-    }],
-    ""Gauges"": [{
-        ""Name"": ""Received sequence for sendingmessage.receiver1-a328a49b-4212-4a34-8e90-726848230c03"",
-        ""Value"": 2.00,
-        ""Unit"": ""Sequence"",
-        ""Tags"": [""key:sendingmessage.receiver1-a328a49b-4212-4a34-8e90-726848230c03"",
-        ""queue:Receiver@MyMachine"",
-        ""type:queue-length.received""]
-    }],
-    ""Meters"": [],
-    ""Timers"": []
-}";
-
         class MonitoredEndpoint : EndpointConfigurationBuilder
         {
             public MonitoredEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => { c.EnableFeature<SenderFeature>(); });
-            }
-
-            class SenderFeature : Feature
-            {
-                protected override void Setup(FeatureConfigurationContext context)
+                EndpointSetup<DefaultServer>(c =>
                 {
-                    context.RegisterStartupTask(
-                        b => new MetricSenderTask(b.Build<IDispatchMessages>(), context.Settings.EndpointName(), string.Empty, Data, ReceiverEndpointName));
-                }
+#pragma warning disable 618
+                    c.EnableMetrics().SendMetricDataToServiceControl(ReceiverEndpointName, TimeSpan.FromSeconds(5));
+#pragma warning restore 618
+                });
             }
         }
 

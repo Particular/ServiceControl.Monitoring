@@ -79,7 +79,6 @@
     <Compile Include="ScenarioDescriptors\EnvironmentHelper.cs" />
     <Compile Include="ScenarioDescriptors\TypeScanner.cs" />
     <Compile Include="Tests\ApiIntegrationTest.cs" />
-    <Compile Include="Tests\MetricSenderTask.cs" />
     <Compile Include="Tests\When_querying_queue_length_data.cs" />
     <Compile Include="Tests\When_querying_retries_data.cs" />
     <Compile Include="Tests\When_querying_timings_data.cs" />
