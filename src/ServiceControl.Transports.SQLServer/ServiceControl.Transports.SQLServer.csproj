@@ -46,8 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="QueueLengthProvider.cs" />
     <Compile Include="ServiceControlSQLServerTransport.cs" />
+    <Compile Include="SqlNameHelper.cs" />
     <Compile Include="SqlTable.cs" />
   </ItemGroup>
   <ItemGroup>
