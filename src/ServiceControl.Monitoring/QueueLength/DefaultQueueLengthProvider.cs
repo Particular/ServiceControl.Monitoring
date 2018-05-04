@@ -7,16 +7,14 @@
 
     public class DefaultQueueLengthProvider : IProvideQueueLength
     {
-        protected string ConnectionString { get; private set; }
-        protected QueueLengthStore QueueLengthStore { get; private set; }
+        QueueLengthStore queueLengthStore;
 
-        public virtual void Initialize(string connectionString, QueueLengthStore store)
+        public void Initialize(string connectionString, QueueLengthStore store)
         {
-            ConnectionString = connectionString;
-            QueueLengthStore = store;
+            queueLengthStore = store;
         }
 
-        public virtual void Process(EndpointInstanceId endpointInstanceId, EndpointMetadataReport metadataReport)
+        public void Process(EndpointInstanceId endpointInstanceId, EndpointMetadataReport metadataReport)
         {
             // HINT: Not every queue length provider requires metadata reports
         }
@@ -24,17 +22,12 @@
         public void Process(EndpointInstanceId endpointInstanceId, TaggedLongValueOccurrence metricsReport)
         {
             var endpointInputQueue = new EndpointInputQueue(endpointInstanceId.EndpointName, metricsReport.TagValue);
-            QueueLengthStore.Store(metricsReport.Entries, endpointInputQueue);
+
+            queueLengthStore.Store(metricsReport.Entries, endpointInputQueue);
         }
 
-        public virtual Task Start()
-        {
-            return TaskEx.Completed;
-        }
+        public Task Start() => TaskEx.Completed;
 
-        public virtual Task Stop()
-        {
-            return TaskEx.Completed;
-        }
+        public Task Stop() => TaskEx.Completed;
     }
 }
