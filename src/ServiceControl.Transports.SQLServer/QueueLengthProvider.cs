@@ -16,7 +16,7 @@
 
     public class QueueLengthProvider : IProvideQueueLength
     {
-        ConcurrentDictionary<EndpointInputQueue, SqlTable> endpointInputQueueToTableName = new ConcurrentDictionary<EndpointInputQueue, SqlTable>();
+        ConcurrentDictionary<EndpointInputQueue, SqlTable> tableNames = new ConcurrentDictionary<EndpointInputQueue, SqlTable>();
         ConcurrentDictionary<SqlTable, int> tableSizes = new ConcurrentDictionary<SqlTable, int>();
 
         string connectionString;
@@ -39,27 +39,21 @@
 
             if (SqlTable.TryParse(localAddress, pluginVersion, out var sqlTable))
             {
-                SqlTable previousSqlTable = null;
-
-                endpointInputQueueToTableName.AddOrUpdate(endpointInputQueue, _ => sqlTable, (_, cv) =>
+                tableNames.AddOrUpdate(endpointInputQueue, _ => sqlTable, (_, currentSqlTable) =>
                 {
-                    previousSqlTable = cv;
+                    if (currentSqlTable.Equals(sqlTable) == false)
+                    {
+                        tableSizes.TryRemove(currentSqlTable, out var _);
+                    }
+
                     return sqlTable;
                 });
 
-                if (previousSqlTable == null)
-                {
-                    tableSizes.TryAdd(sqlTable, 0);
-                }
-                else if (previousSqlTable.Equals(sqlTable) == false)
-                {
-                    tableSizes.TryRemove(previousSqlTable, out var _);
-                    tableSizes.TryAdd(sqlTable, 0);
-                }
+                tableSizes.TryAdd(sqlTable, 0);
             }
             else
             {
-                Logger.Warn($"Could not localAddress {localAddress}. Sent by {endpointInstanceId.EndpointName} id {endpointInstanceId.InstanceId}. Plugin version {pluginVersion}");
+                Logger.Warn($"Could not parse localAddress {localAddress}. Sent by {endpointInstanceId.EndpointName} id {endpointInstanceId.InstanceId}. Plugin version {pluginVersion}");
             }
         }
 
@@ -105,15 +99,15 @@
         {
             var nowTicks = DateTime.UtcNow.Ticks;
 
-            foreach (var endpointToTableNamePair in endpointInputQueueToTableName)
+            foreach (var tableNamePair in tableNames)
             {
                 store.Store(
                     new []{ new RawMessage.Entry
                     {
                         DateTicks = nowTicks,
-                        Value = tableSizes.TryGetValue(endpointToTableNamePair.Value, out var size) ? size : 0
+                        Value = tableSizes.TryGetValue(tableNamePair.Value, out var size) ? size : 0
                     }}, 
-                    endpointToTableNamePair.Key);
+                    tableNamePair.Key);
             }
         }
 

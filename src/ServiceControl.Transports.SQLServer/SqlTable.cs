@@ -28,21 +28,16 @@
 
         public static bool TryParse(string address, int pluginVersion, out SqlTable sqlTable)
         {
+            var parts = address.Split('@').ToArray();
+
             if (pluginVersion == 1)
             {
-                sqlTable = new SqlTable(address.Split('@')[0], "dbo", null);
+                sqlTable = new SqlTable(parts[0], "dbo", null);
                 return true;
             }
 
             if (pluginVersion == 2)
             {
-                var parts = address.Split('@').ToArray();
-
-                if (!parts[0].StartsWith("[") || !parts[0].EndsWith("]"))
-                {
-                    parts[0] = $"[{parts[0]}]";
-                }
-
                 sqlTable = new SqlTable(parts[0], parts[1], parts[2]);
                 return true;
             }
