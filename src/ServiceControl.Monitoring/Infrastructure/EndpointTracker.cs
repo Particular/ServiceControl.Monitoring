@@ -6,7 +6,7 @@
     using NServiceBus;
     using NServiceBus.Metrics;
 
-    public class EndpointTracker : IHandleMessages<MetricReport>, IHandleMessages<TaggedLongValueOccurrence>
+    public class EndpointTracker : IHandleMessages<MetricReport>, IHandleMessages<TaggedLongValueOccurrence>, IHandleMessages<EndpointMetadataReport>
     {
         public EndpointTracker(EndpointRegistry endpointRegistry, EndpointInstanceActivityTracker activityTracker)
         {
@@ -20,6 +20,11 @@
         }
 
         public Task Handle(MetricReport message, IMessageHandlerContext context)
+        {
+            return RecordEndpointInstanceId(context);
+        }
+
+        public Task Handle(EndpointMetadataReport message, IMessageHandlerContext context)
         {
             return RecordEndpointInstanceId(context);
         }

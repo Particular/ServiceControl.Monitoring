@@ -7,7 +7,7 @@
     using Http.Diagrams;
     using Messaging;
     using Monitoring.Infrastructure;
-    using Monitoring.QueueLength;
+    using QueueLength;
     using Nancy;
     using NUnit.Framework;
     using Timings;
@@ -52,7 +52,7 @@
         {
             var criticalTimeStore = new CriticalTimeStore();
             var retriesStore = new RetriesStore();
-            var queueLengthStore = new QueueLengthStore(new QueueLengthCalculator());
+            var queueLengthStore = new QueueLengthStore();
 
             var settings = new Settings
             {
@@ -62,7 +62,7 @@
 
             var messageTypeRegistry = new MessageTypeRegistry();
 
-            var instanceMetricStores = new IProvideBreakdownBy<EndpointInstanceId>[]
+            var breakdownProviders = new IProvideBreakdown[]
             {
                 processingTimeStore,
                 criticalTimeStore,
@@ -70,14 +70,7 @@
                 queueLengthStore
             };
 
-            var messageTypeStores = new IProvideBreakdownBy<EndpointMessageType>[]
-            {
-                processingTimeStore,
-                criticalTimeStore,
-                retriesStore
-            };
-
-            var monitoredEndpointsModule = new MonitoredEndpointsModule(instanceMetricStores, messageTypeStores, endpointRegistry, activityTracker, messageTypeRegistry)
+            var monitoredEndpointsModule = new MonitoredEndpointsModule(breakdownProviders, endpointRegistry, activityTracker, messageTypeRegistry)
             {
                 Context = new NancyContext()
                 {

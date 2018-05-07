@@ -2,7 +2,9 @@
 {
     using System;
 
-    public interface IProvideBreakdownBy<T>
+    public interface IProvideBreakdown {  }
+
+    public interface IProvideBreakdownBy<T> : IProvideBreakdown
     {
         IntervalsStore<T>.IntervalsBreakdown[] GetIntervals(HistoryPeriod period, DateTime now);
     }
