@@ -46,7 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InternalsVisibleTo.cs" />
+    <Compile Include="QueueLengthProvider.cs" />
     <Compile Include="ServiceControlSQLServerTransport.cs" />
+    <Compile Include="SqlNameHelper.cs" />
+    <Compile Include="SqlTable.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NServiceBus.SqlServer">
@@ -55,6 +59,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj">
+      <Project>{768be338-20f1-4106-a3eb-dce7686fcbf0}</Project>
+      <Name>ServiceControl.Monitoring</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
