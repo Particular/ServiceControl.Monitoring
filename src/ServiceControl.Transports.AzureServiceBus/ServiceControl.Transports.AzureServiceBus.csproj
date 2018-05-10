@@ -8,4 +8,8 @@
     <PackageReference Include="NServiceBus.Azure.Transports.WindowsAzureServiceBus" Version="7.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj" />
+  </ItemGroup>
+
 </Project>
