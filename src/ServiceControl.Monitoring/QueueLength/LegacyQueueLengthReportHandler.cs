@@ -1,5 +1,6 @@
 ﻿namespace ServiceControl.Monitoring.QueueLength
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Infrastructure;
@@ -30,13 +31,24 @@
 
         public class LegacyQueueLengthEndpoints
         {
+            static TimeSpan cleanInterval = TimeSpan.FromHours(1);
+
             ConcurrentDictionary<string, string> regsteredInstances = new ConcurrentDictionary<string, string>();
+            DateTime lastCleanTime = DateTime.UtcNow;
 
             public bool TryAdd(string id)
             {
+                var now = DateTime.UtcNow;
+
+                if (lastCleanTime.Add(cleanInterval) < now)
+                {
+                    lastCleanTime = now;
+                    
+                    regsteredInstances.Clear();
+                }
+
                 return regsteredInstances.TryAdd(id, id);
             }
-
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(LegacyQueueLengthReportHandler));
