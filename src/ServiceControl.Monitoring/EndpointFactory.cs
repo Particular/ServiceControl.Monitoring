@@ -144,6 +144,10 @@
             {
                 "NServiceBus.SqsTransport, NServiceBus.AmazonSQS",
                 "ServiceControl.Transports.AmazonSQS.ServiceControlSqsTransport, ServiceControl.Transports.AmazonSQS"
+            },
+            {
+                "NServiceBus.RabbitMQTransport, NServiceBus.Transports.RabbitMQ",
+                "ServiceControl.Transports.RabbitMQ.ServiceControlRabbitMQTransport, ServiceControl.Transports.RabbitMQ"
             }
         };
 
