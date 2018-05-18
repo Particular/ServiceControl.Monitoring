@@ -56,7 +56,7 @@ namespace ServiceControl.Transports.AzureServiceBus
                     {
                         Logger.DebugFormat("Querying namespace manager: {0}", namespaceManager.Address);
 
-                        var queues = await namespaceManager.GetQueuesAsync();
+                        var queues = await namespaceManager.GetQueuesAsync().ConfigureAwait(false);
                         var lookup = queues.ToLookup(x => x.Path, StringComparer.InvariantCultureIgnoreCase);
 
                         Logger.DebugFormat("Retrieved details of {0} queues", lookup.Count);
@@ -64,7 +64,7 @@ namespace ServiceControl.Transports.AzureServiceBus
                         UpdateQueueLengthStore(lookup);
 
                         Logger.Debug("Waiting for next interval");
-                        await Task.Delay(QueryDelayInterval);
+                        await Task.Delay(QueryDelayInterval).ConfigureAwait(false);
                     }
                     catch (Exception e)
                     {
