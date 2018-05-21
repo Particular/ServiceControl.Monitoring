@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Threading;
     using System.Threading.Tasks;
     using Infrastructure;
     using NServiceBus;
@@ -31,23 +32,23 @@
 
         public class LegacyQueueLengthEndpoints
         {
-            static TimeSpan cleanInterval = TimeSpan.FromHours(1);
+            static long cleanIntervalTicks = TimeSpan.FromHours(1).Ticks;
 
-            ConcurrentDictionary<string, string> regsteredInstances = new ConcurrentDictionary<string, string>();
-            DateTime lastCleanTime = DateTime.UtcNow;
+            ConcurrentDictionary<string, string> registeredInstances = new ConcurrentDictionary<string, string>();
+            long lastCleanTicks = DateTime.UtcNow.Ticks;
 
             public bool TryAdd(string id)
             {
-                var now = DateTime.UtcNow;
+                var nowTicks = DateTime.UtcNow.Ticks;
 
-                if (lastCleanTime.Add(cleanInterval) < now)
+                if (lastCleanTicks + cleanIntervalTicks < nowTicks)
                 {
-                    lastCleanTime = now;
+                    Interlocked.Exchange(ref lastCleanTicks, nowTicks);
                     
-                    regsteredInstances.Clear();
+                    registeredInstances.Clear();
                 }
 
-                return regsteredInstances.TryAdd(id, id);
+                return registeredInstances.TryAdd(id, id);
             }
         }
 
