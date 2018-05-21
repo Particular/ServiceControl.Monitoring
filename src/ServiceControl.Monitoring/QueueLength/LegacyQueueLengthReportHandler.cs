@@ -41,7 +41,7 @@
             {
                 var nowTicks = DateTime.UtcNow.Ticks;
 
-                if (lastCleanTicks + cleanIntervalTicks < nowTicks)
+                if (Volatile.Read(ref lastCleanTicks) + cleanIntervalTicks < nowTicks)
                 {
                     Interlocked.Exchange(ref lastCleanTicks, nowTicks);
                     
