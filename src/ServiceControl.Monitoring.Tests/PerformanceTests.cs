@@ -11,10 +11,9 @@
     using Http.Diagrams;
     using Messaging;
     using Monitoring.Infrastructure;
-    using Monitoring.QueueLength;
+    using QueueLength;
     using Nancy;
     using NUnit.Framework;
-    using QueueLength;
     using Timings;
 
     [Category("Performance")]
@@ -26,6 +25,7 @@
         ProcessingTimeStore processingTimeStore;
         RetriesStore retriesStore;
         QueueLengthStore queueLengthStore;
+        DefaultQueueLengthProvider queueLengthProvider;
         Func<Task> GetMonitoredEndpoints;
         Func<string, Task> GetMonitoredSingleEndpoint;
         EndpointInstanceActivityTracker activityTracker;
@@ -37,14 +37,16 @@
             criticalTimeStore = new CriticalTimeStore();
             processingTimeStore = new ProcessingTimeStore();
             retriesStore = new RetriesStore();
-            queueLengthStore = new QueueLengthStore(new QueueLengthCalculator());
+            queueLengthProvider = new DefaultQueueLengthProvider();
+            queueLengthStore = new QueueLengthStore();
+            queueLengthProvider.Initialize(string.Empty, queueLengthStore);
 
             var settings = new Settings { EndpointUptimeGracePeriod = TimeSpan.FromMinutes(5) };
             activityTracker = new EndpointInstanceActivityTracker(settings);
 
             messageTypeRegistry = new MessageTypeRegistry();
 
-            var instanceMetricStores = new IProvideBreakdownBy<EndpointInstanceId>[]
+            var breakdownProviders = new IProvideBreakdown[]
             {
                 criticalTimeStore,
                 processingTimeStore,
@@ -52,14 +54,7 @@
                 queueLengthStore
             };
 
-            var messageTypeStores = new IProvideBreakdownBy<EndpointMessageType>[]
-            {
-                criticalTimeStore,
-                processingTimeStore,
-                retriesStore
-            };
-
-            var monitoredEndpointsModule = new MonitoredEndpointsModule(instanceMetricStores, messageTypeStores, endpointRegistry, activityTracker, messageTypeRegistry)
+            var monitoredEndpointsModule = new MonitoredEndpointsModule(breakdownProviders, endpointRegistry, activityTracker, messageTypeRegistry)
             {
                 Context = new NancyContext() { Request = new Request("Get", "/monitored-endpoints", "HTTP") }
             };
@@ -68,86 +63,6 @@
 
             GetMonitoredEndpoints = () => dictionary["/monitored-endpoints"](new object(), new CancellationToken(false));
             GetMonitoredSingleEndpoint = endpointName => dictionary["/monitored-endpoints/{endpointName}"](new { EndpointName = endpointName }.ToDynamic(), new CancellationToken());
-        }
-
-        [TestCase(10, 5, 4)]
-        [TestCase(1000, 5, 4)]
-        public async Task TestQueueLengthStore(int numberOfEndpoints, int numberOfReceivedSessionsPerEndpoint, int numberOfSentSessionsPerEndpoint)
-        {
-            const int totalQueryCount = 200;
-            var snapshotEvery = TimeSpan.FromMilliseconds(10);
-
-            var sessionCount = numberOfEndpoints * numberOfSentSessionsPerEndpoint;
-            var allSessions = Enumerable.Range(0, sessionCount).Select(i => $"Session-{i}").ToArray();
-            var allEndpoints = Enumerable.Range(0, numberOfEndpoints).Select(i => $"Endpoint-{i}").ToArray();
-
-            var endpointReporters = new Task<LongHistogram>[allEndpoints.Length];
-
-            var source = new CancellationTokenSource();
-
-            var random = new Random();
-            for (var i = 0; i < allEndpoints.Length; i++)
-            {
-                var sentSessions = Enumerable.Range(i * numberOfSentSessionsPerEndpoint, numberOfSentSessionsPerEndpoint)
-                    .Select(index => allSessions[index])
-                    .ToArray();
-
-                var receivedSessions = Enumerable.Range(0, numberOfReceivedSessionsPerEndpoint)
-                    .Select(_ => random.Next(sessionCount))
-                    .Select(si => allSessions[si]).ToArray();
-
-                endpointReporters[i] = BuildQueueLengthReporter(allEndpoints[i], receivedSessions, sentSessions, queueLengthStore, source);
-            }
-
-            var snapshoter = Task.Run(async () =>
-            {
-                for (var i = 0; i < totalQueryCount; i++)
-                {
-                    queueLengthStore.SnapshotCurrentQueueLengthEstimations(DateTime.UtcNow);
-                    await Task.Delay(snapshotEvery);
-                }
-            });
-            var histogram = CreateTimeHistogram();
-
-            while (snapshoter.IsCompleted == false)
-            {
-                var start = Stopwatch.GetTimestamp();
-                await GetMonitoredEndpoints().ConfigureAwait(false);
-                var elapsed = Stopwatch.GetTimestamp() - start;
-                histogram.RecordValue(elapsed);
-            }
-
-            source.Cancel();
-            await Task.WhenAll(endpointReporters).ConfigureAwait(false);
-
-            var reportFinalHistogram = MergeHistograms(endpointReporters);
-
-            Report("Querying", histogram, TimeSpan.FromMilliseconds(10));
-            Report("Reporters", reportFinalHistogram, TimeSpan.FromMilliseconds(10));
-        }
-
-        static Task<LongHistogram> BuildQueueLengthReporter(string endpointName, string[] receivedSessions, string[] sentSessions, QueueLengthStore store, CancellationTokenSource source)
-        {
-            var counters = sentSessions.Select(ss => new MessageBuilder.Counter(ss, 10)).ToArray();
-            var gauges = receivedSessions.Select(ss => new MessageBuilder.Gauge(10, ss)).ToArray();
-
-            var message = MessageBuilder.BuildMessage(counters, gauges);
-            var endpointInstanceId = new EndpointInstanceId(endpointName, string.Empty);
-
-            return Task.Run(async () =>
-            {
-                var histogram = CreateTimeHistogram();
-                while (source.IsCancellationRequested == false)
-                {
-                    var start = Stopwatch.GetTimestamp();
-                    store.Store(endpointInstanceId, message);
-                    var elapsed = Stopwatch.GetTimestamp() - start;
-                    histogram.RecordValue(elapsed);
-
-                    await Task.Delay(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
-                }
-                return histogram;
-            });
         }
 
         [TestCase(10, 10, 100, 1000, 100, 1000)]
@@ -166,7 +81,8 @@
                 {
                     BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => criticalTimeStore.Store(e, i, EndpointMessageType.Unknown(i.EndpointName))),
                     BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => processingTimeStore.Store(e, i, EndpointMessageType.Unknown(i.EndpointName))),
-                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => retriesStore.Store(e, i, EndpointMessageType.Unknown(i.EndpointName)))
+                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => retriesStore.Store(e, i, EndpointMessageType.Unknown(i.EndpointName))),
+                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => queueLengthProvider.Process(i, new TaggedLongValueOccurrence{Entries = e, TagValue = string.Empty}))
                 }.SelectMany(i => i).ToArray();
 
             var histogram = CreateTimeHistogram();
@@ -222,7 +138,8 @@
                 {
                     BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => criticalTimeStore.Store(e, i, getter())),
                     BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => processingTimeStore.Store(e, i, getter())),
-                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => retriesStore.Store(e, i, getter()))
+                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => retriesStore.Store(e, i, getter())),
+                    BuildReporters(sendReportEvery, numberOfEntriesInReport, instances, source, (e, i) => queueLengthProvider.Process(i, new TaggedLongValueOccurrence{Entries = e}))
                 }.SelectMany(i => i).ToArray();
 
             var histogram = CreateTimeHistogram();

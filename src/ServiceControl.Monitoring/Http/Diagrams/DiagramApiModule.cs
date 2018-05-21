@@ -16,29 +16,33 @@ namespace ServiceControl.Monitoring.Http.Diagrams
         /// <summary>
         /// Initializes the metric API module.
         /// </summary>
-        // ReSharper disable SuggestBaseTypeForParameter
-        public MonitoredEndpointsModule(IProvideBreakdownBy<EndpointInstanceId>[] metricByInstance, IProvideBreakdownBy<EndpointMessageType>[] metricByMessageType, EndpointRegistry endpointRegistry, EndpointInstanceActivityTracker activityTracker, MessageTypeRegistry messageTypeRegistry)
-            // ReSharper restore SuggestBaseTypeForParameter
+        public MonitoredEndpointsModule(IProvideBreakdown[] breakdownProviders, EndpointRegistry endpointRegistry, EndpointInstanceActivityTracker activityTracker, MessageTypeRegistry messageTypeRegistry)
         {
-            var metricByInstanceLookup = metricByInstance.ToDictionary(i => i.GetType());
+            var metricByInstanceLookup = breakdownProviders.OfType<IProvideBreakdownBy<EndpointInstanceId>>().ToDictionary(i => i.GetType());
 
-            var metricByMessageTypeLookup = metricByMessageType.ToDictionary(i => i.GetType());
+            var metricByQueueLookup = breakdownProviders.OfType<IProvideBreakdownBy<EndpointInputQueue>>().ToDictionary(i => i.GetType());
+
+            var metricByMessageTypeLookup = breakdownProviders.OfType<IProvideBreakdownBy<EndpointMessageType>>().ToDictionary(i => i.GetType());
 
             var instanceMetrics = new[]
             {
-                CreateMetric<EndpointInstanceId, ProcessingTimeStore>("ProcessingTime", IntervalsAggregator.AggregateTimings),
-                CreateMetric<EndpointInstanceId, CriticalTimeStore>("CriticalTime", IntervalsAggregator.AggregateTimings),
-                CreateMetric<EndpointInstanceId, RetriesStore>("Retries", IntervalsAggregator.AggregateTotalMeasurementsPerSecond),
-                CreateMetric<EndpointInstanceId, QueueLengthStore>("QueueLength", IntervalsAggregator.AggregateQueueLength),
-                CreateMetric<EndpointInstanceId, ProcessingTimeStore>("Throughput", IntervalsAggregator.AggregateTotalMeasurementsPerSecond)
+                CreateMetric<EndpointInstanceId, ProcessingTimeStore>("ProcessingTime", Aggregator.ToAverages),
+                CreateMetric<EndpointInstanceId, CriticalTimeStore>("CriticalTime", Aggregator.ToAverages),
+                CreateMetric<EndpointInstanceId, RetriesStore>("Retries", Aggregator.ToTotalMeasurementsPerSecond),
+                CreateMetric<EndpointInstanceId, ProcessingTimeStore>("Throughput", Aggregator.ToTotalMeasurementsPerSecond)
+            };
+
+            var queueMetrics = new[]
+            {
+                CreateMetric<EndpointInputQueue, QueueLengthStore>("QueueLength", Aggregator.ToSumOfBreakdownAverages)
             };
 
             var messageTypeMetrics = new[]
             {
-                CreateMetric<EndpointMessageType, ProcessingTimeStore>("ProcessingTime", IntervalsAggregator.AggregateTimings),
-                CreateMetric<EndpointMessageType, CriticalTimeStore>("CriticalTime", IntervalsAggregator.AggregateTimings),
-                CreateMetric<EndpointMessageType, RetriesStore>("Retries", IntervalsAggregator.AggregateTotalMeasurementsPerSecond),
-                CreateMetric<EndpointMessageType, ProcessingTimeStore>("Throughput", IntervalsAggregator.AggregateTotalMeasurementsPerSecond)
+                CreateMetric<EndpointMessageType, ProcessingTimeStore>("ProcessingTime", Aggregator.ToAverages),
+                CreateMetric<EndpointMessageType, CriticalTimeStore>("CriticalTime", Aggregator.ToAverages),
+                CreateMetric<EndpointMessageType, RetriesStore>("Retries", Aggregator.ToTotalMeasurementsPerSecond),
+                CreateMetric<EndpointMessageType, ProcessingTimeStore>("Throughput", Aggregator.ToTotalMeasurementsPerSecond)
             };
 
             var detailedMetrics = new HashSet<string>
@@ -58,6 +62,19 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                 foreach (var metric in instanceMetrics)
                 {
                     var store = metricByInstanceLookup[metric.StoreType];
+                    var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
+
+                    foreach (var endpoint in endpoints)
+                    {
+                        var values = metric.Aggregate(intervals[endpoint.Name].ToList(), period);
+
+                        endpoint.Metrics.Add(metric.ReturnName, values);
+                    }
+                }
+
+                foreach (var metric in queueMetrics)
+                {
+                    var store = metricByQueueLookup[metric.StoreType];
                     var intervals = store.GetIntervals(period, DateTime.UtcNow).ToLookup(k => k.Id.EndpointName);
 
                     foreach (var endpoint in endpoints)
@@ -122,6 +139,36 @@ namespace ServiceControl.Monitoring.Http.Diagrams
                     }
                 }
 
+                foreach (var metric in queueMetrics)
+                {
+                    var store = metricByQueueLookup[metric.StoreType];
+                    var intervals = store.GetIntervals(period, DateTime.UtcNow);
+
+                    var intervalsByEndpoint = intervals.ToLookup(k => k.Id.EndpointName);
+
+                    var endpointValues = metric.Aggregate(intervalsByEndpoint[endpointName].ToList(), period);
+
+                    if (detailedMetrics.Contains(metric.ReturnName))
+                    {
+                        var details = new MonitoredValuesWithTimings
+                        {
+                            Points = endpointValues.Points,
+                            Average = endpointValues.Average,
+                            TimeAxisValues = GetTimeAxisValues(intervalsByEndpoint[endpointName])
+                        };
+
+                        metricDetails.Metrics.Add(metric.ReturnName, details);
+                    }
+
+                    var metricDigest = new MonitoredEndpointMetricDigest
+                    {
+                        Latest = endpointValues.Points.LastOrDefault(),
+                        Average = endpointValues.Average
+                    };
+
+                    digest.Metrics.Add(metric.ReturnName, metricDigest);
+                }
+
                 var messageTypes = GetMonitoredMessageTypes(messageTypeRegistry.GetForEndpointName(endpointName));
 
                 foreach (var metric in messageTypeMetrics)
@@ -150,7 +197,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
             };
         }
 
-        static DateTime[] GetTimeAxisValues(IEnumerable<IntervalsStore<EndpointInstanceId>.IntervalsBreakdown> intervals)
+        static DateTime[] GetTimeAxisValues<T>(IEnumerable<IntervalsStore<T>.IntervalsBreakdown> intervals)
         {
             return intervals
                 .SelectMany(ib => ib.Intervals.Select(x => x.IntervalStart.ToUniversalTime()))

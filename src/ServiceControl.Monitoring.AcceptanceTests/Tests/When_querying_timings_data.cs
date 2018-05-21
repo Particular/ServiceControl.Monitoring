@@ -4,9 +4,9 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using global::Newtonsoft.Json.Linq;
+    using global::ServiceControl.Monitoring;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
-    using ServiceControl.Monitoring;
     using Conventions = AcceptanceTesting.Customization;
 
     [Category("Integration")]

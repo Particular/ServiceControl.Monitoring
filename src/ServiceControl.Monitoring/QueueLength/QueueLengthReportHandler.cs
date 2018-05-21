@@ -2,25 +2,41 @@
 {
     using System.Threading.Tasks;
     using Infrastructure;
+    using Messaging;
     using NServiceBus;
     using NServiceBus.Metrics;
 
-    class QueueLengthReportHandler : IHandleMessages<MetricReport>
+    public class QueueLengthReportHandler : IHandleMessages<EndpointMetadataReport>, IHandleMessages<TaggedLongValueOccurrence>
     {
-        QueueLengthStore queueLengthStore;
+        IProvideQueueLength queueLengthProvider;
 
-        public QueueLengthReportHandler(QueueLengthStore queueLengthStore)
+        public QueueLengthReportHandler(IProvideQueueLength queueLengthProvider)
         {
-            this.queueLengthStore = queueLengthStore;
+            this.queueLengthProvider = queueLengthProvider;
         }
 
-        public Task Handle(MetricReport message, IMessageHandlerContext context)
+        public Task Handle(EndpointMetadataReport message, IMessageHandlerContext context)
         {
-            var endpointInstanceId = EndpointInstanceId.From(context.MessageHeaders);
+            var instanceId = EndpointInstanceId.From(context.MessageHeaders);
 
-            queueLengthStore.Store(endpointInstanceId, message.Data);
+            queueLengthProvider.Process(instanceId, message);
 
             return TaskEx.Completed;
         }
+
+        public Task Handle(TaggedLongValueOccurrence message, IMessageHandlerContext context)
+        {
+            var instanceId = EndpointInstanceId.From(context.MessageHeaders);
+            var messageType = context.MessageHeaders[MetricHeaders.MetricType];
+
+            if (messageType == QueueLengthMessageType)
+            {
+                queueLengthProvider.Process(instanceId, message);
+            }
+
+            return TaskEx.Completed;
+        }
+
+        const string QueueLengthMessageType = "QueueLength";
     }
 }

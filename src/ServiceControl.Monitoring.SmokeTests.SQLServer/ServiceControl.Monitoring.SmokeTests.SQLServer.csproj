@@ -43,7 +43,7 @@
       <HintPath>..\packages\NServiceBus.Metrics.2.0.0\lib\net452\NServiceBus.Metrics.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Metrics.ServiceControl, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NServiceBus.Metrics.ServiceControl.2.0.0\lib\net452\NServiceBus.Metrics.ServiceControl.dll</HintPath>
+      <HintPath>..\packages\NServiceBus.Metrics.ServiceControl.2.1.0-rc0002\lib\net452\NServiceBus.Metrics.ServiceControl.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Transport.SqlServer, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <HintPath>..\packages\NServiceBus.SqlServer.3.1.2\lib\net452\NServiceBus.Transport.SqlServer.dll</HintPath>
@@ -78,6 +78,8 @@
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="ScenarioDescriptors\EnvironmentHelper.cs" />
     <Compile Include="Tests\ApiIntegrationTest.cs" />
+    <Compile Include="Tests\SqNameHelperTests.cs" />
+    <Compile Include="Tests\When_querying_queue_length.cs" />
     <Compile Include="Tests\When_querying_retries_data.cs" />
     <Compile Include="Tests\When_querying_timings_data.cs" />
     <Compile Include="Tests\When_running_on_custom_schema.cs" />

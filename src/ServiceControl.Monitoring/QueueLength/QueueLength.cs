@@ -1,59 +1,34 @@
 ﻿namespace ServiceControl.Monitoring.QueueLength
 {
-    using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.Features;
+
     public class QueueLength : Feature
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
-            context.RegisterStartupTask(b => new QueueLengthSnapshotting(b.Build<QueueLengthStore>()));
+            context.RegisterStartupTask(b => new QueueLengthProviderTask(b.Build<IProvideQueueLength>()));
         }
-
     }
 
-    public class QueueLengthSnapshotting : FeatureStartupTask
+    public class QueueLengthProviderTask : FeatureStartupTask
     {
-        QueueLengthStore store;
+        IProvideQueueLength queueLengthProvider;
 
-        public QueueLengthSnapshotting(QueueLengthStore store)
+        public QueueLengthProviderTask(IProvideQueueLength queueLengthProvider)
         {
-            this.store = store;
+            this.queueLengthProvider = queueLengthProvider;
         }
 
         protected override Task OnStart(IMessageSession session)
         {
-            snapshotter = Task.Run(async () =>
-            {
-                while (!stopTokenSource.Token.IsCancellationRequested)
-                {
-                    store.SnapshotCurrentQueueLengthEstimations(DateTime.UtcNow);
-
-                    try
-                    {
-                        await Task.Delay(snapshotInterval, stopTokenSource.Token);
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        // It's OK. It's quitting time
-                    }
-                }
-            });
-
-            return TaskEx.Completed;
+            return queueLengthProvider.Start();
         }
 
         protected override Task OnStop(IMessageSession session)
         {
-            stopTokenSource.Cancel();
-
-            return snapshotter;
+            return queueLengthProvider.Stop();
         }
-
-        CancellationTokenSource stopTokenSource = new CancellationTokenSource();
-        TimeSpan snapshotInterval = TimeSpan.FromSeconds(1);
-        Task snapshotter;
     }
 }

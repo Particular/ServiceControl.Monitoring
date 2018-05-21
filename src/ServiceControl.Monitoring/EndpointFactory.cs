@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Linq;
     using System.Threading.Tasks;
     using Autofac;
@@ -13,6 +14,8 @@
     using NServiceBus.Features;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
+    using QueueLength;
+    using Module = Autofac.Module;
 
     public class EndpointFactory
     {
@@ -31,12 +34,15 @@
 
         public static void MakeMetricsReceiver(EndpointConfiguration config, Settings settings, string explicitConnectionStringValue = null)
         {
+            var transportType = DetermineTransportType(settings);
+
+            var buildQueueLengthProvider = QueueLengthProviderBuilder(explicitConnectionStringValue, transportType);
+
             config.UseContainer<AutofacBuilder>(
-                c => c.ExistingLifetimeScope(CreateContainer(settings))
+                c => c.ExistingLifetimeScope(CreateContainer(settings, buildQueueLengthProvider))
             );
 
-            var selectedTransportType = DetermineTransportType(settings);
-            var transport = config.UseTransport(selectedTransportType)
+            var transport = config.UseTransport(transportType)
                 .Transactions(TransportTransactionMode.ReceiveOnly);
 
             if (explicitConnectionStringValue != null)
@@ -76,12 +82,32 @@
             recoverability.DisableLegacyRetriesSatellite();
         }
 
-        static IContainer CreateContainer(Settings settings)
+        static Func<QueueLengthStore, IProvideQueueLength> QueueLengthProviderBuilder(string explicitConnectionStringValue, Type transportType)
+        {
+            return qls =>
+            {
+                var connectionString = explicitConnectionStringValue ?? ConfigurationManager.ConnectionStrings["NServiceBus/Transport"]?.ConnectionString;
+
+                var queueLengthProviderType = transportType.Assembly.GetTypes()
+                    .SingleOrDefault(p => typeof(IProvideQueueLength).IsAssignableFrom(p));
+
+                var queueLengthProvider = queueLengthProviderType != null
+                    ? (IProvideQueueLength) Activator.CreateInstance(queueLengthProviderType)
+                    : new DefaultQueueLengthProvider();
+
+                queueLengthProvider.Initialize(connectionString, qls);
+
+                return queueLengthProvider;
+            };
+        }
+
+        static IContainer CreateContainer(Settings settings, Func<QueueLengthStore, IProvideQueueLength> buildQueueLengthProvider)
         {
             var containerBuilder = new ContainerBuilder();
 
             containerBuilder.RegisterModule<ApplicationModule>();
             containerBuilder.RegisterInstance(settings).As<Settings>().SingleInstance();
+            containerBuilder.Register(c => buildQueueLengthProvider(c.Resolve<QueueLengthStore>())).As<IProvideQueueLength>().SingleInstance();
 
             var container = containerBuilder.Build();
             return container;
@@ -118,6 +144,10 @@
             {
                 "NServiceBus.SqsTransport, NServiceBus.AmazonSQS",
                 "ServiceControl.Transports.AmazonSQS.ServiceControlSqsTransport, ServiceControl.Transports.AmazonSQS"
+            },
+            {
+                "NServiceBus.RabbitMQTransport, NServiceBus.Transports.RabbitMQ",
+                "ServiceControl.Transports.RabbitMQ.ServiceControlRabbitMQTransport, ServiceControl.Transports.RabbitMQ"
             }
         };
 
