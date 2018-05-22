@@ -22,17 +22,17 @@
             };
         }
 
-        internal static MonitoredValues ToSumOfBreakdownAverages<T>(List<IntervalsStore<T>.IntervalsBreakdown> intervals, HistoryPeriod period)
+        internal static MonitoredValues ToRoundedSumOfBreakdownAverages<T>(List<IntervalsStore<T>.IntervalsBreakdown> intervals, HistoryPeriod period)
         {
             Func<long, double> returnOneIfZero = x => x == 0 ? 1 : x;
 
             return new MonitoredValues
             {
-                Average = intervals.Sum(t => t.TotalValue / returnOneIfZero(t.TotalMeasurements)),
+                Average = Math.Round(intervals.Sum(t => t.TotalValue / returnOneIfZero(t.TotalMeasurements))),
                 Points = intervals.SelectMany(x => x.Intervals)
                     .GroupBy(i => i.IntervalStart)
                     .OrderBy(g => g.Key)
-                    .Select(gg => gg.Sum(t => t.TotalValue / returnOneIfZero(t.TotalMeasurements)))
+                    .Select(gg => Math.Round(gg.Sum(t => t.TotalValue / returnOneIfZero(t.TotalMeasurements))))
                     .ToArray()
             };
         }
