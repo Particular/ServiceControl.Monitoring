@@ -34,7 +34,7 @@ namespace ServiceControl.Monitoring.Http.Diagrams
 
             var queueMetrics = new[]
             {
-                CreateMetric<EndpointInputQueue, QueueLengthStore>("QueueLength", Aggregator.ToSumOfBreakdownAverages)
+                CreateMetric<EndpointInputQueue, QueueLengthStore>("QueueLength", Aggregator.ToRoundedSumOfBreakdownAverages)
             };
 
             var messageTypeMetrics = new[]

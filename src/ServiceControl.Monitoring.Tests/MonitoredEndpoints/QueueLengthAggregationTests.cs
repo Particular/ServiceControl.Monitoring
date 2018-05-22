@@ -36,10 +36,10 @@
                 }
             };
 
-            var values = Aggregator.ToSumOfBreakdownAverages(intervals, HistoryPeriod.FromMinutes(5));
+            var values = Aggregator.ToRoundedSumOfBreakdownAverages(intervals, HistoryPeriod.FromMinutes(5));
 
-            Assert.AreEqual(3d / 4d + 5d / 6d, values.Points[0]);
-            Assert.AreEqual(2d / 3d, values.Points[1]);
+            Assert.AreEqual(Math.Round(3d / 4d + 5d / 6d), values.Points[0]);
+            Assert.AreEqual(Math.Round(2d / 3d), values.Points[1]);
         }
 
         [Test]
@@ -63,9 +63,9 @@
                 }
             };
 
-            var values = Aggregator.ToSumOfBreakdownAverages(intervals, HistoryPeriod.FromMinutes(5));
+            var values = Aggregator.ToRoundedSumOfBreakdownAverages(intervals, HistoryPeriod.FromMinutes(5));
 
-            Assert.AreEqual(3d / 1d + 41d / 5d, values.Average);
+            Assert.AreEqual(Math.Round(3d / 1d + 41d / 5d), values.Average);
         }
 
         [Test]
@@ -94,7 +94,7 @@
                 }
             };
 
-            var values = Aggregator.ToSumOfBreakdownAverages(intervals, HistoryPeriod.FromMinutes(5));
+            var values = Aggregator.ToRoundedSumOfBreakdownAverages(intervals, HistoryPeriod.FromMinutes(5));
 
             Assert.AreEqual(3, values.Points.Length);
         }
