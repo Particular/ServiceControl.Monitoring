@@ -94,6 +94,7 @@
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="ScenarioDescriptors\EnvironmentHelper.cs" />
     <Compile Include="Tests\ApiIntegrationTest.cs" />
+    <Compile Include="Tests\When_querying_queue_length.cs" />
     <Compile Include="Tests\When_querying_retries_data.cs" />
     <Compile Include="Tests\When_querying_timings_data.cs" />
   </ItemGroup>
@@ -105,6 +106,10 @@
     <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj">
       <Project>{768BE338-20F1-4106-A3EB-DCE7686FCBF0}</Project>
       <Name>ServiceControl.Monitoring</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ServiceControl.Transports.AzureStorageQueues\ServiceControl.Transports.AzureStorageQueues.csproj">
+      <Project>{b35a6d47-7330-4fee-81fb-b90e5d36be5a}</Project>
+      <Name>ServiceControl.Transports.AzureStorageQueues</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
