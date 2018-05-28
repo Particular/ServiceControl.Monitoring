@@ -57,8 +57,11 @@
     <Reference Include="NServiceBus.Core, Version=6.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <HintPath>..\packages\NServiceBus.6.3.4\lib\net452\NServiceBus.Core.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Metrics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NServiceBus.Metrics.1.2.0-alpha0001\lib\net452\NServiceBus.Metrics.dll</HintPath>
+    <Reference Include="NServiceBus.Metrics, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NServiceBus.Metrics.2.0.0\lib\net452\NServiceBus.Metrics.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Metrics.ServiceControl, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NServiceBus.Metrics.ServiceControl.2.1.0\lib\net452\NServiceBus.Metrics.ServiceControl.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Newtonsoft.Json, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <HintPath>..\packages\NServiceBus.Newtonsoft.Json.1.1.0\lib\net452\NServiceBus.Newtonsoft.Json.dll</HintPath>
