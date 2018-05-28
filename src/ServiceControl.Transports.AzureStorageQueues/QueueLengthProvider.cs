@@ -68,7 +68,7 @@
                 {
                     try
                     {
-                        await QueryTableSizes().ConfigureAwait(false);
+                        await FetchQueueSizes().ConfigureAwait(false);
 
                         UpdateQueueLengthStore();
 
@@ -107,7 +107,7 @@
             }
         }
 
-        Task QueryTableSizes() => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key)));
+        Task FetchQueueSizes() => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key)));
 
         async Task FetchLength(CloudQueue queue)
         {
