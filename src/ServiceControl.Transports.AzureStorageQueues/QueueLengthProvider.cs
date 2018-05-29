@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Transports.SQLServer
+﻿namespace ServiceControl.Transports.AzureStorageQueues
 {
     using System;
     using System.Collections.Concurrent;
@@ -113,7 +113,7 @@
         {
             try
             {
-                await queue.FetchAttributesAsync().ConfigureAwait(false);
+                await queue.FetchAttributesAsync(stop.Token).ConfigureAwait(false);
                 sizes[queue] = queue.ApproximateMessageCount.GetValueOrDefault();
 
                 problematicQueues.TryRemove(queue, out _);

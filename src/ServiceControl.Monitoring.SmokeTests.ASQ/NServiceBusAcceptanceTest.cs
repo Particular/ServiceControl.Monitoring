@@ -3,7 +3,7 @@ namespace ServiceControl.Monitoring.SmokeTests.ASQ
     using System.Linq;
     using System.Threading;
     using NUnit.Framework;
-    using Transports.SQLServer;
+    using Transports.AzureStorageQueues;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
     /// <summary>

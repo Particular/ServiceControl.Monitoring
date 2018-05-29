@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Transports.SQLServer
+﻿namespace ServiceControl.Transports.AzureStorageQueues
 {
     using NServiceBus;
 

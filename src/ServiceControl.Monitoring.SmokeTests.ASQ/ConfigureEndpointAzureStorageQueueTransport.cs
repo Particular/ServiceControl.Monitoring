@@ -5,7 +5,7 @@ namespace ServiceControl.Monitoring.SmokeTests.ASQ
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using ScenarioDescriptors;
-    using Transports.SQLServer;
+    using Transports.AzureStorageQueues;
 
     public class ConfigureEndpointAzureStorageQueueTransport : IConfigureEndpointTestExecution
     {

@@ -18,7 +18,7 @@
         [Test]
         public async Task Should_report_via_http()
         {
-            JToken retries = null;
+            JToken queueLength = null;
 
             await Scenario.Define<QueueLengthContext>()
                 .WithEndpoint<SendingEndpoint>(c =>
@@ -35,7 +35,7 @@
                 .WithEndpoint<MonitoringEndpoint>()
                 .Done(c =>
                 {
-                    var done = MetricReported("queueLength", out retries, c);
+                    var done = MetricReported("queueLength", out queueLength, c);
 
                     if (done) { c.CancelProcessingTokenSource.Cancel();}
 
@@ -43,8 +43,8 @@
                 })
                 .Run();
 
-            Assert.IsTrue(retries["average"].Value<double>() > 0);
-            Assert.AreEqual(60, retries["points"].Value<JArray>().Count);
+            Assert.IsTrue(queueLength["average"].Value<double>() > 0);
+            Assert.AreEqual(60, queueLength["points"].Value<JArray>().Count);
         }
 
         class SendingEndpoint : EndpointConfigurationBuilder
