@@ -35,7 +35,7 @@
         public void Process(EndpointInstanceId endpointInstanceId, EndpointMetadataReport metadataReport)
         {
             var endpointInputQueue = new EndpointInputQueue(endpointInstanceId.EndpointName, metadataReport.LocalAddress);
-            var queueName = metadataReport.LocalAddress.ToLower().Replace(".", "-");
+            var queueName = QueueNameSanitizer.Sanitize(metadataReport.LocalAddress);
 
             var queueClient = CloudStorageAccount.Parse(connectionString).CreateCloudQueueClient();
             var queue = queueClient.GetQueueReference(queueName);
