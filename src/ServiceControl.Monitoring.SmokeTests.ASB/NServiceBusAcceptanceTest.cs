@@ -35,7 +35,7 @@ namespace ServiceControl.Monitoring.SmokeTests.ASB
 
             Settings = new Settings
             {
-                TransportType = typeof(AzureServiceBusTransport).AssemblyQualifiedName,
+                TransportType = "NServiceBus.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus",
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",
