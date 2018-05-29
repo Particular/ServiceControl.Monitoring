@@ -18,7 +18,6 @@ namespace ServiceControl.Monitoring.SmokeTests.ASQ
             var transportConfig = configuration
                 .UseTransport<ServiceControlAzureStorageQueueTransport>()
                 .ConnectionString(connectionString);
-            //.MessageInvisibleTime(TimeSpan.FromSeconds(30))
 
             configuration.GetSettings()
                 .GetOrCreate<DelayedDeliverySettings>()
