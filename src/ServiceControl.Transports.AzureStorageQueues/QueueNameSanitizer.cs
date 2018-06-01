@@ -5,6 +5,8 @@
     using System.Text;
     using System.Text.RegularExpressions;
 
+    // The name sanitizer has been copied from ASQ as it's its internal part and cannot be accessed otherwise
+    // https://github.com/Particular/NServiceBus.AzureStorageQueues/blob/b68358a6e39f04f0d9ecdaa73c6c435731861dd5/src/AcceptanceTests/BackwardsCompatibleQueueNameSanitizerForTests.cs
     public class QueueNameSanitizer
     {
         public static string Sanitize(string queueName)
