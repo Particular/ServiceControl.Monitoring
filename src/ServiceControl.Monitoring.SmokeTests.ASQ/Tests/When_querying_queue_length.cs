@@ -75,7 +75,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointSqlServerTransport.ConnectionString);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointAzureStorageQueueTransport.ConnectionString);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }

@@ -1,10 +1,11 @@
 namespace ServiceControl.Monitoring.SmokeTests.ASQ
 {
-    using System;
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting.Support;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using ScenarioDescriptors;
+    using Transports.AzureStorageQueues;
 
     public class ConfigureEndpointAzureStorageQueueTransport : IConfigureEndpointTestExecution
     {
@@ -15,11 +16,12 @@ namespace ServiceControl.Monitoring.SmokeTests.ASQ
             var connectionString = ConnectionString;
 
             var transportConfig = configuration
-                .UseTransport<AzureStorageQueueTransport>()
-                .ConnectionString(connectionString)
-                .MessageInvisibleTime(TimeSpan.FromSeconds(30));
+                .UseTransport<ServiceControlAzureStorageQueueTransport>()
+                .ConnectionString(connectionString);
 
-            transportConfig.DelayedDelivery().DisableTimeoutManager();
+            configuration.GetSettings()
+                .GetOrCreate<DelayedDeliverySettings>()
+                .DisableTimeoutManager();
 
             var routingConfig = transportConfig.Routing();
 

@@ -2,8 +2,8 @@ namespace ServiceControl.Monitoring.SmokeTests.ASQ
 {
     using System.Linq;
     using System.Threading;
-    using NServiceBus;
     using NUnit.Framework;
+    using Transports.AzureStorageQueues;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace ServiceControl.Monitoring.SmokeTests.ASQ
 
             Settings = new Settings
             {
-                TransportType = typeof(AzureStorageQueueTransport).AssemblyQualifiedName,
+                TransportType = typeof(ServiceControlAzureStorageQueueTransport).AssemblyQualifiedName,
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",
