@@ -44,7 +44,6 @@
             var factory = new ConnectionFactory(connectionConfiguration, null, false, false);
 
             IConnection connection = null;
-            IModel model = null;
 
             queryTask = Task.Run(async () =>
             {
@@ -57,12 +56,7 @@
                             connection = factory.CreateConnection(string.Empty);
                         }
 
-                        if (model == null)
-                        {
-                            model = connection.CreateModel();
-                        }
-
-                        FetchQueueLengths(model);
+                        FetchQueueLengths(connection);
 
                         UpdateQueueLengths();
 
@@ -102,20 +96,30 @@
                     endpointQueuePair.Key);
         }
 
-        void FetchQueueLengths(IModel model)
+        void FetchQueueLengths(IConnection connection)
         {
-            //TODO: check what happens when non existing queue is querried
+            IModel model = null;
+
             foreach (var endpointQueuePair in endpointQueues)
             {
+                var queueName = endpointQueuePair.Value;
+
                 try
                 {
-                    var size = (int) model.MessageCount(endpointQueuePair.Value);
+                    if (model == null)
+                    {
+                        model = connection.CreateModel();
+                    }
 
-                    sizes.AddOrUpdate(endpointQueuePair.Value, _ => size, (_, __) => size);
+                    var size = (int) model.MessageCount(queueName);
+
+                    sizes.AddOrUpdate(queueName, _ => size, (_, __) => size);
                 }
                 catch (Exception e)
                 {
-                    Logger.Warn($"Error fetching size for queue {endpointQueuePair.Value}", e);
+                    Logger.Warn($"Error fetching size for queue {queueName}", e);
+                    
+                    model = null;
                 }
             }
         }
