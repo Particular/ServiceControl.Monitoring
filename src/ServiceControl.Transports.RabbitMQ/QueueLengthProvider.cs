@@ -64,7 +64,9 @@
                     }
                     catch (Exception e)
                     {
-                        Logger.Warn("Error querying queue sizes.", e);
+                        Logger.Warn("Error querying queue sizes. Backing off quering for {BackoffInterval}.", e);
+
+                        await Task.Delay(BackoffInterval).ConfigureAwait(false);
                     }
                 }
             });
@@ -117,9 +119,9 @@
                 }
                 catch (Exception e)
                 {
-                    Logger.Warn($"Error fetching size for queue {queueName}", e);
-                    
                     model = null;
+
+                    Logger.Warn($"Error fetching size for queue {queueName}", e);
                 }
             }
         }
@@ -134,6 +136,7 @@
         QueueLengthStore store;
 
         static TimeSpan QueryDelayInterval = TimeSpan.FromMilliseconds(200);
+        static TimeSpan BackoffInterval = TimeSpan.FromSeconds(5);
 
         static ILog Logger = LogManager.GetLogger<QueueLengthProvider>();
     }
