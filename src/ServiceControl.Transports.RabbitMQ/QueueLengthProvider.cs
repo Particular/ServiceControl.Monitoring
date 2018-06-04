@@ -40,12 +40,8 @@
 
         public Task Start()
         {
-            var factory = new ConnectionFactory
-            {
-                Uri = connectionString,
-                AutomaticRecoveryEnabled = true,
-                TopologyRecoveryEnabled = true
-            };
+            var connectionConfiguration = ConnectionConfiguration.Create(connectionString, "ServiceControl.Monitoring");
+            var factory = new ConnectionFactory(connectionConfiguration, null, false, false);
 
             IConnection connection = null;
             IModel model = null;
@@ -58,7 +54,7 @@
                     {
                         if (connection == null)
                         {
-                            connection = factory.CreateConnection();
+                            connection = factory.CreateConnection(string.Empty);
                         }
 
                         if (model == null)
