@@ -109,15 +109,13 @@
             {
                 try
                 {
-                    var declareOK = model.QueueDeclarePassive(endpointQueuePair.Value);
-                    var size = (int) declareOK.MessageCount;
+                    var size = (int) model.MessageCount(endpointQueuePair.Value);
 
                     sizes.AddOrUpdate(endpointQueuePair.Value, _ => size, (_, __) => size);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
-                    throw;
+                    Logger.Warn($"Error fetching size for queue {endpointQueuePair.Value}", e);
                 }
             }
         }
