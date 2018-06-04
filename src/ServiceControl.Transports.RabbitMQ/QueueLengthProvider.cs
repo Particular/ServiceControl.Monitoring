@@ -16,7 +16,8 @@
     {
         public void Initialize(string connectionString, QueueLengthStore store)
         {
-            this.connectionString = connectionString;
+            queryExecutor = new QueryExecutor(connectionString);
+
             this.store = store;
         }
 
@@ -40,23 +41,15 @@
 
         public Task Start()
         {
-            var connectionConfiguration = ConnectionConfiguration.Create(connectionString, "ServiceControl.Monitoring");
-            var factory = new ConnectionFactory(connectionConfiguration, null, false, false);
+            queryExecutor.Initialize();
 
-            IConnection connection = null;
-
-            queryTask = Task.Run(async () =>
+            queryLoop = Task.Run(async () =>
             {
                 while (!stoppedTokenSource.Token.IsCancellationRequested)
                 {
                     try
                     {
-                        if (connection == null)
-                        {
-                            connection = factory.CreateConnection(string.Empty);
-                        }
-
-                        FetchQueueLengths(connection);
+                        await FetchQueueLengths();
 
                         UpdateQueueLengths();
 
@@ -64,9 +57,7 @@
                     }
                     catch (Exception e)
                     {
-                        Logger.Warn("Error querying queue sizes. Backing off quering for {BackoffInterval}.", e);
-
-                        await Task.Delay(BackoffInterval).ConfigureAwait(false);
+                        Logger.Error("Queue length query loop failure.", e);
                     }
                 }
             });
@@ -78,7 +69,7 @@
         {
             stoppedTokenSource.Cancel();
 
-            return queryTask;
+            return queryLoop;
         }
 
         void UpdateQueueLengths()
@@ -98,45 +89,88 @@
                     endpointQueuePair.Key);
         }
 
-        void FetchQueueLengths(IConnection connection)
+        async Task FetchQueueLengths()
         {
-            IModel model = null;
-
             foreach (var endpointQueuePair in endpointQueues)
             {
-                var queueName = endpointQueuePair.Value;
+                await queryExecutor.Execute(m =>
+                {
+                    var queueName = endpointQueuePair.Value;
 
+                    try
+                    {
+                        var size = (int) m.MessageCount(queueName);
+
+                        sizes.AddOrUpdate(queueName, _ => size, (_, __) => size);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Warn($"Error quering queue length for {queueName}", e);
+                    }
+                });
+            }
+        }
+
+
+        class QueryExecutor
+        {
+            string connectionString;
+            IConnection connection;
+            IModel model;
+            ConnectionFactory connectionFactory;
+
+            public QueryExecutor(string connectionString)
+            {
+                this.connectionString = connectionString;
+            }
+
+            public void Initialize()
+            {
+                var connectionConfiguration = ConnectionConfiguration.Create(connectionString, "ServiceControl.Monitoring");
+                connectionFactory = new ConnectionFactory(connectionConfiguration, null, false, false);
+            }
+
+            public async Task Execute(Action<IModel> action)
+            {
                 try
                 {
-                    if (model == null)
+                    if (connection == null)
+                    {
+                        connection = connectionFactory.CreateConnection(string.Empty);
+                    }
+
+                    //Connection implements reconnection logic
+                    while (connection.IsOpen == false)
+                    {
+                        await Task.Delay(ReconnectionDelay);
+                    }
+
+                    if (model == null || model.IsClosed)
                     {
                         model = connection.CreateModel();
                     }
 
-                    var size = (int) model.MessageCount(queueName);
-
-                    sizes.AddOrUpdate(queueName, _ => size, (_, __) => size);
+                    action(model);
                 }
                 catch (Exception e)
                 {
-                    model = null;
-
-                    Logger.Warn($"Error fetching size for queue {queueName}", e);
+                    Logger.Warn("Error querying queue length.", e);
                 }
             }
+
+            TimeSpan ReconnectionDelay = TimeSpan.FromSeconds(5);
         }
 
         ConcurrentDictionary<EndpointInputQueue, string> endpointQueues = new ConcurrentDictionary<EndpointInputQueue, string>();
         ConcurrentDictionary<string, int> sizes = new ConcurrentDictionary<string, int>();
 
         CancellationTokenSource stoppedTokenSource = new CancellationTokenSource();
-        Task queryTask;
+        Task queryLoop;
 
-        string connectionString;
         QueueLengthStore store;
+        QueryExecutor queryExecutor;
 
         static TimeSpan QueryDelayInterval = TimeSpan.FromMilliseconds(200);
-        static TimeSpan BackoffInterval = TimeSpan.FromSeconds(5);
 
         static ILog Logger = LogManager.GetLogger<QueueLengthProvider>();
     }
