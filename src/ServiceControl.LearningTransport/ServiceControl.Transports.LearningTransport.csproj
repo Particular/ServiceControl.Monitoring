@@ -8,4 +8,8 @@
     <PackageReference Include="NServiceBus" Version="6.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj" />
+  </ItemGroup>
+
 </Project>
