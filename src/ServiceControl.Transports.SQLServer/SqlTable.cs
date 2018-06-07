@@ -36,7 +36,7 @@
                 return true;
             }
 
-            if (pluginVersion == 2)
+            if (pluginVersion == 2 || pluginVersion == 3)
             {
                 sqlTable = new SqlTable(parts[0], parts[1], parts[2]);
                 return true;
