@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+﻿namespace ServiceControl.Transports.LearningTransport
 {
     using System;
     using System.Collections.Concurrent;
@@ -7,11 +7,12 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Logging;
-    using Metrics;
-    using ServiceControl.Monitoring.Infrastructure;
-    using ServiceControl.Monitoring.Messaging;
-    using ServiceControl.Monitoring.QueueLength;
+    using Monitoring.Infrastructure;
+    using Monitoring.Messaging;
+    using Monitoring.QueueLength;
+    using NServiceBus.Logging;
+    using NServiceBus.Metrics;
+
 
     public class QueueLengthProvider : IProvideQueueLength
     {
@@ -71,8 +72,9 @@
         void UpdateStore(ILookup<string, long?> queueLengths)
         {
             var now = DateTime.UtcNow.Ticks;
-            foreach (var instance in endpointsHash.Keys)
+            foreach (var kvp in endpointsHash)
             {
+                var instance = kvp.Key;
                 var queueLength = queueLengths[instance.InputQueue].FirstOrDefault();
                 if (queueLength.HasValue)
                 {
