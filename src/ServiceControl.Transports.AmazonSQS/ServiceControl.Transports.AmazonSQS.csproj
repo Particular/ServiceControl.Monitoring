@@ -6,7 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.SQS" Version="3.3.3.8" />
     <PackageReference Include="NServiceBus.AmazonSQS" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj" />
   </ItemGroup>
 
 </Project>
