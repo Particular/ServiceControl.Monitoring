@@ -65,11 +65,13 @@
             return TaskEx.Completed;
         }
 
-        public Task Stop()
+        public async Task Stop()
         {
             stoppedTokenSource.Cancel();
 
-            return queryLoop;
+            await queryLoop;
+
+            queryExecutor.Dispose();
         }
 
         void UpdateQueueLengths()
@@ -105,14 +107,14 @@
                     }
                     catch (Exception e)
                     {
-                        Logger.Warn($"Error quering queue length for {queueName}", e);
+                        Logger.Warn($"Error querying queue length for {queueName}", e);
                     }
                 });
             }
         }
 
 
-        class QueryExecutor
+        class QueryExecutor : IDisposable
         {
             string connectionString;
             IConnection connection;
@@ -136,7 +138,7 @@
                 {
                     if (connection == null)
                     {
-                        connection = connectionFactory.CreateConnection(string.Empty);
+                        connection = connectionFactory.CreateConnection("queue length monitor");
                     }
 
                     //Connection implements reconnection logic
@@ -147,6 +149,8 @@
 
                     if (model == null || model.IsClosed)
                     {
+                        model?.Dispose();
+
                         model = connection.CreateModel();
                     }
 
@@ -159,6 +163,11 @@
             }
 
             TimeSpan ReconnectionDelay = TimeSpan.FromSeconds(5);
+
+            public void Dispose()
+            {
+                connection?.Dispose();
+            }
         }
 
         ConcurrentDictionary<EndpointInputQueue, string> endpointQueues = new ConcurrentDictionary<EndpointInputQueue, string>();
