@@ -2,7 +2,6 @@ namespace ServiceControl.Monitoring.SmokeTests.ASB
 {
     using System.Linq;
     using System.Threading;
-    using NServiceBus;
     using NUnit.Framework;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
@@ -35,7 +34,7 @@ namespace ServiceControl.Monitoring.SmokeTests.ASB
 
             Settings = new Settings
             {
-                TransportType = typeof(AzureServiceBusTransport).AssemblyQualifiedName,
+                TransportType = "NServiceBus.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus",
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",
