@@ -60,7 +60,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointSqsTransport.ConnectionString);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }

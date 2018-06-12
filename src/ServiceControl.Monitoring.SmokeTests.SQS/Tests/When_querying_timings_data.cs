@@ -24,10 +24,10 @@
             try
             {
                 await Scenario.Define<Context>(c =>
-                {
-                    c.SetLogLevel(LogLevel.Debug);
-                    ctx = c;
-                })
+                    {
+                        c.SetLogLevel(LogLevel.Debug);
+                        ctx = c;
+                    })
                     .WithEndpoint<MonitoredEndpoint>(c => c.When(s => s.SendLocal(new SampleMessage())))
                     .WithEndpoint<MonitoringEndpoint>()
                     .Done(c => MetricReported("processingTime", out processingTime, c))
@@ -74,7 +74,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointSqsTransport.ConnectionString);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }

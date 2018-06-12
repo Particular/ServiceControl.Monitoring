@@ -5,6 +5,8 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Amazon.SQS;
+    using Amazon.SQS.Model;
     using Monitoring;
     using Monitoring.Infrastructure;
     using Monitoring.Messaging;
@@ -14,11 +16,9 @@
 
     public class QueueLengthProvider : IProvideQueueLength
     {
-        ConcurrentDictionary<EndpointInputQueue, Iqu> queues = new ConcurrentDictionary<EndpointInputQueue, CloudQueue>();
-        ConcurrentDictionary<CloudQueue, int> sizes = new ConcurrentDictionary<CloudQueue, int>();
-        ConcurrentDictionary<CloudQueue, CloudQueue> problematicQueues = new ConcurrentDictionary<CloudQueue, CloudQueue>();
+        ConcurrentDictionary<EndpointInputQueue, string> queues = new ConcurrentDictionary<EndpointInputQueue, string>();
+        ConcurrentDictionary<string, int> sizes = new ConcurrentDictionary<string, int>();
 
-        string connectionString;
         QueueLengthStore store;
 
         CancellationTokenSource stop = new CancellationTokenSource();
@@ -26,21 +26,17 @@
 
         public void Initialize(string connectionString, QueueLengthStore store)
         {
-            this.connectionString = connectionString;
             this.store = store;
         }
 
         public void Process(EndpointInstanceId endpointInstanceId, EndpointMetadataReport metadataReport)
         {
             var endpointInputQueue = new EndpointInputQueue(endpointInstanceId.EndpointName, metadataReport.LocalAddress);
-            var queueName = QueueNameHelper.GetSqsQueueName(metadataReport.LocalAddress,);
-
-            var queueClient = CloudStorageAccount.Parse(connectionString).CreateCloudQueueClient();
-            var queue = queueClient.GetQueueReference(queueName);
+            var queue = QueueNameHelper.GetSqsQueueName(metadataReport.LocalAddress);
 
             queues.AddOrUpdate(endpointInputQueue, _ => queue, (_, currentQueue) =>
             {
-                if (currentQueue.Name.Equals(queue.Name) == false)
+                if (currentQueue != queue)
                 {
                     sizes.TryRemove(currentQueue, out var _);
                 }
@@ -62,19 +58,22 @@
 
             pooler = Task.Run(async () =>
             {
-                while (!stop.Token.IsCancellationRequested)
+                using (var client = new AmazonSQSClient())
                 {
-                    try
+                    while (!stop.Token.IsCancellationRequested)
                     {
-                        await FetchQueueSizes().ConfigureAwait(false);
+                        try
+                        {
+                            await FetchQueueSizes(client).ConfigureAwait(false);
 
-                        UpdateQueueLengthStore();
+                            UpdateQueueLengthStore();
 
-                        await Task.Delay(QueryDelayInterval);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error("Error querying sql queue sizes.", e);
+                            await Task.Delay(QueryDelayInterval);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Error("Error querying sql queue sizes.", e);
+                        }
                     }
                 }
             });
@@ -105,24 +104,24 @@
             }
         }
 
-        Task FetchQueueSizes() => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key)));
+        Task FetchQueueSizes(IAmazonSQS client) => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key, client)));
 
-        async Task FetchLength(CloudQueue queue)
+        async Task FetchLength(string queue, IAmazonSQS client)
         {
             try
             {
-                await queue.FetchAttributesAsync(stop.Token).ConfigureAwait(false);
-                sizes[queue] = queue.ApproximateMessageCount.GetValueOrDefault();
+                var attReq = new GetQueueAttributesRequest
+                {
+                    QueueUrl = queue
+                };
+                attReq.AttributeNames.Add("ApproximateNumberOfMessages");
+                var response = await client.GetQueueAttributesAsync(attReq).ConfigureAwait(false);
+                sizes[queue] = response.ApproximateNumberOfMessages;
 
-                problematicQueues.TryRemove(queue, out _);
             }
             catch (Exception ex)
             {
-                // simple "log once" approach to do not flood logs
-                if (problematicQueues.TryAdd(queue, queue))
-                {
-                    Logger.Error($"Obtaining Azure Storage Queue count failed for '{queue.Name}'", ex);
-                }
+                Logger.Error($"Obtaining Azure Storage Queue count failed for '{queue}'", ex);
             }
         }
 
