@@ -2,7 +2,6 @@ namespace ServiceControl.Monitoring.SmokeTests.RabbitMQ
 {
     using System.Linq;
     using System.Threading;
-    using NServiceBus;
     using NUnit.Framework;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
