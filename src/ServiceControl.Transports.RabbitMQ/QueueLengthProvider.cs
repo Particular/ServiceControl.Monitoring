@@ -79,16 +79,21 @@
             var nowTicks = DateTime.UtcNow.Ticks;
 
             foreach (var endpointQueuePair in endpointQueues)
-                store.Store(
-                    new[]
-                    {
-                        new RawMessage.Entry
+            {
+                if (sizes.TryGetValue(endpointQueuePair.Value, out var size))
+                {
+                    store.Store(
+                        new[]
                         {
-                            DateTicks = nowTicks,
-                            Value = sizes.TryGetValue(endpointQueuePair.Value, out var size) ? size : 0
-                        }
-                    },
-                    endpointQueuePair.Key);
+                            new RawMessage.Entry
+                            {
+                                DateTicks = nowTicks,
+                                Value = size
+                            }
+                        },
+                        endpointQueuePair.Key);
+                }
+            }
         }
 
         async Task FetchQueueLengths()
