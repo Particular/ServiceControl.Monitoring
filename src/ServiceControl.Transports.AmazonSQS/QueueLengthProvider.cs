@@ -6,7 +6,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Amazon.SQS;
-    using Amazon.SQS.Model;
     using Monitoring;
     using Monitoring.Infrastructure;
     using Monitoring.Messaging;
@@ -60,7 +59,7 @@
             {
                 using (var client = new AmazonSQSClient())
                 {
-                    var cache = new QueueUrlCache(client);
+                    var cache = new QueueAttributesRequestCache(client);
 
                     while (!stop.Token.IsCancellationRequested)
                     {
@@ -70,11 +69,11 @@
 
                             UpdateQueueLengthStore();
 
-                            await Task.Delay(QueryDelayInterval);
+                            await Task.Delay(QueryDelayInterval).ConfigureAwait(false);
                         }
                         catch (Exception e)
                         {
-                            Logger.Error("Error querying sql queue sizes.", e);
+                            Logger.Error("Error querying SQS queue sizes.", e);
                         }
                     }
                 }
@@ -106,23 +105,19 @@
             }
         }
 
-        Task FetchQueueSizes(QueueUrlCache cache, IAmazonSQS client) => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key, client, cache)));
+        Task FetchQueueSizes(QueueAttributesRequestCache cache, IAmazonSQS client) => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key, client, cache)));
 
-        async Task FetchLength(string queue, IAmazonSQS client, QueueUrlCache cache)
+        async Task FetchLength(string queue, IAmazonSQS client, QueueAttributesRequestCache cache)
         {
             try
             {
-                var attReq = new GetQueueAttributesRequest
-                {
-                    QueueUrl = await cache.GetQueueUrl(queue).ConfigureAwait(false)
-                };
-                attReq.AttributeNames.Add("ApproximateNumberOfMessages");
+                var attReq = await cache.GetQueueAttributesRequest(queue).ConfigureAwait(false);
                 var response = await client.GetQueueAttributesAsync(attReq).ConfigureAwait(false);
                 sizes[queue] = response.ApproximateNumberOfMessages;
             }
             catch (Exception ex)
             {
-                Logger.Error($"Obtaining Azure Storage Queue count failed for '{queue}'", ex);
+                Logger.Error($"Obtaining an approximate number of messages failed for '{queue}'", ex);
             }
         }
 
