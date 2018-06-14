@@ -20,7 +20,7 @@
                 return attReq;
             }
 
-            var  queueUrl = await GetQueueUrl(queueName);
+            var  queueUrl = await GetQueueUrl(queueName).ConfigureAwait(false);
 
             attReq = new GetQueueAttributesRequest {QueueUrl = queueUrl};
             attReq.AttributeNames.Add("ApproximateNumberOfMessages");
