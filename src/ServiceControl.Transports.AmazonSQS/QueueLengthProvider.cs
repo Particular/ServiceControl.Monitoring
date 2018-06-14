@@ -60,11 +60,13 @@
             {
                 using (var client = new AmazonSQSClient())
                 {
+                    var cache = new QueueUrlCache(client);
+
                     while (!stop.Token.IsCancellationRequested)
                     {
                         try
                         {
-                            await FetchQueueSizes(client).ConfigureAwait(false);
+                            await FetchQueueSizes(cache, client).ConfigureAwait(false);
 
                             UpdateQueueLengthStore();
 
@@ -104,20 +106,19 @@
             }
         }
 
-        Task FetchQueueSizes(IAmazonSQS client) => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key, client)));
+        Task FetchQueueSizes(QueueUrlCache cache, IAmazonSQS client) => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key, client, cache)));
 
-        async Task FetchLength(string queue, IAmazonSQS client)
+        async Task FetchLength(string queue, IAmazonSQS client, QueueUrlCache cache)
         {
             try
             {
                 var attReq = new GetQueueAttributesRequest
                 {
-                    QueueUrl = queue
+                    QueueUrl = await cache.GetQueueUrl(queue).ConfigureAwait(false)
                 };
                 attReq.AttributeNames.Add("ApproximateNumberOfMessages");
                 var response = await client.GetQueueAttributesAsync(attReq).ConfigureAwait(false);
                 sizes[queue] = response.ApproximateNumberOfMessages;
-
             }
             catch (Exception ex)
             {
