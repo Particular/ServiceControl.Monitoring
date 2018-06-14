@@ -23,7 +23,7 @@
         QueueLengthStore store;
 
         CancellationTokenSource stop = new CancellationTokenSource();
-        Task pooler;
+        Task poller;
 
         public void Initialize(string connectionString, QueueLengthStore store)
         {
@@ -66,7 +66,7 @@
         {
             stop = new CancellationTokenSource();
 
-            pooler = Task.Run(async () =>
+            poller = Task.Run(async () =>
             {
                 while (!stop.Token.IsCancellationRequested)
                 {
@@ -92,7 +92,7 @@
         {
             stop.Cancel();
 
-            return pooler;
+            return poller;
         }
 
         void UpdateQueueLengthStore()
