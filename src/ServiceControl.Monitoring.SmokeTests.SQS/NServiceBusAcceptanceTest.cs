@@ -2,7 +2,6 @@ namespace ServiceControl.Monitoring.SmokeTests.SQS
 {
     using System.Linq;
     using System.Threading;
-    using NServiceBus;
     using NUnit.Framework;
     using Transports.AmazonSQS;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
