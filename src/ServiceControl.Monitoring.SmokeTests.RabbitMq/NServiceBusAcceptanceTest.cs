@@ -2,7 +2,6 @@ namespace ServiceControl.Monitoring.SmokeTests.RabbitMQ
 {
     using System.Linq;
     using System.Threading;
-    using NServiceBus;
     using NUnit.Framework;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
@@ -35,7 +34,7 @@ namespace ServiceControl.Monitoring.SmokeTests.RabbitMQ
 
             Settings = new Settings
             {
-                TransportType = typeof(RabbitMQTransport).AssemblyQualifiedName,
+                TransportType = "NServiceBus.RabbitMQTransport, NServiceBus.Transports.RabbitMQ",
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",
