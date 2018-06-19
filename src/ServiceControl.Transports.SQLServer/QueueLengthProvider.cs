@@ -35,26 +35,20 @@
         {
             var endpointInputQueue = new EndpointInputQueue(endpointInstanceId.EndpointName, metadataReport.LocalAddress);
             var localAddress = metadataReport.LocalAddress;
-            var pluginVersion = metadataReport.PluginVersion;
 
-            if (SqlTable.TryParse(localAddress, pluginVersion, out var sqlTable))
+            var sqlTable = SqlTable.Parse(localAddress);
+            
+            tableNames.AddOrUpdate(endpointInputQueue, _ => sqlTable, (_, currentSqlTable) =>
             {
-                tableNames.AddOrUpdate(endpointInputQueue, _ => sqlTable, (_, currentSqlTable) =>
+                if (currentSqlTable.Equals(sqlTable) == false)
                 {
-                    if (currentSqlTable.Equals(sqlTable) == false)
-                    {
-                        tableSizes.TryRemove(currentSqlTable, out var _);
-                    }
+                    tableSizes.TryRemove(currentSqlTable, out var _);
+                }
 
-                    return sqlTable;
-                });
+                return sqlTable;
+            });
 
-                tableSizes.TryAdd(sqlTable, 0);
-            }
-            else
-            {
-                Logger.Warn($"Could not parse localAddress {localAddress}. Sent by {endpointInstanceId.EndpointName} id {endpointInstanceId.InstanceId}. Plugin version {pluginVersion}");
-            }
+            tableSizes.TryAdd(sqlTable, 0);
         }
 
         public void Process(EndpointInstanceId endpointInstanceId, TaggedLongValueOccurrence metricsReport)

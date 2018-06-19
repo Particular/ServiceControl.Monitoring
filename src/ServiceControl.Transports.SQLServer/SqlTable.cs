@@ -26,24 +26,15 @@
             return QuotedCatalog != null ? $"{QuotedCatalog}.{QuotedSchema}.{QuotedName}" : $"{QuotedSchema}.{QuotedName}";
         }
 
-        public static bool TryParse(string address, int pluginVersion, out SqlTable sqlTable)
+        public static SqlTable Parse(string address)
         {
             var parts = address.Split('@').ToArray();
 
-            if (pluginVersion == 1)
-            {
-                sqlTable = new SqlTable(parts[0], "dbo", null);
-                return true;
-            }
-
-            if (pluginVersion == 2)
-            {
-                sqlTable = new SqlTable(parts[0], parts[1], parts[2]);
-                return true;
-            }
-
-            sqlTable = null;
-            return false;
+            return new SqlTable(
+                parts[0],
+                parts.Length > 1 ? parts[1] : "dbo",
+                parts.Length > 2 ? parts[2] : null
+            );
         }
 
         protected bool Equals(SqlTable other)
