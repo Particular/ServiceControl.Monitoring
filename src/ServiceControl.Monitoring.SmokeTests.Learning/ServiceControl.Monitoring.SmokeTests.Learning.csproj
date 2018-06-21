@@ -85,6 +85,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ServiceControl.LearningTransport\ServiceControl.Transports.LearningTransport.csproj">
+      <Project>{F820752B-5F01-40F1-AE26-1604F3C85F55}</Project>
+      <Name>ServiceControl.Transports.LearningTransport</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj">
       <Project>{768BE338-20F1-4106-A3EB-DCE7686FCBF0}</Project>
       <Name>ServiceControl.Monitoring</Name>
