@@ -35,7 +35,7 @@ namespace ServiceControl.Monitoring.SmokeTests.Learning
 
             Settings = new Settings
             {
-                TransportType = typeof(LearningTransport).AssemblyQualifiedName,
+                TransportType = typeof(ServiceControlLearningTransport).AssemblyQualifiedName,
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",

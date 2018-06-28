@@ -30,7 +30,7 @@
             var jsonResponse = GetString(MonitoredEndpointsUrl);
             var response = JArray.Parse(jsonResponse);
 
-            metric = response.Count > 0 ? response[0][name] : null;
+            metric = response.Count > 0 ? response[0]["metrics"][name] : null;
 
             context.MetricsReport = jsonResponse;
 

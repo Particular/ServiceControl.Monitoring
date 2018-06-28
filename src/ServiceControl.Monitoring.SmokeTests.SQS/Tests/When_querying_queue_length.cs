@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.ASQ.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.SQS.Tests
 {
     using System;
     using System.Threading;
@@ -75,7 +75,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointSqlServerTransport.ConnectionString);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointSqsTransport.ConnectionString);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }

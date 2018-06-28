@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.ASQ.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.RabbitMQ.Tests
 {
     using System;
     using System.Threading;
@@ -18,7 +18,7 @@
         [Test]
         public async Task Should_report_via_http()
         {
-            JToken queueLength = null;
+            JToken retries = null;
 
             await Scenario.Define<QueueLengthContext>()
                 .WithEndpoint<SendingEndpoint>(c =>
@@ -35,16 +35,16 @@
                 .WithEndpoint<MonitoringEndpoint>()
                 .Done(c =>
                 {
-                    var done = MetricReported("queueLength", out queueLength, c);
+                    var done = MetricReported("queueLength", out retries, c);
 
-                    if (done) { c.CancelProcessingTokenSource.Cancel();}
+                    if (done) { c.CancelProcessingTokenSource.Cancel(); }
 
                     return done;
                 })
                 .Run();
 
-            Assert.IsTrue(queueLength["average"].Value<double>() > 0);
-            Assert.AreEqual(60, queueLength["points"].Value<JArray>().Count);
+            Assert.IsTrue(retries["average"].Value<double>() > 0);
+            Assert.AreEqual(60, retries["points"].Value<JArray>().Count);
         }
 
         class SendingEndpoint : EndpointConfigurationBuilder
@@ -75,7 +75,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointSqlServerTransport.ConnectionString);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointRabbitMQTransport.ConnectionString);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }

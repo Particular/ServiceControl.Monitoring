@@ -6,9 +6,11 @@
 
     public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecution
     {
+        public static string ConnectionString = @"C:\Temp\Learning";
+
         public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
         {
-            configuration.UseTransport<LearningTransport>();
+            configuration.UseTransport<ServiceControlLearningTransport>().ConnectionString(ConnectionString);
 
             return Task.FromResult(0);
         }

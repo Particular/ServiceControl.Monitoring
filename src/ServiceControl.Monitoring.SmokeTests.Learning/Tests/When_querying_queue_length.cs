@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.ASQ.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.Learning.Tests
 {
     using System;
     using System.Threading;
@@ -37,7 +37,7 @@
                 {
                     var done = MetricReported("queueLength", out queueLength, c);
 
-                    if (done) { c.CancelProcessingTokenSource.Cancel();}
+                    if (done) { c.CancelProcessingTokenSource.Cancel(); }
 
                     return done;
                 })
@@ -54,6 +54,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EnableMetrics().SendMetricDataToServiceControl(MonitoringEndpointName, TimeSpan.FromSeconds(1));
+                    c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }
 
@@ -75,8 +76,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointSqlServerTransport.ConnectionString);
-                    c.LimitMessageProcessingConcurrencyTo(1);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointLearningTransport.ConnectionString);
                 });
             }
         }

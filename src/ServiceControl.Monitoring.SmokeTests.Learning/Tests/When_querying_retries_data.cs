@@ -39,9 +39,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-#pragma warning disable 618
                     c.EnableMetrics().SendMetricDataToServiceControl(ReceiverEndpointName, TimeSpan.FromSeconds(5));
-#pragma warning restore 618
                 });
             }
 
@@ -60,7 +58,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings, "a");
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointLearningTransport.ConnectionString);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }

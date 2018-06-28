@@ -148,6 +148,10 @@
             {
                 "NServiceBus.RabbitMQTransport, NServiceBus.Transports.RabbitMQ",
                 "ServiceControl.Transports.RabbitMQ.ServiceControlRabbitMQTransport, ServiceControl.Transports.RabbitMQ"
+            },
+            {
+                "NServiceBus.AzureStorageQueueTransport, NServiceBus.Azure.Transports.WindowsAzureStorageQueues",
+                "ServiceControl.Transports.AzureStorageQueues.ServiceControlAzureStorageQueueTransport, ServiceControl.Transports.AzureStorageQueues"
             }
         };
 
