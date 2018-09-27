@@ -35,7 +35,7 @@ namespace NServiceBus.AcceptanceTests
 
             Settings = new Settings
             {
-                TransportType = typeof(MsmqTransport).AssemblyQualifiedName,
+                TransportType = typeof(LearningTransport).AssemblyQualifiedName,
                 EnableInstallers = true, 
                 ErrorQueue = "error",
                 HttpHostName = "localhost",
