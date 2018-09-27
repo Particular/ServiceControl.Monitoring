@@ -77,9 +77,6 @@
             config.EnableFeature<QueueLength.QueueLength>();
 
             config.EnableFeature<HttpEndpoint>();
-
-            var recoverability = config.Recoverability();
-            recoverability.DisableLegacyRetriesSatellite();
         }
 
         static Func<QueueLengthStore, IProvideQueueLength> QueueLengthProviderBuilder(string explicitConnectionStringValue, Type transportType)

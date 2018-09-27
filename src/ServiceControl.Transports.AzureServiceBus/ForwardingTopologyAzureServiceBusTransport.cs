@@ -14,7 +14,8 @@ namespace ServiceControl.Transports.AzureServiceBus
             // ForwardingTopology is the recommended topology for new projects
 
 #pragma warning disable 618
-            settings.Set<ITopology>(new ForwardingTopology());
+            //TODO: This will sort it self out with the new transport seam
+            //settings.Set<ITopology>(new ForwardingTopology());
 #pragma warning restore 618
 
             return base.Initialize(settings, connectionString);
