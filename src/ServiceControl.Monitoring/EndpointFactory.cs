@@ -10,7 +10,7 @@
     using Messaging;
     using Nancy;
     using NServiceBus;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Configuration.AdvancedExtensibility;
     using NServiceBus.Features;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;

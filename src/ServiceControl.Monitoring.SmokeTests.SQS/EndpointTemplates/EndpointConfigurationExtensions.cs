@@ -1,7 +1,7 @@
 ﻿namespace ServiceControl.Monitoring.SmokeTests.SQS.EndpointTemplates
 {
     using NServiceBus;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Configuration.AdvancedExtensibility;
 
     public static class EndpointConfigurationExtensions
     {

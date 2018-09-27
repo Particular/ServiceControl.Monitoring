@@ -3,7 +3,7 @@
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting.Support;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Configuration.AdvancedExtensibility;
     using ScenarioDescriptors;
 
     public class ConfigureEndpointAzureServiceBusTransport : IConfigureEndpointTestExecution
