@@ -3,7 +3,6 @@
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using Newtonsoft.Json.Linq;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
@@ -75,7 +74,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointSqsTransport.ConnectionString);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, DefaultServer.ConnectionString);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }

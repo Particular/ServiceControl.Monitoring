@@ -79,16 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigureEndpointInMemoryPersistence.cs" />
-    <Compile Include="ConfigureEndpointSqsTransport.cs" />
-    <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
-    <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
-    <Compile Include="EndpointTemplates\DefaultServer.cs" />
-    <Compile Include="EndpointTemplates\EndpointConfigurationExtensions.cs" />
-    <Compile Include="EndpointTemplates\EndpointCustomizationConfigurationExtensions.cs" />
-    <Compile Include="EndpointTemplates\Requires.cs" />
-    <Compile Include="EndpointTemplates\ServerWithNoDefaultPersistenceDefinitions.cs" />
-    <Compile Include="EndpointTemplates\TestSuiteConstraints.cs" />
+    <Compile Include="DefaultServer.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScenarioDescriptors\EnvironmentHelper.cs" />
