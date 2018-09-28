@@ -3,7 +3,6 @@ namespace ServiceControl.Transports.AzureServiceBus
     using NServiceBus;
     using NServiceBus.Settings;
     using NServiceBus.Transport;
-    using NServiceBus.Transport.AzureServiceBus;
 
     public class ForwardingTopologyAzureServiceBusTransport : AzureServiceBusTransport
     {

@@ -77,18 +77,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigureEndpointInMemoryPersistence.cs" />
-    <Compile Include="ConfigureEndpointSqlServerTransport.cs" />
-    <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
-    <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
-    <Compile Include="EndpointTemplates\DefaultServer.cs" />
-    <Compile Include="EndpointTemplates\EndpointConfigurationExtensions.cs" />
-    <Compile Include="EndpointTemplates\EndpointCustomizationConfigurationExtensions.cs" />
-    <Compile Include="EndpointTemplates\Requires.cs" />
-    <Compile Include="EndpointTemplates\ServerWithNoDefaultPersistenceDefinitions.cs" />
-    <Compile Include="EndpointTemplates\TestSuiteConstraints.cs" />
+    <Compile Include="DefaultServer.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
-    <Compile Include="ScenarioDescriptors\EnvironmentHelper.cs" />
     <Compile Include="Tests\ApiIntegrationTest.cs" />
     <Compile Include="Tests\SqlTableTests.cs" />
     <Compile Include="Tests\SqNameHelperTests.cs" />

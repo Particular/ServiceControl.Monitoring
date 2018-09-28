@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using Newtonsoft.Json.Linq;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
@@ -25,7 +24,7 @@
             {
                 await Scenario.Define<Context>(c =>
                     {
-                        c.SetLogLevel(LogLevel.Debug);
+                        //TODO: c.SetLogLevel(LogLevel.Debug);
                         ctx = c;
                     })
                     .WithEndpoint<MonitoredEndpoint>(c => c.When(s => s.SendLocal(new SampleMessage())))
@@ -72,7 +71,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings, ConfigureEndpointSqlServerTransport.ConnectionString);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, DefaultServer.ConnectionString);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }
