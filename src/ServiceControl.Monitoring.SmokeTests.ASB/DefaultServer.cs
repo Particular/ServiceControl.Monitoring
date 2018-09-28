@@ -1,32 +1,59 @@
-﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿namespace ServiceControl.Monitoring.SmokeTests.ASB
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
-    using AcceptanceTesting.Customization;
-    using AcceptanceTesting.Support;
-    using Hosting.Helpers;
-    using ObjectBuilder;
+    using NServiceBus.AcceptanceTesting.Customization;
+    using NServiceBus.AcceptanceTesting.Support;
+    using NServiceBus.Hosting.Helpers;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
+        public static string ConnectionString => GetEnvironmentVariable($"{nameof(AzureServiceBusTransport)}.ConnectionString");
+
         public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
-        {
+        {         
             var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
             var types = GetTypesScopedByTestClass(endpointConfiguration);
 
             builder.TypesToIncludeInScan(types);
+          
+            var transportConfig = builder.UseTransport<AzureServiceBusTransport>();
+            transportConfig.ConnectionString(ConnectionString);
 
-            builder.UseTransport<AcceptanceTestingTransport>();
+            var topology = GetEnvironmentVariable("AzureServiceBusTransport.Topology");
 
-            builder.Recoverability().Delayed(delayedRetries => delayedRetries.NumberOfRetries(0));
-            builder.Recoverability().Immediate(immediateRetries => immediateRetries.NumberOfRetries(0));
+            if (topology == "ForwardingTopology")
+            {
+                transportConfig.UseForwardingTopology();
+            }
+            else
+            {
+                var endpointOrientedTopology = transportConfig.UseEndpointOrientedTopology();
+                foreach (var publisher in endpointConfiguration.PublisherMetadata.Publishers)
+                {
+                    foreach (var eventType in publisher.Events)
+                    {
+                        endpointOrientedTopology.RegisterPublisher(eventType, publisher.PublisherName);
+                    }
+                }
+            }
+
+            transportConfig.Sanitization()
+                .UseStrategy<ValidateAndHashIfNeeded>();
+
+            // w/o retries ASB will move attempted messages to the error queue right away, which will cause false failure.
+            // ScenarioRunner.PerformScenarios() verifies by default no messages are moved into error queue. If it finds any, it fails the test.
+            builder.Recoverability().Immediate(retriesSettings => retriesSettings.NumberOfRetries(3));
 
             builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
 
             configurationBuilderCustomization(builder);
+
 
             return Task.FromResult(builder);
         }
@@ -81,6 +108,18 @@
             {
                 yield return nestedType;
             }
+        }
+
+        public static string GetEnvironmentVariable(string variable)
+        {
+            var candidate = Environment.GetEnvironmentVariable(variable, EnvironmentVariableTarget.User);
+
+            if (string.IsNullOrWhiteSpace(candidate))
+            {
+                return Environment.GetEnvironmentVariable(variable);
+            }
+
+            return candidate;
         }
     }
 }
