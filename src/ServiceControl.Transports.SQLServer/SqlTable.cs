@@ -26,13 +26,13 @@
             return QuotedCatalog != null ? $"{QuotedCatalog}.{QuotedSchema}.{QuotedName}" : $"{QuotedSchema}.{QuotedName}";
         }
 
-        public static SqlTable Parse(string address)
+        public static SqlTable Parse(string address, string defaultSchema)
         {
             var parts = address.Split('@').ToArray();
 
             return new SqlTable(
                 parts[0],
-                parts.Length > 1 ? parts[1] : "dbo",
+                parts.Length > 1 ? parts[1] : defaultSchema,
                 parts.Length > 2 ? parts[2] : null
             );
         }
