@@ -3,7 +3,6 @@ namespace ServiceControl.Monitoring
     using System.IO;
     using System.Reflection;
     using NLog;
-    using NServiceBus;
     using System;
 
     public class Settings

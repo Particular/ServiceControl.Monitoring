@@ -65,7 +65,7 @@
                 return TaskEx.Completed;
             });
 
-            config.GetSettings().Set<Settings>(settings);
+            config.GetSettings().Set(settings);
 
             config.UseSerialization<NewtonsoftSerializer>();
             config.UsePersistence<InMemoryPersistence>();

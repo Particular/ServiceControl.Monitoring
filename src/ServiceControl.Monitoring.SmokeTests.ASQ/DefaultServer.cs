@@ -10,7 +10,7 @@
     using NServiceBus.Hosting.Helpers;
     using NServiceBus.ObjectBuilder;
     using NServiceBus;
-    using ServiceControl.Transports.AzureStorageQueues;
+    using Transports.AzureStorageQueues;
 
     public class DefaultServer : IEndpointSetupTemplate
     {

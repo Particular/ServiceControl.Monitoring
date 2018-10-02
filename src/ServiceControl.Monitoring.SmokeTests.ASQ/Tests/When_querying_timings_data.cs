@@ -5,7 +5,6 @@
     using Newtonsoft.Json.Linq;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.Logging;
     using NUnit.Framework;
     using Conventions = NServiceBus.AcceptanceTesting.Customization;
 

@@ -7,11 +7,10 @@
 
     public class TaggedLongValueOccurrenceHandler : IHandleMessages<TaggedLongValueOccurrence>
     {
-        public TaggedLongValueOccurrenceHandler(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore, RetriesStore retriesStore)
+        public TaggedLongValueOccurrenceHandler(ProcessingTimeStore processingTimeStore, CriticalTimeStore criticalTimeStore)
         {
             this.processingTimeStore = processingTimeStore;
             this.criticalTimeStore = criticalTimeStore;
-            this.retriesStore = retriesStore;
         }
 
         public Task Handle(TaggedLongValueOccurrence message, IMessageHandlerContext context)
@@ -36,10 +35,8 @@
 
         readonly ProcessingTimeStore processingTimeStore;
         readonly CriticalTimeStore criticalTimeStore;
-        readonly RetriesStore retriesStore;
 
         const string ProcessingTimeMessageType = "ProcessingTime";
         const string CriticalTimeMessageType = "CriticalTime";
-        const string RetriesMessageType = "Retries";
     }
 }

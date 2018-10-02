@@ -22,7 +22,7 @@
 
             builder.TypesToIncludeInScan(types);
 
-            var transportConfig = builder.UseTransport<RabbitMQTransport>()
+            builder.UseTransport<RabbitMQTransport>()
               .ConnectionString(ConnectionString);
 
             //TODO verify that this is not needed transportConfig.DelayedDelivery().DisableTimeoutManager();
