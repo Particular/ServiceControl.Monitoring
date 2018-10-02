@@ -24,11 +24,7 @@
 
             builder.UseTransport<RabbitMQTransport>()
               .ConnectionString(ConnectionString);
-
-            //TODO verify that this is not needed transportConfig.DelayedDelivery().DisableTimeoutManager();
-
-            //TODO verify that this is not needed configuration.UseSerialization<JsonSerializer>();
-
+            
             builder.Recoverability().Delayed(delayedRetries => delayedRetries.NumberOfRetries(0));
             builder.Recoverability().Immediate(immediateRetries => immediateRetries.NumberOfRetries(0));
 

@@ -38,9 +38,7 @@
             }
 
             builder.UsePersistence<InMemoryPersistence>();
-
-            //TODO: Pretty sure we can use XML for the tests builder.UseSerialization<JsonSerializer>();
-
+            
             builder.Recoverability().Delayed(delayedRetries => delayedRetries.NumberOfRetries(0));
             builder.Recoverability().Immediate(immediateRetries => immediateRetries.NumberOfRetries(0));
 

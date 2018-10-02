@@ -18,29 +18,12 @@
         {
             JToken processingTime = null;
 
-            Context ctx = null;
-            try
-            {
-                await Scenario.Define<Context>(c =>
-                    {
-                        //TODO c.SetLogLevel(LogLevel.Debug);
-                        ctx = c;
-                    })
+            await Scenario.Define<Context>()
                     .WithEndpoint<MonitoredEndpoint>(c => c.When(s => s.SendLocal(new SampleMessage())))
                     .WithEndpoint<MonitoringEndpoint>()
                     .Done(c => MetricReported("processingTime", out processingTime, c))
                     .Run();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("LOGS!");
-                foreach (var item in ctx.Logs)
-                {
-                    Console.WriteLine(item.ToString());
-                }
 
-                throw;
-            }
             Assert.IsTrue(processingTime["average"].Value<int>() > 0);
             Assert.AreEqual(60, processingTime["points"].Value<JArray>().Count);
         }
