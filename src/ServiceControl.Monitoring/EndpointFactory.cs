@@ -149,6 +149,10 @@
             {
                 "NServiceBus.AzureStorageQueueTransport, NServiceBus.Azure.Transports.WindowsAzureStorageQueues",
                 "ServiceControl.Transports.AzureStorageQueues.ServiceControlAzureStorageQueueTransport, ServiceControl.Transports.AzureStorageQueues"
+            },
+            {
+                "NServiceBus.MsmqTransport, NServiceBus.Core",
+                "NServiceBus.MsmqTransport, NServiceBus.Transport.Msmq"
             }
         };
 
