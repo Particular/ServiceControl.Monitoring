@@ -130,9 +130,17 @@
 
         static Dictionary<string, string> transportCustomizations = new Dictionary<string, string>
         {
-            {
+            {   //cannot be changed - it's the legacy ASB Forwarding topology
                 "NServiceBus.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus",
                 "ServiceControl.Transports.AzureServiceBus.ForwardingTopologyAzureServiceBusTransport, ServiceControl.Transports.AzureServiceBus"
+            },
+            {   //Key is not a real type as there is no way to define a type per topology in the Legacy transport
+                "EndpointOrientedTopologyAzureServiceBusTransport",
+                "ServiceControl.Transports.AzureServiceBus.EndpointOrientedTopologyAzureServiceBusTransport, ServiceControl.Transports.AzureServiceBus"
+            },
+            {   //the new ASBS transport
+                "NServiceBus.AzureServiceBusTransport, NServiceBus.Transport.AzureServiceBus",
+                "ServiceControl.Transports.AzureServiceBusStandard.ForwardingTopologyAzureServiceBusTransport, ServiceControl.Transports.AzureServiceBusStandard"
             },
             {
                 "NServiceBus.SqlServerTransport, NServiceBus.Transport.SQLServer",
