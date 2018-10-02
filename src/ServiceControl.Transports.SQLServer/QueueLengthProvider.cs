@@ -20,6 +20,7 @@
         ConcurrentDictionary<SqlTable, int> tableSizes = new ConcurrentDictionary<SqlTable, int>();
 
         string connectionString;
+        string defaultSchema;
         QueueLengthStore store;
 
         CancellationTokenSource stop = new CancellationTokenSource();
@@ -27,7 +28,10 @@
 
         public void Initialize(string connectionString, QueueLengthStore store)
         {
-            this.connectionString = connectionString;
+            this.connectionString = connectionString.RemoveCustomSchemaPart(out var customSchema);
+
+            defaultSchema = customSchema ?? "dbo";
+
             this.store = store;
         }
 
@@ -36,7 +40,7 @@
             var endpointInputQueue = new EndpointInputQueue(endpointInstanceId.EndpointName, metadataReport.LocalAddress);
             var localAddress = metadataReport.LocalAddress;
 
-            var sqlTable = SqlTable.Parse(localAddress);
+            var sqlTable = SqlTable.Parse(localAddress, defaultSchema);
             
             tableNames.AddOrUpdate(endpointInputQueue, _ => sqlTable, (_, currentSqlTable) =>
             {
