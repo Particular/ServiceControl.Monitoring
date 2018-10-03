@@ -1,27 +1,27 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.ASB
+﻿namespace ServiceControl.Monitoring.SmokeTests.ASB.ForwardingTopology
 {
+    using NServiceBus;
+    using NServiceBus.AcceptanceTesting.Customization;
+    using NServiceBus.AcceptanceTesting.Support;
+    using NServiceBus.Hosting.Helpers;
+    using NServiceBus.ObjectBuilder;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTesting.Support;
-    using NServiceBus.Hosting.Helpers;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
         public static string ConnectionString => GetEnvironmentVariable($"{nameof(AzureServiceBusTransport)}.ConnectionString");
 
         public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
-        {         
+        {
             var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
             var types = GetTypesScopedByTestClass(endpointConfiguration);
 
             builder.TypesToIncludeInScan(types);
-          
+
             var transportConfig = builder.UseTransport<AzureServiceBusTransport>();
             transportConfig.ConnectionString(ConnectionString);
 

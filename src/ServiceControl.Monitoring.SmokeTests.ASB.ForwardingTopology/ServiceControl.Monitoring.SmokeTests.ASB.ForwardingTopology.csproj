@@ -8,8 +8,8 @@
     <ProjectGuid>{10B6F344-E306-41BB-AD88-8235BD1F3092}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceControl.Monitoring.SmokeTests.ASB</RootNamespace>
-    <AssemblyName>ServiceControl.Monitoring.SmokeTests.ASB</AssemblyName>
+    <RootNamespace>ServiceControl.Monitoring.SmokeTests.ASB.ForwardingTopology</RootNamespace>
+    <AssemblyName>ServiceControl.Monitoring.SmokeTests.ASB.ForwardingTopology</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -88,9 +88,9 @@
       <Project>{768BE338-20F1-4106-A3EB-DCE7686FCBF0}</Project>
       <Name>ServiceControl.Monitoring</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ServiceControl.Transports.AzureServiceBus\ServiceControl.Transports.AzureServiceBus.csproj">
+    <ProjectReference Include="..\ServiceControl.Transports.AzureServiceBusLegacyForwardingTopology\ServiceControl.Transports.AzureServiceBusLegacyForwardingTopology.csproj">
       <Project>{66ca123a-7e48-494f-a3d3-ded5dd664621}</Project>
-      <Name>ServiceControl.Transports.AzureServiceBus</Name>
+      <Name>ServiceControl.Transports.AzureServiceBusLegacyForwardingTopology</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

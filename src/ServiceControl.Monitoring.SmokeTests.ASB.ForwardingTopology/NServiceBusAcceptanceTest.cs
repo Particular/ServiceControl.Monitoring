@@ -1,8 +1,8 @@
-namespace ServiceControl.Monitoring.SmokeTests.ASB
+namespace ServiceControl.Monitoring.SmokeTests.ASB.ForwardingTopology
 {
+    using NUnit.Framework;
     using System.Linq;
     using System.Threading;
-    using NUnit.Framework;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
     /// <summary>

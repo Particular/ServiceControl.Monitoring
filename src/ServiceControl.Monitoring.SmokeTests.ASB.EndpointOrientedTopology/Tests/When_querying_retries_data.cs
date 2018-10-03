@@ -1,11 +1,11 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.ASB.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.ASB.EndpointOrientedTopology.Tests
 {
-    using System;
-    using System.Threading.Tasks;
     using Newtonsoft.Json.Linq;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
+    using System;
+    using System.Threading.Tasks;
 
     [Category("TransportSmokeTests")]
     public class When_querying_retries_data : ApiIntegrationTest
