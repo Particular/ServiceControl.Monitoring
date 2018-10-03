@@ -8,7 +8,7 @@ namespace ServiceControl.Transports.AzureServiceBus
     {
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
-            //TODO add the configuration for the endpoint oriented topology
+            settings.Set("AzureServiceBus.Settings.Topology.Selected", "EndpointOrientedTopology");
 
             return base.Initialize(settings, connectionString);
         }
