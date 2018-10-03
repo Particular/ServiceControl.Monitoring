@@ -100,11 +100,11 @@ namespace ServiceControl.Transports.AzureServiceBus
             }
         }
 
-        public Task Stop()
+        public async Task Stop()
         {
             stop.Cancel();
-
-            return pooler;
+            await managementClient.CloseAsync();
+            await pooler;
         }
 
         static TimeSpan QueryDelayInterval = TimeSpan.FromMilliseconds(200);
