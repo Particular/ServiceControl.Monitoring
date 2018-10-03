@@ -7,7 +7,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4AD60A65-CD2B-44A9-970E-41F80D95B0FD}</ProjectGuid>
+    <ProjectGuid>{B77AB92C-0AE7-4BE2-AEBD-786BDAC4B572}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Packaging.NServiceBus.AzureServiceBus</RootNamespace>
     <AssemblyName>Packaging.NServiceBus.AzureServiceBus</AssemblyName>
@@ -44,9 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ServiceControl.Transports.AzureServiceBus\ServiceControl.Transports.AzureServiceBus.csproj">
-      <Project>{66ca123a-7e48-494f-a3d3-ded5dd664621}</Project>
-      <Name>ServiceControl.Transports.AzureServiceBus</Name>
+    <ProjectReference Include="..\ServiceControl.Transports.AzureServiceBusLegacyEndpointOrientedTopology\ServiceControl.Transports.AzureServiceBusLegacyEndpointOrientedTopology.csproj">
+      <Project>{2f30e38c-ece7-42b4-b498-23104078978d}</Project>
+      <Name>ServiceControl.Transports.AzureServiceBusLegacyEndpointOrientedTopology</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
