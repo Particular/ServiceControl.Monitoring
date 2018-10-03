@@ -70,11 +70,11 @@
                 {
                     try
                     {
+                        await Task.Delay(QueryDelayInterval);
+
                         await QueryTableSizes();
 
                         UpdateQueueLengthStore();
-
-                        await Task.Delay(QueryDelayInterval);
                     }
                     catch (Exception e)
                     {
