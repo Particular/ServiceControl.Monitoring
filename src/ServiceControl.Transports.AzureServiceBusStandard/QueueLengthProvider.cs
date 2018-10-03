@@ -53,6 +53,9 @@ namespace ServiceControl.Transports.AzureServiceBus
                 {
                     try
                     {
+                        Logger.Debug("Waiting for next interval");
+                        await Task.Delay(QueryDelayInterval).ConfigureAwait(false);
+
                         Logger.DebugFormat("Querying management client.");
 
                         var queues = await managementClient.GetQueuesAsync().ConfigureAwait(false);
@@ -61,9 +64,6 @@ namespace ServiceControl.Transports.AzureServiceBus
                         Logger.DebugFormat("Retrieved details of {0} queues", lookup.Count);
 
                         await UpdateQueueLengthStore(lookup);
-
-                        Logger.Debug("Waiting for next interval");
-                        await Task.Delay(QueryDelayInterval).ConfigureAwait(false);
                     }
                     catch (Exception e)
                     {
