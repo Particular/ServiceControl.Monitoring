@@ -44,6 +44,10 @@
     <Compile Include="DefaultServer.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\ApiIntegrationTest.cs" />
+    <Compile Include="Tests\When_querying_queue_length.cs" />
+    <Compile Include="Tests\When_querying_retries_data.cs" />
+    <Compile Include="Tests\When_querying_timings_data.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NServiceBus.AcceptanceTesting">
@@ -60,6 +64,10 @@
     <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj">
       <Project>{768be338-20f1-4106-a3eb-dce7686fcbf0}</Project>
       <Name>ServiceControl.Monitoring</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ServiceControl.Transports.AzureServiceBusStandard\ServiceControl.Transports.AzureServiceBusStandard.csproj">
+      <Project>{3cda118c-521a-4fd1-bdab-4059d141d6f2}</Project>
+      <Name>ServiceControl.Transports.AzureServiceBusStandard</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
