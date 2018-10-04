@@ -3,7 +3,6 @@ namespace ServiceControl.Monitoring
     using System.IO;
     using System.Reflection;
     using NLog;
-    using NServiceBus;
     using System;
 
     public class Settings
@@ -33,7 +32,7 @@ namespace ServiceControl.Monitoring
         {
             var settings = new Settings
             {
-                TransportType = reader.Read("Monitoring/TransportType", typeof(MsmqTransport).AssemblyQualifiedName),
+                TransportType = reader.Read<string>("Monitoring/TransportType"),
                 LogLevel = MonitorLogs.InitializeLevel(reader),
                 LogPath = reader.Read("Monitoring/LogPath", DefaultLogLocation()),
                 ErrorQueue = reader.Read("Monitoring/ErrorQueue", "error"),

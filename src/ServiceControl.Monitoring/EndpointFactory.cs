@@ -10,7 +10,7 @@
     using Messaging;
     using Nancy;
     using NServiceBus;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Configuration.AdvancedExtensibility;
     using NServiceBus.Features;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
@@ -65,7 +65,7 @@
                 return TaskEx.Completed;
             });
 
-            config.GetSettings().Set<Settings>(settings);
+            config.GetSettings().Set(settings);
 
             config.UseSerialization<NewtonsoftSerializer>();
             config.UsePersistence<InMemoryPersistence>();
@@ -77,9 +77,6 @@
             config.EnableFeature<QueueLength.QueueLength>();
 
             config.EnableFeature<HttpEndpoint>();
-
-            var recoverability = config.Recoverability();
-            recoverability.DisableLegacyRetriesSatellite();
         }
 
         static Func<QueueLengthStore, IProvideQueueLength> QueueLengthProviderBuilder(string explicitConnectionStringValue, Type transportType)
@@ -152,6 +149,10 @@
             {
                 "NServiceBus.AzureStorageQueueTransport, NServiceBus.Azure.Transports.WindowsAzureStorageQueues",
                 "ServiceControl.Transports.AzureStorageQueues.ServiceControlAzureStorageQueueTransport, ServiceControl.Transports.AzureStorageQueues"
+            },
+            {
+                "NServiceBus.MsmqTransport, NServiceBus.Core",
+                "NServiceBus.MsmqTransport, NServiceBus.Transport.Msmq"
             }
         };
 
