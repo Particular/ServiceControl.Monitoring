@@ -25,23 +25,17 @@
             var transportConfig = builder.UseTransport<AzureServiceBusTransport>();
             transportConfig.ConnectionString(ConnectionString);
 
-            var topology = GetEnvironmentVariable("AzureServiceBusTransport.Topology");
-
-            if (topology == "ForwardingTopology")
+            var endpointOrientedTopology = transportConfig.UseEndpointOrientedTopology();
+            foreach (var publisher in endpointConfiguration.PublisherMetadata.Publishers)
             {
-                transportConfig.UseForwardingTopology();
-            }
-            else
-            {
-                var endpointOrientedTopology = transportConfig.UseEndpointOrientedTopology();
-                foreach (var publisher in endpointConfiguration.PublisherMetadata.Publishers)
+                foreach (var eventType in publisher.Events)
                 {
-                    foreach (var eventType in publisher.Events)
-                    {
-                        endpointOrientedTopology.RegisterPublisher(eventType, publisher.PublisherName);
-                    }
+                    endpointOrientedTopology.RegisterPublisher(eventType, publisher.PublisherName);
                 }
             }
+
+            builder.UseSerialization<NewtonsoftSerializer>();
+            builder.EnableInstallers();
 
             transportConfig.Sanitization()
                 .UseStrategy<ValidateAndHashIfNeeded>();

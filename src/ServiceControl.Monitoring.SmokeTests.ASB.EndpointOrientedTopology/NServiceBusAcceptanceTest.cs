@@ -3,6 +3,8 @@ namespace ServiceControl.Monitoring.SmokeTests.ASB.EndpointOrientedTopology
     using NUnit.Framework;
     using System.Linq;
     using System.Threading;
+    using NServiceBus;
+    using Transports.AzureServiceBus;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
     /// <summary>
@@ -34,7 +36,7 @@ namespace ServiceControl.Monitoring.SmokeTests.ASB.EndpointOrientedTopology
 
             Settings = new Settings
             {
-                TransportType = "EndpointOrientedTopologyAzureServiceBusTransport",
+                TransportType = typeof(EndpointOrientedTopologyAzureServiceBusTransport).AssemblyQualifiedName,
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",

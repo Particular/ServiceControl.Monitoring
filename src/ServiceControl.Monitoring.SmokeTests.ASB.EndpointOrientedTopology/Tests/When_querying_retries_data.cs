@@ -24,8 +24,8 @@
                     c.CustomConfig(ec => ec.Recoverability().Immediate(i => i.NumberOfRetries(5)));
                     c.When(s => s.SendLocal(new SampleMessage()));
                 })
-                .WithEndpoint<MonitoringEndpoint>()
-                .Done(c => MetricReported("retries", out retries, c))
+                //.WithEndpoint<MonitoringEndpoint>()
+                .Done(c => false)//;MetricReported("retries", out retries, c))
                 .Run();
 
             Assert.IsTrue(retries["average"].Value<double>() > 0);
@@ -38,13 +38,11 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-#pragma warning disable 618
                     c.EnableMetrics().SendMetricDataToServiceControl(ReceiverEndpointName, TimeSpan.FromSeconds(5));
-#pragma warning restore 618
                 });
             }
 
-            class Handler : IHandleMessages<SampleMessage>
+            public class Handler : IHandleMessages<SampleMessage>
             {
                 public Task Handle(SampleMessage message, IMessageHandlerContext context)
                 {

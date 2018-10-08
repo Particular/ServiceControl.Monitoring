@@ -1,16 +1,15 @@
-﻿namespace ServiceControl.Transports.RabbitMQ
+namespace ServiceControl.Transports.AzureServiceBus
 {
     using NServiceBus;
     using NServiceBus.Settings;
     using NServiceBus.Transport;
 
-    public class ServiceControlRabbitMQTransport : RabbitMQTransport
+    public class EndpointOrientedTopologyAzureServiceBusTransport : AzureServiceBusTransport
     {
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
-            var extensions = new TransportExtensions<RabbitMQTransport>(settings);
-
-            extensions.UseConventionalRoutingTopology();
+            var extensions = new TransportExtensions<AzureServiceBusTransport>(settings);
+            extensions.UseEndpointOrientedTopology();
 
             return base.Initialize(settings, connectionString);
         }
