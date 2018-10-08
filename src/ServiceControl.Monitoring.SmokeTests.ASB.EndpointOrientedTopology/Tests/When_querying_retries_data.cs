@@ -24,8 +24,8 @@
                     c.CustomConfig(ec => ec.Recoverability().Immediate(i => i.NumberOfRetries(5)));
                     c.When(s => s.SendLocal(new SampleMessage()));
                 })
-                //.WithEndpoint<MonitoringEndpoint>()
-                .Done(c => false)//;MetricReported("retries", out retries, c))
+                .WithEndpoint<MonitoringEndpoint>()
+                .Done(c => MetricReported("retries", out retries, c))
                 .Run();
 
             Assert.IsTrue(retries["average"].Value<double>() > 0);
