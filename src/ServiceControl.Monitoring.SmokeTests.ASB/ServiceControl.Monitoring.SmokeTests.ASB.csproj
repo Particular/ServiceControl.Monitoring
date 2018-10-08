@@ -8,8 +8,8 @@
     <ProjectGuid>{574411CC-AFB5-4525-BF98-588D90BFF411}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceControl.Monitoring.SmokeTests.ASB.EndpointOrientedTopology</RootNamespace>
-    <AssemblyName>ServiceControl.Monitoring.SmokeTests.ASB.EndpointOrientedTopology</AssemblyName>
+    <RootNamespace>ServiceControl.Monitoring.SmokeTests.ASB</RootNamespace>
+    <AssemblyName>ServiceControl.Monitoring.SmokeTests.ASB</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>

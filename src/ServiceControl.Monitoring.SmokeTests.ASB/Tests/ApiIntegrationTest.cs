@@ -1,11 +1,11 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.ASB.EndpointOrientedTopology.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.ASB.Tests
 {
+    using System.Net.Http;
+    using System.Net.Http.Headers;
     using Newtonsoft.Json.Linq;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
 
     public abstract class ApiIntegrationTest : NServiceBusAcceptanceTest
     {

@@ -1,11 +1,11 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.ASB.ForwardingTopology.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.ASB.Tests
 {
+    using System;
+    using System.Threading.Tasks;
     using Newtonsoft.Json.Linq;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
-    using System;
-    using System.Threading.Tasks;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
     [Category("TransportSmokeTests")]

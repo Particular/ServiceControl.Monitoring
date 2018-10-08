@@ -1,8 +1,8 @@
-namespace ServiceControl.Monitoring.SmokeTests.ASB.ForwardingTopology
+namespace ServiceControl.Monitoring.SmokeTests.ASB
 {
-    using NUnit.Framework;
     using System.Linq;
     using System.Threading;
+    using NUnit.Framework;
     using Transports.AzureServiceBus;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
@@ -35,7 +35,7 @@ namespace ServiceControl.Monitoring.SmokeTests.ASB.ForwardingTopology
 
             Settings = new Settings
             {
-                TransportType = typeof(ForwardingTopologyAzureServiceBusTransport).AssemblyQualifiedName,
+                TransportType = typeof(EndpointOrientedTopologyAzureServiceBusTransport).AssemblyQualifiedName,
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",

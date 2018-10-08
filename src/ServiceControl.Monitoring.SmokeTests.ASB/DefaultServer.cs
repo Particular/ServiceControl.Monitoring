@@ -1,15 +1,15 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.ASB.ForwardingTopology
+﻿namespace ServiceControl.Monitoring.SmokeTests.ASB
 {
-    using NServiceBus;
-    using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTesting.Support;
-    using NServiceBus.Hosting.Helpers;
-    using NServiceBus.ObjectBuilder;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
+    using NServiceBus;
+    using NServiceBus.AcceptanceTesting.Customization;
+    using NServiceBus.AcceptanceTesting.Support;
+    using NServiceBus.Hosting.Helpers;
+    using NServiceBus.ObjectBuilder;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -22,13 +22,29 @@
 
             builder.TypesToIncludeInScan(types);
 
-            builder.UseSerialization<NewtonsoftSerializer>();
-            builder.EnableInstallers();
-
             var transportConfig = builder.UseTransport<AzureServiceBusTransport>();
             transportConfig.ConnectionString(ConnectionString);
 
-            transportConfig.UseForwardingTopology();
+            var topology = GetEnvironmentVariable("AzureServiceBusTransport.Topology");
+
+            if (topology == "ForwardingTopology")
+            {
+                transportConfig.UseForwardingTopology();
+            }
+            else
+            {
+                var endpointOrientedTopology = transportConfig.UseEndpointOrientedTopology();
+                foreach (var publisher in endpointConfiguration.PublisherMetadata.Publishers)
+                {
+                    foreach (var eventType in publisher.Events)
+                    {
+                        endpointOrientedTopology.RegisterPublisher(eventType, publisher.PublisherName);
+                    }
+                }
+            }
+
+            builder.UseSerialization<NewtonsoftSerializer>();
+            builder.EnableInstallers();
 
             transportConfig.Sanitization()
                 .UseStrategy<ValidateAndHashIfNeeded>();
