@@ -40,6 +40,8 @@
                 }
             }
 
+            builder.EnableInstallers();
+
             builder.UsePersistence<InMemoryPersistence>();
 
             builder.Recoverability().Delayed(delayedRetries => delayedRetries.NumberOfRetries(0));

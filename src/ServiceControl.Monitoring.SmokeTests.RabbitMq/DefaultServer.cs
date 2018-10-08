@@ -23,8 +23,11 @@
             builder.TypesToIncludeInScan(types);
 
             builder.UseTransport<RabbitMQTransport>()
+              .UseConventionalRoutingTopology()
               .ConnectionString(ConnectionString);
             
+            builder.EnableInstallers();
+
             builder.Recoverability().Delayed(delayedRetries => delayedRetries.NumberOfRetries(0));
             builder.Recoverability().Immediate(immediateRetries => immediateRetries.NumberOfRetries(0));
 

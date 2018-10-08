@@ -23,6 +23,7 @@
 
             builder.TypesToIncludeInScan(types);
 
+            builder.UseSerialization<NewtonsoftSerializer>();
             var transportConfig = builder
                  .UseTransport<ServiceControlAzureStorageQueueTransport>()
                  .ConnectionString(ConnectionString);

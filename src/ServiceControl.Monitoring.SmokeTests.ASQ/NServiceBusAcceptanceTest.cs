@@ -30,7 +30,7 @@ namespace ServiceControl.Monitoring.SmokeTests.ASQ
 
                 testName = testName.Replace("_", "");
 
-                return testName + "." + endpointBuilder;
+                return testName + "-" + endpointBuilder;
             };
 
             Settings = new Settings
