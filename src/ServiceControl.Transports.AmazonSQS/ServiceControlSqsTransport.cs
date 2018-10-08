@@ -3,6 +3,7 @@ namespace ServiceControl.Transports.AmazonSQS
     using System;
     using System.Data.Common;
     using System.Linq;
+    using System.Reflection;
     using Amazon;
     using NServiceBus;
     using NServiceBus.Settings;
@@ -27,6 +28,14 @@ namespace ServiceControl.Transports.AmazonSQS
             }
 
             settings.Set("NServiceBus.AmazonSQS.Region", awsRegion);
+
+            //HINT: This is needed to make Core doesn't load a connection string value from the app.config.
+            //      This prevents SQS from throwing on startup.
+            var connectionStringSetting = settings.Get("NServiceBus.TransportConnectionString");
+
+            connectionStringSetting.GetType()
+                .GetField("GetValue", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.SetValue(connectionStringSetting, (Func<string>)(() => null));
 
             // SQS doesn't support connection strings so pass in null.
             return base.Initialize(settings, null);
