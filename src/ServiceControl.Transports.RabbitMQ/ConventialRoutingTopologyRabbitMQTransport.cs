@@ -4,7 +4,7 @@
     using NServiceBus.Settings;
     using NServiceBus.Transport;
 
-    public class ConventialTopologyRabbitMQTransport : RabbitMQTransport
+    public class ConventialRoutingTopologyRabbitMQTransport : RabbitMQTransport
     {
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
