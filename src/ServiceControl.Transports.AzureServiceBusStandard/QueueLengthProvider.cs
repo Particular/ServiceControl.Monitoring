@@ -1,5 +1,10 @@
-namespace ServiceControl.Transports.AzureServiceBus
+namespace ServiceControl.Transports.AzureServiceBusStandard
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.Azure.ServiceBus.Management;
     using Monitoring;
     using Monitoring.Infrastructure;
@@ -7,11 +12,6 @@ namespace ServiceControl.Transports.AzureServiceBus
     using Monitoring.QueueLength;
     using NServiceBus.Logging;
     using NServiceBus.Metrics;
-    using System;
-    using System.Collections.Concurrent;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     public class QueueLengthProvider : IProvideQueueLength
     {
