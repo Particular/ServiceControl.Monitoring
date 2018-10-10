@@ -59,6 +59,9 @@
     <PackageReference Include="NServiceBus.Transport.AzureServiceBus">
       <Version>1.0.0-alpha0164</Version>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>11.0.2</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj">
