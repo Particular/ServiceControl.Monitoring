@@ -48,7 +48,6 @@ namespace ServiceControl.Transports.AzureServiceBusStandard
 
             pooler = Task.Run(async () =>
             {
-
                 while (!stop.Token.IsCancellationRequested)
                 {
                     try

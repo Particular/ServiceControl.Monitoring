@@ -38,7 +38,6 @@
             Assert.AreEqual(60, metric["points"].Value<JArray>().Count);
         }
 
-
         class MonitoredEndpoint : EndpointConfigurationBuilder
         {
             public MonitoredEndpoint()

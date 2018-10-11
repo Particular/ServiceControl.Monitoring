@@ -16,12 +16,12 @@
         public static string ConnectionString => GetEnvironmentVariable($"{nameof(AzureServiceBusTransport)}.ConnectionString");
 
         public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
-        {         
+        {
             var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
             var types = GetTypesScopedByTestClass(endpointConfiguration);
 
             builder.TypesToIncludeInScan(types);
-          
+
             var transportConfig = builder.UseTransport<AzureServiceBusTransport>();
             transportConfig.ConnectionString(ConnectionString);
 

@@ -29,7 +29,7 @@ namespace ServiceControl.Transports.AmazonSQS
 
             settings.Set("NServiceBus.AmazonSQS.Region", awsRegion);
 
-            //HINT: This is needed to make Core doesn't load a connection string value from the app.config.
+            //HINT: This is needed to make sure Core doesn't load a connection string value from the app.config.
             //      This prevents SQS from throwing on startup.
             var connectionStringSetting = settings.Get("NServiceBus.TransportConnectionString");
 
