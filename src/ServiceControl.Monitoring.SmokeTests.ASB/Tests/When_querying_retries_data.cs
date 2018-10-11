@@ -42,7 +42,7 @@
                 });
             }
 
-            public class Handler : IHandleMessages<SampleMessage>
+            class Handler : IHandleMessages<SampleMessage>
             {
                 public Task Handle(SampleMessage message, IMessageHandlerContext context)
                 {
