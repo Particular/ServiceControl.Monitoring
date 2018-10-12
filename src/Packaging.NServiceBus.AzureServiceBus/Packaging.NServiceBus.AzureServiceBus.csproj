@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Packaging.NServiceBus.AzureServiceBus</RootNamespace>
     <AssemblyName>Packaging.NServiceBus.AzureServiceBus</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
