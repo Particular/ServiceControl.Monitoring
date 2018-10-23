@@ -1,9 +1,9 @@
-namespace ServiceControl.Monitoring.SmokeTests.MSMQ
+namespace ServiceControl.Monitoring.SmokeTests.AzureServiceBus
 {
     using System.Linq;
     using System.Threading;
-    using NServiceBus;
     using NUnit.Framework;
+    using Transports.AzureServiceBus;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace ServiceControl.Monitoring.SmokeTests.MSMQ
 
             Settings = new Settings
             {
-                TransportType = typeof(MsmqTransport).AssemblyQualifiedName,
+                TransportType = typeof(EndpointOrientedTopologyAzureServiceBusTransport).AssemblyQualifiedName,
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",

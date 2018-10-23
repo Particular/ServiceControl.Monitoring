@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.MSMQ
+﻿namespace ServiceControl.Monitoring.SmokeTests.AzureStorageQueues
 {
     using System;
     using System.Collections.Generic;
@@ -10,9 +10,12 @@
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.Hosting.Helpers;
     using NServiceBus.ObjectBuilder;
+    using Transports.AzureStorageQueues;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
+        public static string ConnectionString => GetEnvironmentVariable($"{nameof(AzureStorageQueueTransport)}.ConnectionString") ?? "UseDevelopmentStorage=true";
+
         public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
@@ -20,11 +23,23 @@
 
             builder.TypesToIncludeInScan(types);
 
-            builder.EnableInstallers();
-            builder.UseTransport<MsmqTransport>();
-            builder.UsePersistence<InMemoryPersistence>();
-            builder.SendFailedMessagesTo("error");
+            builder.UseSerialization<NewtonsoftSerializer>();
+            var transportConfig = builder
+                 .UseTransport<ServiceControlAzureStorageQueueTransport>()
+                 .ConnectionString(ConnectionString);
+            
+            var routingConfig = transportConfig.Routing();
 
+            foreach (var publisher in endpointConfiguration.PublisherMetadata.Publishers)
+            {
+                foreach (var eventType in publisher.Events)
+                {
+                    routingConfig.RegisterPublisher(eventType, publisher.PublisherName);
+                }
+            }
+
+            builder.UsePersistence<InMemoryPersistence>();
+            
             builder.Recoverability().Delayed(delayedRetries => delayedRetries.NumberOfRetries(0));
             builder.Recoverability().Immediate(immediateRetries => immediateRetries.NumberOfRetries(0));
 
@@ -85,6 +100,18 @@
             {
                 yield return nestedType;
             }
+        }
+
+        public static string GetEnvironmentVariable(string variable)
+        {
+            var candidate = Environment.GetEnvironmentVariable(variable, EnvironmentVariableTarget.User);
+
+            if (string.IsNullOrWhiteSpace(candidate))
+            {
+                return Environment.GetEnvironmentVariable(variable);
+            }
+
+            return candidate;
         }
     }
 }

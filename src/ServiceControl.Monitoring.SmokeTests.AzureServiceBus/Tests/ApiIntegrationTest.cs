@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.MSMQ.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.AzureServiceBus.Tests
 {
     using System.Net.Http;
     using System.Net.Http.Headers;

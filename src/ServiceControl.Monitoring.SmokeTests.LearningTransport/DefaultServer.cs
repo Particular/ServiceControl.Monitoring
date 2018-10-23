@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.MSMQ
+﻿namespace ServiceControl.Monitoring.SmokeTests.LearningTransport
 {
     using System;
     using System.Collections.Generic;
@@ -13,6 +13,8 @@
 
     public class DefaultServer : IEndpointSetupTemplate
     {
+        public static string ConnectionString = @"C:\Temp\Learning";
+
         public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
@@ -20,10 +22,8 @@
 
             builder.TypesToIncludeInScan(types);
 
-            builder.EnableInstallers();
-            builder.UseTransport<MsmqTransport>();
-            builder.UsePersistence<InMemoryPersistence>();
-            builder.SendFailedMessagesTo("error");
+            builder.UseTransport<ServiceControlLearningTransport>()
+                .ConnectionString(ConnectionString);
 
             builder.Recoverability().Delayed(delayedRetries => delayedRetries.NumberOfRetries(0));
             builder.Recoverability().Immediate(immediateRetries => immediateRetries.NumberOfRetries(0));

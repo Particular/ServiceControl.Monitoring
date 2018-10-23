@@ -1,4 +1,4 @@
-namespace ServiceControl.Monitoring.SmokeTests.MSMQ
+namespace ServiceControl.Monitoring.SmokeTests.LearningTransport
 {
     using System.Linq;
     using System.Threading;
@@ -35,7 +35,7 @@ namespace ServiceControl.Monitoring.SmokeTests.MSMQ
 
             Settings = new Settings
             {
-                TransportType = typeof(MsmqTransport).AssemblyQualifiedName,
+                TransportType = typeof(ServiceControlLearningTransport).AssemblyQualifiedName,
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",

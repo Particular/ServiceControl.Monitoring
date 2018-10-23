@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.MSMQ.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.AzureStorageQueues.Tests
 {
     using System;
     using System.Threading.Tasks;
@@ -6,30 +6,26 @@
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
+    using Conventions = NServiceBus.AcceptanceTesting.Customization;
 
     [Category("TransportSmokeTests")]
-    public class When_querying_retries_data : ApiIntegrationTest
+    public class When_querying_timings_data : ApiIntegrationTest
     {
-        static string ReceiverEndpointName => NServiceBus.AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));
+        static string ReceiverEndpointName => Conventions.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));
 
         [Test]
         public async Task Should_report_via_http()
         {
-            JToken retries = null;
+            JToken processingTime = null;
 
             await Scenario.Define<Context>()
-                .WithEndpoint<MonitoredEndpoint>(c =>
-                {
-                    c.DoNotFailOnErrorMessages();
-                    c.CustomConfig(ec => ec.Recoverability().Immediate(i => i.NumberOfRetries(5)));
-                    c.When(s => s.SendLocal(new SampleMessage()));
-                })
-                .WithEndpoint<MonitoringEndpoint>()
-                .Done(c => MetricReported("retries", out retries, c))
-                .Run();
+                    .WithEndpoint<MonitoredEndpoint>(c => c.When(s => s.SendLocal(new SampleMessage())))
+                    .WithEndpoint<MonitoringEndpoint>()
+                    .Done(c => MetricReported("processingTime", out processingTime, c))
+                    .Run();
 
-            Assert.IsTrue(retries["average"].Value<double>() > 0);
-            Assert.AreEqual(60, retries["points"].Value<JArray>().Count);
+            Assert.IsTrue(processingTime["average"].Value<int>() > 0);
+            Assert.AreEqual(60, processingTime["points"].Value<JArray>().Count);
         }
 
         class MonitoredEndpoint : EndpointConfigurationBuilder
@@ -46,7 +42,7 @@
             {
                 public Task Handle(SampleMessage message, IMessageHandlerContext context)
                 {
-                    throw new Exception("Boom!");
+                    return Task.Delay(TimeSpan.FromMilliseconds(10));
                 }
             }
         }
@@ -57,7 +53,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, DefaultServer.ConnectionString);
                     c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }

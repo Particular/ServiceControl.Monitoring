@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.Msmq.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.MSMQ.Tests
 {
     using System;
     using System.Threading.Tasks;

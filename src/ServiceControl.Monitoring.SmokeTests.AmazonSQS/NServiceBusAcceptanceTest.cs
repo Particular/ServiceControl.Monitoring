@@ -1,9 +1,9 @@
-namespace ServiceControl.Monitoring.SmokeTests.MSMQ
+namespace ServiceControl.Monitoring.SmokeTests.AmazonSQS
 {
     using System.Linq;
     using System.Threading;
-    using NServiceBus;
     using NUnit.Framework;
+    using Transports.AmazonSQS;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace ServiceControl.Monitoring.SmokeTests.MSMQ
 
             Settings = new Settings
             {
-                TransportType = typeof(MsmqTransport).AssemblyQualifiedName,
+                TransportType = typeof(ServiceControlSqsTransport).AssemblyQualifiedName,
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",

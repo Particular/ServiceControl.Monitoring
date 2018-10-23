@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.MSMQ.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.LearningTransport.Tests
 {
     using System;
     using System.Threading;
@@ -75,7 +75,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, DefaultServer.ConnectionString);
                 });
             }
         }

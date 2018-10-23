@@ -1,9 +1,9 @@
-namespace ServiceControl.Monitoring.SmokeTests.MSMQ
+namespace ServiceControl.Monitoring.SmokeTests.AzureStorageQueues
 {
     using System.Linq;
     using System.Threading;
-    using NServiceBus;
     using NUnit.Framework;
+    using Transports.AzureStorageQueues;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
     /// <summary>
@@ -30,12 +30,12 @@ namespace ServiceControl.Monitoring.SmokeTests.MSMQ
 
                 testName = testName.Replace("_", "");
 
-                return testName + "." + endpointBuilder;
+                return testName + "-" + endpointBuilder;
             };
 
             Settings = new Settings
             {
-                TransportType = typeof(MsmqTransport).AssemblyQualifiedName,
+                TransportType = typeof(ServiceControlAzureStorageQueueTransport).AssemblyQualifiedName,
                 EnableInstallers = true,
                 ErrorQueue = "error",
                 HttpHostName = "localhost",

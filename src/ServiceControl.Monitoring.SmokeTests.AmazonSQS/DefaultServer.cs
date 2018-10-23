@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.MSMQ
+﻿namespace ServiceControl.Monitoring.SmokeTests.AmazonSQS
 {
     using System;
     using System.Collections.Generic;
@@ -13,6 +13,13 @@
 
     public class DefaultServer : IEndpointSetupTemplate
     {
+        public static string ConnectionString => string.Join(";",
+      Build("AccessKeyId", "AWS_ACCESS_KEY_ID"),
+      Build("SecretAccessKey", "AWS_SECRET_ACCESS_KEY"),
+      Build("Region", "AWS_REGION"));
+
+        static string Build(string name, string envName) => $"{name}={Environment.GetEnvironmentVariable(envName)}";
+
         public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
@@ -20,10 +27,22 @@
 
             builder.TypesToIncludeInScan(types);
 
+            var transport = builder.UseTransport<Transports.AmazonSQS.ServiceControlSqsTransport>()
+                          .ConnectionString(ConnectionString);
+
+            var routingConfig = transport.Routing();
+
+            foreach (var publisher in endpointConfiguration.PublisherMetadata.Publishers)
+            {
+                foreach (var eventType in publisher.Events)
+                {
+                    routingConfig.RegisterPublisher(eventType, publisher.PublisherName);
+                }
+            }
+
             builder.EnableInstallers();
-            builder.UseTransport<MsmqTransport>();
+
             builder.UsePersistence<InMemoryPersistence>();
-            builder.SendFailedMessagesTo("error");
 
             builder.Recoverability().Delayed(delayedRetries => delayedRetries.NumberOfRetries(0));
             builder.Recoverability().Immediate(immediateRetries => immediateRetries.NumberOfRetries(0));

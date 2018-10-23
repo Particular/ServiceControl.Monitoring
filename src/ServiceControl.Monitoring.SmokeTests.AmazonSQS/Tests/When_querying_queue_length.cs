@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.MSMQ.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.AmazonSQS.Tests
 {
     using System;
     using System.Threading;
@@ -36,7 +36,7 @@
                 {
                     var done = MetricReported("queueLength", out queueLength, c);
 
-                    if (done) { c.CancelProcessingTokenSource.Cancel(); }
+                    if (done) { c.CancelProcessingTokenSource.Cancel();}
 
                     return done;
                 })
@@ -53,7 +53,6 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EnableMetrics().SendMetricDataToServiceControl(MonitoringEndpointName, TimeSpan.FromSeconds(1));
-                    c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }
 
@@ -75,7 +74,8 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    EndpointFactory.MakeMetricsReceiver(c, Settings);
+                    EndpointFactory.MakeMetricsReceiver(c, Settings, DefaultServer.ConnectionString);
+                    c.LimitMessageProcessingConcurrencyTo(1);
                 });
             }
         }
