@@ -29,6 +29,16 @@ namespace ServiceControl.Transports.AmazonSQS
 
             settings.Set("NServiceBus.AmazonSQS.Region", awsRegion);
 
+            if (builder.TryGetValue("QueueNamePrefix", out var queueNamePrefix))
+            {
+                var queueNamePrefixAsString = (string)queueNamePrefix;
+                if (!string.IsNullOrEmpty(queueNamePrefixAsString))
+                {
+                    var extensions = new TransportExtensions<SqsTransport>(settings);
+                    extensions.QueueNamePrefix(queueNamePrefixAsString);
+                }
+            }
+
             //HINT: This is needed to make sure Core doesn't load a connection string value from the app.config.
             //      This prevents SQS from throwing on startup.
             var connectionStringSetting = settings.Get("NServiceBus.TransportConnectionString");
