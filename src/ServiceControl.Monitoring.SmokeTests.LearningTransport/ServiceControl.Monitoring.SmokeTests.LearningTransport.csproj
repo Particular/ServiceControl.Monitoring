@@ -80,7 +80,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ServiceControl.LearningTransport\ServiceControl.Transports.LearningTransport.csproj">
+    <ProjectReference Include="..\ServiceControl.Transports.LearningTransport\ServiceControl.Transports.LearningTransport.csproj">
       <Project>{F820752B-5F01-40F1-AE26-1604F3C85F55}</Project>
       <Name>ServiceControl.Transports.LearningTransport</Name>
     </ProjectReference>

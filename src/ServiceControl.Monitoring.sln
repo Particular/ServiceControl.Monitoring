@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packaging.ServiceControl.Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packaging.NServiceBus.MSMQ", "Packaging.NServiceBus.MSMQ\Packaging.NServiceBus.MSMQ.csproj", "{8659F8A1-31BE-497B-B0A4-500B703D99AF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceControl.Transports.LearningTransport", "ServiceControl.LearningTransport\ServiceControl.Transports.LearningTransport.csproj", "{F820752B-5F01-40F1-AE26-1604F3C85F55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceControl.Transports.LearningTransport", "ServiceControl.Transports.LearningTransport\ServiceControl.Transports.LearningTransport.csproj", "{F820752B-5F01-40F1-AE26-1604F3C85F55}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CustomTransportConfigurations", "CustomTransportConfigurations", "{ED6CE213-D704-4695-97AB-3E6EA4859795}"
 EndProject

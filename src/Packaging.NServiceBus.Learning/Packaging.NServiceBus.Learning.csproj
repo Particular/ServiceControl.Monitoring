@@ -39,7 +39,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ServiceControl.LearningTransport\ServiceControl.Transports.LearningTransport.csproj">
+    <ProjectReference Include="..\ServiceControl.Transports.LearningTransport\ServiceControl.Transports.LearningTransport.csproj">
       <Project>{f820752b-5f01-40f1-ae26-1604f3c85f55}</Project>
       <Name>ServiceControl.Transports.LearningTransport</Name>
     </ProjectReference>
