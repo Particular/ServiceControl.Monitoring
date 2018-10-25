@@ -10,8 +10,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F30AC7F6-FD0A-43D2-BC75-889F9A7D2872}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Packaging.NServiceBus.Learning</RootNamespace>
-    <AssemblyName>Packaging.NServiceBus.Learning</AssemblyName>
+    <RootNamespace>Packaging.NServiceBus.LearningTransport</RootNamespace>
+    <AssemblyName>Packaging.NServiceBus.LearningTransport</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

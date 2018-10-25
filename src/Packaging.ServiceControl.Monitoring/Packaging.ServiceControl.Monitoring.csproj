@@ -77,7 +77,7 @@
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\RabbitMQ" SourceFolder="..\Packaging.NServiceBus.RabbitMQ\$(OutputPath)" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\AmazonSQS" SourceFolder="..\Packaging.NServiceBus.AmazonSQS\$(OutputPath)" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\MSMQ" SourceFolder="..\Packaging.NServiceBus.MSMQ\$(OutputPath)" ZipFileName="$(ZipFile)" />
-    <AddToZip IncludeMask="*.*" ZipFolder="Transports\Learning" SourceFolder="..\Packaging.NServiceBus.Learning\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ZipFolder="Transports\LearningTransport" SourceFolder="..\Packaging.NServiceBus.LearningTransport\$(OutputPath)" ZipFileName="$(ZipFile)" />
     <!-- ServiceControl.Monitoring  -->
     <AddToZip IncludeMask="*.exe" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.dll" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
