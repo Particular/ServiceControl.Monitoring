@@ -1,4 +1,4 @@
-namespace ServiceControl.Transports.AzureServiceBusStandard
+namespace ServiceControl.Transports.AzureServiceBus
 {
     using System;
     using System.Collections.Concurrent;

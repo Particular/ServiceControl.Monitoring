@@ -49,12 +49,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceControl.Transports.R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceControl.Transports.AzureStorageQueues", "ServiceControl.Transports.AzureStorageQueues\ServiceControl.Transports.AzureStorageQueues.csproj", "{B35A6D47-7330-4FEE-81FB-B90E5D36BE5A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceControl.Transports.AzureServiceBusStandard", "ServiceControl.Transports.AzureServiceBusStandard\ServiceControl.Transports.AzureServiceBusStandard.csproj", "{3CDA118C-521A-4FD1-BDAB-4059D141D6F2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packaging.NServiceBus.AzureServiceBusStandard", "Packaging.NServiceBus.AzureServiceBusStandard\Packaging.NServiceBus.AzureServiceBusStandard.csproj", "{ABA69FEC-470E-4638-9371-9D84B71605BD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceControl.Monitoring.SmokeTests.AzureServiceBusStandard", "ServiceControl.Monitoring.SmokeTests.AzureServiceBusStandard\ServiceControl.Monitoring.SmokeTests.AzureServiceBusStandard.csproj", "{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceControl.Monitoring.SmokeTests.AzureStorageQueues", "ServiceControl.Monitoring.SmokeTests.AzureStorageQueues\ServiceControl.Monitoring.SmokeTests.AzureStorageQueues.csproj", "{B5EB5F58-E30A-45D2-AC0D-88CEF2F804E0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceControl.Monitoring.SmokeTests.LearningTransport", "ServiceControl.Monitoring.SmokeTests.LearningTransport\ServiceControl.Monitoring.SmokeTests.LearningTransport.csproj", "{95D63BE5-D5EF-46A5-B38B-F68105062EDB}"
@@ -70,6 +64,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceControl.Transports.LegacyAzureServiceBus", "ServiceControl.Transports.LegacyAzureServiceBus\ServiceControl.Transports.LegacyAzureServiceBus.csproj", "{01108727-F41E-4FDF-BECC-65836C68B82A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packaging.NServiceBus.LegacyAzureServiceBus", "Packaging.NServiceBus.LegacyAzureServiceBus\Packaging.NServiceBus.LegacyAzureServiceBus.csproj", "{B5EBF681-E632-4783-B003-08E9BB320621}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceControl.Monitoring.SmokeTests.AzureServiceBus", "ServiceControl.Monitoring.SmokeTests.AzureServiceBus\ServiceControl.Monitoring.SmokeTests.AzureServiceBus.csproj", "{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packaging.NServiceBus.AzureServiceBus", "Packaging.NServiceBus.AzureServiceBus\Packaging.NServiceBus.AzureServiceBus.csproj", "{ABA69FEC-470E-4638-9371-9D84B71605BD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceControl.Transports.AzureServiceBus", "ServiceControl.Transports.AzureServiceBus\ServiceControl.Transports.AzureServiceBus.csproj", "{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,18 +141,6 @@ Global
 		{B35A6D47-7330-4FEE-81FB-B90E5D36BE5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B35A6D47-7330-4FEE-81FB-B90E5D36BE5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B35A6D47-7330-4FEE-81FB-B90E5D36BE5A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3CDA118C-521A-4FD1-BDAB-4059D141D6F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3CDA118C-521A-4FD1-BDAB-4059D141D6F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3CDA118C-521A-4FD1-BDAB-4059D141D6F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3CDA118C-521A-4FD1-BDAB-4059D141D6F2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ABA69FEC-470E-4638-9371-9D84B71605BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ABA69FEC-470E-4638-9371-9D84B71605BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ABA69FEC-470E-4638-9371-9D84B71605BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ABA69FEC-470E-4638-9371-9D84B71605BD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B5EB5F58-E30A-45D2-AC0D-88CEF2F804E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B5EB5F58-E30A-45D2-AC0D-88CEF2F804E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5EB5F58-E30A-45D2-AC0D-88CEF2F804E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -185,6 +173,18 @@ Global
 		{B5EBF681-E632-4783-B003-08E9BB320621}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5EBF681-E632-4783-B003-08E9BB320621}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5EBF681-E632-4783-B003-08E9BB320621}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABA69FEC-470E-4638-9371-9D84B71605BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABA69FEC-470E-4638-9371-9D84B71605BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABA69FEC-470E-4638-9371-9D84B71605BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABA69FEC-470E-4638-9371-9D84B71605BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -203,9 +203,6 @@ Global
 		{ECAFC215-C5E6-445D-B842-53346BED0316} = {AC16BCB1-A7CA-4E50-B6BD-11518421382E}
 		{64F4A33C-23A8-4B28-9643-FCE1B20F8C15} = {ED6CE213-D704-4695-97AB-3E6EA4859795}
 		{B35A6D47-7330-4FEE-81FB-B90E5D36BE5A} = {ED6CE213-D704-4695-97AB-3E6EA4859795}
-		{3CDA118C-521A-4FD1-BDAB-4059D141D6F2} = {ED6CE213-D704-4695-97AB-3E6EA4859795}
-		{ABA69FEC-470E-4638-9371-9D84B71605BD} = {AC16BCB1-A7CA-4E50-B6BD-11518421382E}
-		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC} = {81A9662E-CF9A-4C8A-9A2D-023973C7E1A3}
 		{B5EB5F58-E30A-45D2-AC0D-88CEF2F804E0} = {81A9662E-CF9A-4C8A-9A2D-023973C7E1A3}
 		{95D63BE5-D5EF-46A5-B38B-F68105062EDB} = {81A9662E-CF9A-4C8A-9A2D-023973C7E1A3}
 		{840A0984-16EC-4E43-B16A-ACEFBD2992A6} = {81A9662E-CF9A-4C8A-9A2D-023973C7E1A3}
@@ -214,6 +211,9 @@ Global
 		{574411CC-AFB5-4525-BF98-588D90BFF411} = {81A9662E-CF9A-4C8A-9A2D-023973C7E1A3}
 		{01108727-F41E-4FDF-BECC-65836C68B82A} = {ED6CE213-D704-4695-97AB-3E6EA4859795}
 		{B5EBF681-E632-4783-B003-08E9BB320621} = {AC16BCB1-A7CA-4E50-B6BD-11518421382E}
+		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC} = {81A9662E-CF9A-4C8A-9A2D-023973C7E1A3}
+		{ABA69FEC-470E-4638-9371-9D84B71605BD} = {AC16BCB1-A7CA-4E50-B6BD-11518421382E}
+		{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2} = {ED6CE213-D704-4695-97AB-3E6EA4859795}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		{F98424DA-ECA8-4636-9062-93E058E2C304} = {81A9662E-CF9A-4C8A-9A2D-023973C7E1A3}

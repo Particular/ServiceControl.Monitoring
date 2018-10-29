@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.AzureServiceBusStandard
+﻿namespace ServiceControl.Monitoring.SmokeTests.AzureServiceBus
 {
     using System;
     using System.Collections.Generic;

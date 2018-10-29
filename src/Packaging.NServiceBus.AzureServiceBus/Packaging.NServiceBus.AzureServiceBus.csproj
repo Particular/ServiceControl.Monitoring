@@ -7,8 +7,8 @@
     <ProjectGuid>{ABA69FEC-470E-4638-9371-9D84B71605BD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Packaging.NServiceBus.AzureServiceBusStandard</RootNamespace>
-    <AssemblyName>Packaging.NServiceBus.AzureServiceBusStandard</AssemblyName>
+    <RootNamespace>Packaging.NServiceBus.AzureServiceBus</RootNamespace>
+    <AssemblyName>Packaging.NServiceBus.AzureServiceBus</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -37,9 +37,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ServiceControl.Transports.AzureServiceBusStandard\ServiceControl.Transports.AzureServiceBusStandard.csproj">
-      <Project>{3cda118c-521a-4fd1-bdab-4059d141d6f2}</Project>
-      <Name>ServiceControl.Transports.AzureServiceBusStandard</Name>
+    <ProjectReference Include="..\ServiceControl.Transports.AzureServiceBus\ServiceControl.Transports.AzureServiceBus.csproj">
+      <Project>{37baaa9b-a17b-4cb7-8359-d09586cdaad2}</Project>
+      <Name>ServiceControl.Transports.AzureServiceBus</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

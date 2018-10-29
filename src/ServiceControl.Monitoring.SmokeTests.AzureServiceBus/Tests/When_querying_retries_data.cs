@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.AzureServiceBusStandard.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.AzureServiceBus.Tests
 {
     using System;
     using System.Threading.Tasks;
@@ -6,26 +6,30 @@
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
-    using Conventions = NServiceBus.AcceptanceTesting.Customization;
 
     [Category("TransportSmokeTests")]
-    public class When_querying_timings_data : ApiIntegrationTest
+    public class When_querying_retries_data : ApiIntegrationTest
     {
-        static string ReceiverEndpointName => Conventions.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));
+        static string ReceiverEndpointName => NServiceBus.AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(MonitoringEndpoint));
 
         [Test]
         public async Task Should_report_via_http()
         {
-            JToken processingTime = null;
+            JToken retries = null;
 
             await Scenario.Define<Context>()
-                    .WithEndpoint<MonitoredEndpoint>(c => c.When(s => s.SendLocal(new SampleMessage())))
-                    .WithEndpoint<MonitoringEndpoint>()
-                    .Done(c => MetricReported("processingTime", out processingTime, c))
-                    .Run();
+                .WithEndpoint<MonitoredEndpoint>(c =>
+                {
+                    c.DoNotFailOnErrorMessages();
+                    c.CustomConfig(ec => ec.Recoverability().Immediate(i => i.NumberOfRetries(5)));
+                    c.When(s => s.SendLocal(new SampleMessage()));
+                })
+                .WithEndpoint<MonitoringEndpoint>()
+                .Done(c => MetricReported("retries", out retries, c))
+                .Run();
 
-            Assert.IsTrue(processingTime["average"].Value<int>() > 0);
-            Assert.AreEqual(60, processingTime["points"].Value<JArray>().Count);
+            Assert.IsTrue(retries["average"].Value<double>() > 0);
+            Assert.AreEqual(60, retries["points"].Value<JArray>().Count);
         }
 
         class MonitoredEndpoint : EndpointConfigurationBuilder
@@ -42,7 +46,7 @@
             {
                 public Task Handle(SampleMessage message, IMessageHandlerContext context)
                 {
-                    return Task.Delay(TimeSpan.FromMilliseconds(10));
+                    throw new Exception("Boom!");
                 }
             }
         }
