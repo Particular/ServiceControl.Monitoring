@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Monitoring.SmokeTests.AzureServiceBus.Tests
+﻿namespace ServiceControl.Monitoring.SmokeTests.LegacyAzureServiceBus.Tests
 {
     using System;
     using System.Threading.Tasks;

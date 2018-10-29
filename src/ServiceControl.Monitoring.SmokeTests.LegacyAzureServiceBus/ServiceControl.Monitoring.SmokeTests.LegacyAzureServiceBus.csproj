@@ -8,8 +8,8 @@
     <ProjectGuid>{574411CC-AFB5-4525-BF98-588D90BFF411}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceControl.Monitoring.SmokeTests.AzureServiceBus</RootNamespace>
-    <AssemblyName>ServiceControl.Monitoring.SmokeTests.AzureServiceBus</AssemblyName>
+    <RootNamespace>ServiceControl.Monitoring.SmokeTests.LegacyAzureServiceBus</RootNamespace>
+    <AssemblyName>ServiceControl.Monitoring.SmokeTests.LegacyAzureServiceBus</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -105,9 +105,9 @@
       <Project>{768BE338-20F1-4106-A3EB-DCE7686FCBF0}</Project>
       <Name>ServiceControl.Monitoring</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ServiceControl.Transports.AzureServiceBus\ServiceControl.Transports.AzureServiceBus.csproj">
-      <Project>{a5a18ce5-2065-4e9a-a8a3-e55cabb50407}</Project>
-      <Name>ServiceControl.Transports.AzureServiceBus</Name>
+    <ProjectReference Include="..\ServiceControl.Transports.LegacyAzureServiceBus\ServiceControl.Transports.LegacyAzureServiceBus.csproj">
+      <Project>{01108727-F41E-4FDF-BECC-65836C68B82A}</Project>
+      <Name>ServiceControl.Transports.LegacyAzureServiceBus</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

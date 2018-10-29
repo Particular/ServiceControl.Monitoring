@@ -2,7 +2,7 @@
 // as the OnMessage callback loses the previous CallContext.
 // To avoid exceptions when accessing the logger, a custom logger with a fixed ScenarioContext needs to be used.
 // This requires all tests to run sequentially as the logger is configured statically (LogManager).
-namespace ServiceControl.Monitoring.SmokeTests.AzureServiceBus
+namespace ServiceControl.Monitoring.SmokeTests.LegacyAzureServiceBus
 {
     using System;
     using System.Diagnostics;

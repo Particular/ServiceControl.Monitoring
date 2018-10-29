@@ -73,7 +73,7 @@
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\SQLServer" SourceFolder="..\Packaging.NServiceBus.SQLServer\$(OutputPath)" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\AzureStorageQueue" SourceFolder="..\Packaging.NServiceBus.AzureStorageQueues\$(OutputPath)" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\NetStandardAzureServiceBus" SourceFolder="..\Packaging.NServiceBus.AzureServiceBusStandard\$(OutputPath)" ZipFileName="$(ZipFile)" />
-    <AddToZip IncludeMask="*.*" ZipFolder="Transports\AzureServiceBus" SourceFolder="..\Packaging.NServiceBus.AzureServiceBus\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ZipFolder="Transports\LegacyAzureServiceBus" SourceFolder="..\Packaging.NServiceBus.LegacyAzureServiceBus\$(OutputPath)" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\RabbitMQ" SourceFolder="..\Packaging.NServiceBus.RabbitMQ\$(OutputPath)" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\AmazonSQS" SourceFolder="..\Packaging.NServiceBus.AmazonSQS\$(OutputPath)" ZipFileName="$(ZipFile)" />
     <AddToZip IncludeMask="*.*" ZipFolder="Transports\MSMQ" SourceFolder="..\Packaging.NServiceBus.MSMQ\$(OutputPath)" ZipFileName="$(ZipFile)" />

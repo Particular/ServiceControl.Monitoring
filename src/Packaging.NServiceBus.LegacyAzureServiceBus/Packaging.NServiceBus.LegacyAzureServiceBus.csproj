@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{B5EBF681-E632-4783-B003-08E9BB320621}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Packaging.NServiceBus.AzureServiceBus</RootNamespace>
-    <AssemblyName>Packaging.NServiceBus.AzureServiceBus</AssemblyName>
+    <RootNamespace>Packaging.NServiceBus.LegacyAzureServiceBus</RootNamespace>
+    <AssemblyName>Packaging.NServiceBus.LegacyAzureServiceBus</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -48,12 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ServiceControl.Transports.AzureServiceBus\ServiceControl.Transports.AzureServiceBus.csproj">
-      <Project>{a5a18ce5-2065-4e9a-a8a3-e55cabb50407}</Project>
-      <Name>ServiceControl.Transports.AzureServiceBus</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">

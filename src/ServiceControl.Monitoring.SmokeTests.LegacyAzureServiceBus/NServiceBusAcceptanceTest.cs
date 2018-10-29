@@ -1,9 +1,9 @@
-namespace ServiceControl.Monitoring.SmokeTests.AzureServiceBus
+namespace ServiceControl.Monitoring.SmokeTests.LegacyAzureServiceBus
 {
     using System.Linq;
     using System.Threading;
     using NUnit.Framework;
-    using Transports.AzureServiceBus;
+    using Transports.LegacyAzureServiceBus;
     using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
     /// <summary>

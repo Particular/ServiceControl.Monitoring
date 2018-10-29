@@ -1,4 +1,4 @@
-﻿namespace ServiceControl.Transports.AzureServiceBus
+﻿namespace ServiceControl.Transports.LegacyAzureServiceBus
 {
     using NServiceBus;
     using NServiceBus.Settings;
