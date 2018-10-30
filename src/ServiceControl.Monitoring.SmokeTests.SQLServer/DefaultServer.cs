@@ -26,6 +26,8 @@
 
             builder.TypesToIncludeInScan(types);
 
+            builder.EnableInstallers();
+
             queueBindings = builder.GetSettings().Get<QueueBindings>();
 
             connectionString = ConnectionString;

@@ -112,8 +112,8 @@
 
         static Type DetermineTransportType(Settings settings)
         {
-            var transportTypeName = transportCustomizations.ContainsKey(settings.TransportType) 
-                ? transportCustomizations[settings.TransportType] 
+            var transportTypeName = legacyTransportTypeNames.ContainsKey(settings.TransportType) 
+                ? legacyTransportTypeNames[settings.TransportType] 
                 : settings.TransportType;
                 
             var transportType = Type.GetType(transportTypeName);
@@ -128,32 +128,13 @@
             throw new Exception(errorMsg);
         }
 
-        static Dictionary<string, string> transportCustomizations = new Dictionary<string, string>
+        static Dictionary<string, string> legacyTransportTypeNames = new Dictionary<string, string>
         {
-            {
-                "NServiceBus.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus",
-                "ServiceControl.Transports.AzureServiceBus.ForwardingTopologyAzureServiceBusTransport, ServiceControl.Transports.AzureServiceBus"
-            },
-            {
-                "NServiceBus.SqlServerTransport, NServiceBus.Transport.SQLServer",
-                "ServiceControl.Transports.SQLServer.ServiceControlSQLServerTransport, ServiceControl.Transports.SQLServer"
-            },
-            {
-                "NServiceBus.SqsTransport, NServiceBus.AmazonSQS",
-                "ServiceControl.Transports.AmazonSQS.ServiceControlSqsTransport, ServiceControl.Transports.AmazonSQS"
-            },
-            {
-                "NServiceBus.RabbitMQTransport, NServiceBus.Transports.RabbitMQ",
-                "ServiceControl.Transports.RabbitMQ.ServiceControlRabbitMQTransport, ServiceControl.Transports.RabbitMQ"
-            },
-            {
-                "NServiceBus.AzureStorageQueueTransport, NServiceBus.Azure.Transports.WindowsAzureStorageQueues",
-                "ServiceControl.Transports.AzureStorageQueues.ServiceControlAzureStorageQueueTransport, ServiceControl.Transports.AzureStorageQueues"
-            },
-            {
-                "NServiceBus.MsmqTransport, NServiceBus.Core",
-                "NServiceBus.MsmqTransport, NServiceBus.Transport.Msmq"
-            }
+            { "NServiceBus.SqsTransport, NServiceBus.AmazonSQS", "ServiceControl.Transports.AmazonSQS.ServiceControlSqsTransport, ServiceControl.Transports.AmazonSQS" },
+            { "NServiceBus.AzureServiceBusTransport, NServiceBus.Azure.Transports.WindowsAzureServiceBus", "ServiceControl.Transports.LegacyAzureServiceBus.ForwardingTopologyAzureServiceBusTransport, ServiceControl.Transports.LegacyAzureServiceBus" },
+            { "NServiceBus.RabbitMQTransport, NServiceBus.Transports.RabbitMQ", "ServiceControl.Transports.RabbitMQ.ConventialRoutingTopologyRabbitMQTransport, ServiceControl.Transports.RabbitMQ" },
+            { "NServiceBus.SqlServerTransport, NServiceBus.Transport.SQLServer", "ServiceControl.Transports.SQLServer.ServiceControlSQLServerTransport, ServiceControl.Transports.SQLServer" },
+            { "NServiceBus.AzureStorageQueueTransport, NServiceBus.Azure.Transports.WindowsAzureStorageQueues", "ServiceControl.Transports.AzureStorageQueues.ServiceControlAzureStorageQueueTransport, ServiceControl.Transports.AzureStorageQueues" }
         };
 
         static ILog Logger = LogManager.GetLogger<EndpointFactory>();
