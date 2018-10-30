@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.SQS" Version="3.3.3.8" />
-    <PackageReference Include="NServiceBus.AmazonSQS" Version="3.1.0" />
+    <PackageReference Include="NServiceBus.AmazonSQS" Version="4.1.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -93,3 +93,4 @@ src/scaffolding.config
 .idea/
 *.sln.iml
 src/.learningtransport/
+src/.attransport/

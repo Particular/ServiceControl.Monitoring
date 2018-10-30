@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
@@ -54,7 +53,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    var connectionString = $"{ConfigureEndpointSqlServerTransport.ConnectionString};Queue Schema={CustomSchema}";
+                    var connectionString = $"{DefaultServer.ConnectionString};Queue Schema={CustomSchema}";
 
                     EndpointFactory.MakeMetricsReceiver(c, Settings, connectionString);
 

@@ -5,8 +5,7 @@ namespace ServiceControl.Transports.AzureServiceBus
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceBus;
-    using Microsoft.ServiceBus.Messaging;
+    using Microsoft.Azure.ServiceBus.Management;
     using Monitoring;
     using Monitoring.Infrastructure;
     using Monitoring.Messaging;
@@ -19,7 +18,7 @@ namespace ServiceControl.Transports.AzureServiceBus
         ConcurrentDictionary<EndpointInstanceId, string> endpointQueueMappings = new ConcurrentDictionary<EndpointInstanceId, string>();
 
         QueueLengthStore queueLengthStore;
-        NamespaceManager namespaceManager;
+        ManagementClient managementClient;
 
         CancellationTokenSource stop = new CancellationTokenSource();
         Task pooler;
@@ -27,7 +26,7 @@ namespace ServiceControl.Transports.AzureServiceBus
         public void Initialize(string connectionString, QueueLengthStore store)
         {
             this.queueLengthStore = store;
-            this.namespaceManager = NamespaceManager.CreateFromConnectionString(connectionString);
+            this.managementClient = new ManagementClient(connectionString);
         }
 
         public void Process(EndpointInstanceId endpointInstanceId, EndpointMetadataReport metadataReport)
@@ -49,22 +48,21 @@ namespace ServiceControl.Transports.AzureServiceBus
 
             pooler = Task.Run(async () =>
             {
-
                 while (!stop.Token.IsCancellationRequested)
                 {
                     try
                     {
-                        Logger.DebugFormat("Querying namespace manager: {0}", namespaceManager.Address);
+                        Logger.Debug("Waiting for next interval");
+                        await Task.Delay(QueryDelayInterval).ConfigureAwait(false);
 
-                        var queues = await namespaceManager.GetQueuesAsync().ConfigureAwait(false);
+                        Logger.DebugFormat("Querying management client.");
+
+                        var queues = await managementClient.GetQueuesAsync().ConfigureAwait(false);
                         var lookup = queues.ToLookup(x => x.Path, StringComparer.InvariantCultureIgnoreCase);
 
                         Logger.DebugFormat("Retrieved details of {0} queues", lookup.Count);
 
-                        UpdateQueueLengthStore(lookup);
-
-                        Logger.Debug("Waiting for next interval");
-                        await Task.Delay(QueryDelayInterval).ConfigureAwait(false);
+                        await UpdateQueueLengthStore(lookup);
                     }
                     catch (Exception e)
                     {
@@ -76,7 +74,7 @@ namespace ServiceControl.Transports.AzureServiceBus
             return TaskEx.Completed;
         }
 
-        private void UpdateQueueLengthStore(ILookup<string, QueueDescription> queueData)
+        private async Task UpdateQueueLengthStore(ILookup<string, QueueDescription> queueData)
         {
             var timestamp = DateTime.UtcNow.Ticks;
             foreach (var mapping in endpointQueueMappings)
@@ -89,7 +87,7 @@ namespace ServiceControl.Transports.AzureServiceBus
                         new RawMessage.Entry
                         {
                             DateTicks = timestamp,
-                            Value = queue.MessageCountDetails.ActiveMessageCount
+                            Value = (await managementClient.GetQueueRuntimeInfoAsync( queue.Path )).MessageCountDetails.ActiveMessageCount
                         }
                     };
                     queueLengthStore.Store(entries, new EndpointInputQueue(mapping.Key.EndpointName, queue.Path));
@@ -101,11 +99,11 @@ namespace ServiceControl.Transports.AzureServiceBus
             }
         }
 
-        public Task Stop()
+        public async Task Stop()
         {
             stop.Cancel();
-
-            return pooler;
+            await managementClient.CloseAsync();
+            await pooler;
         }
 
         static TimeSpan QueryDelayInterval = TimeSpan.FromMilliseconds(200);

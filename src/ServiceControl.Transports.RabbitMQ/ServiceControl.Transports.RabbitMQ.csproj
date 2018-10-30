@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NServiceBus.RabbitMQ" Version="4.4.1" />
+    <PackageReference Include="NServiceBus.RabbitMQ" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>
