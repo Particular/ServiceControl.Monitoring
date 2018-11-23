@@ -54,7 +54,7 @@
       <HintPath>..\packages\NServiceBus.AcceptanceTesting.7.1.4\lib\net452\NServiceBus.AcceptanceTesting.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Azure.Transports.WindowsAzureServiceBus, Version=8.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NServiceBus.Azure.Transports.WindowsAzureServiceBus.8.0.3\lib\net452\NServiceBus.Azure.Transports.WindowsAzureServiceBus.dll</HintPath>
+      <HintPath>..\packages\NServiceBus.Azure.Transports.WindowsAzureServiceBus.8.0.6\lib\net452\NServiceBus.Azure.Transports.WindowsAzureServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Core, Version=7.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <HintPath>..\packages\NServiceBus.7.1.4\lib\net452\NServiceBus.Core.dll</HintPath>
