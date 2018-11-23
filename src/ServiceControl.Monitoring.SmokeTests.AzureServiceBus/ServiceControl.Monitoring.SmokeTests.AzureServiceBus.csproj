@@ -57,7 +57,7 @@
       <Version>3.0.2</Version>
     </PackageReference>
     <PackageReference Include="NServiceBus.Transport.AzureServiceBus">
-      <Version>1.0.0-alpha0164</Version>
+      <Version>1.0.0-alpha0172</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>11.0.2</Version>

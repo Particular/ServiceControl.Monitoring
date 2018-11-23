@@ -13,10 +13,7 @@
 
     public class DefaultServer : IEndpointSetupTemplate
     {
-        public static string ConnectionString => string.Join(";",
-      Build("AccessKeyId", "AWS_ACCESS_KEY_ID"),
-      Build("SecretAccessKey", "AWS_SECRET_ACCESS_KEY"),
-      Build("Region", "AWS_REGION"));
+        public static string ConnectionString => $"{string.Join(";", Build("AccessKeyId", "AWS_ACCESS_KEY_ID"), Build("SecretAccessKey", "AWS_SECRET_ACCESS_KEY"), Build("Region", "AWS_REGION"))};QueueNamePrefix=SmokeTests-";
 
         static string Build(string name, string envName) => $"{name}={Environment.GetEnvironmentVariable(envName)}";
 
