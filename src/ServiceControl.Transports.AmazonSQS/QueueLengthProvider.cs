@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Data.Common;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -20,18 +21,26 @@
 
         QueueLengthStore store;
 
+        string queueNamePrefix;
         CancellationTokenSource stop = new CancellationTokenSource();
         Task pooler;
 
+
         public void Initialize(string connectionString, QueueLengthStore store)
         {
+            var builder = new DbConnectionStringBuilder { ConnectionString = connectionString };
+            if (builder.TryGetValue("QueueNamePrefix", out var prefix))
+            {
+                queueNamePrefix = (string)prefix;
+                
+            }
             this.store = store;
         }
 
         public void Process(EndpointInstanceId endpointInstanceId, EndpointMetadataReport metadataReport)
         {
             var endpointInputQueue = new EndpointInputQueue(endpointInstanceId.EndpointName, metadataReport.LocalAddress);
-            var queue = QueueNameHelper.GetSqsQueueName(metadataReport.LocalAddress);
+            var queue = QueueNameHelper.GetSqsQueueName(metadataReport.LocalAddress, queueNamePrefix);
 
             queues.AddOrUpdate(endpointInputQueue, _ => queue, (_, currentQueue) =>
             {
@@ -106,6 +115,7 @@
         }
 
         Task FetchQueueSizes(QueueAttributesRequestCache cache, IAmazonSQS client) => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key, client, cache)));
+
 
         async Task FetchLength(string queue, IAmazonSQS client, QueueAttributesRequestCache cache)
         {
