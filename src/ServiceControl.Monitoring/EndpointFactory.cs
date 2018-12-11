@@ -51,7 +51,9 @@
             }
             else
             {
+#pragma warning disable 618
                 transport.ConnectionStringName("NServiceBus/Transport");
+#pragma warning restore 618
             }
 
             if (settings.EnableInstallers)
