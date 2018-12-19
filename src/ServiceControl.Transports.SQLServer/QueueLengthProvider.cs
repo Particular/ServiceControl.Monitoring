@@ -66,15 +66,21 @@
 
             poller = Task.Run(async () =>
             {
-                while (!stop.Token.IsCancellationRequested)
+                var token = stop.Token;
+
+                while (!token.IsCancellationRequested)
                 {
                     try
                     {
-                        await Task.Delay(QueryDelayInterval);
+                        await Task.Delay(QueryDelayInterval, token).ConfigureAwait(false);
 
-                        await QueryTableSizes();
+                        await QueryTableSizes(token).ConfigureAwait(false);
 
                         UpdateQueueLengthStore();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // no-op
                     }
                     catch (Exception e)
                     {
@@ -109,7 +115,7 @@
             }
         }
 
-        async Task QueryTableSizes()
+        async Task QueryTableSizes(CancellationToken token)
         {
             var chunks = tableSizes
                 .Select((i, index) => new
@@ -125,9 +131,9 @@
             {
                 using (var connection = new SqlConnection(connectionString))
                 {
-                    await connection.OpenAsync();
+                    await connection.OpenAsync(token).ConfigureAwait(false);
 
-                    await UpdateChunk(connection, chunk, stop.Token);
+                    await UpdateChunk(connection, chunk, token).ConfigureAwait(false);
                 }
             }
         }
@@ -138,11 +144,11 @@
 
             using (var command = new SqlCommand(query, connection))
             {
-                var reader = await command.ExecuteReaderAsync(token);
+                var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
 
                 foreach (var chunkPair in chunk)
                 {
-                    await reader.ReadAsync(token);
+                    await reader.ReadAsync(token).ConfigureAwait(false);
 
                     var queueLength = reader.GetInt32(0);
 
@@ -155,7 +161,7 @@
                         tableSizes.TryUpdate(chunkPair.Key, queueLength, chunkPair.Value);
                     }
 
-                    await reader.NextResultAsync(token);
+                    await reader.NextResultAsync(token).ConfigureAwait(false);
                 }
             }
         }
