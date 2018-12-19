@@ -127,12 +127,12 @@
                 .Select(grp => grp.Select(g => g.i).ToArray())
                 .ToList();
 
-            foreach (var chunk in chunks)
+            using (var connection = new SqlConnection(connectionString))
             {
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    await connection.OpenAsync(token).ConfigureAwait(false);
+                await connection.OpenAsync(token).ConfigureAwait(false);
 
+                foreach (var chunk in chunks)
+                {
                     await UpdateChunk(connection, chunk, token).ConfigureAwait(false);
                 }
             }
