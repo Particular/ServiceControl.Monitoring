@@ -43,17 +43,22 @@
         {
             queryExecutor.Initialize();
 
-            queryLoop = Task.Run(async () =>
+            poller = Task.Run(async () =>
             {
-                while (!stoppedTokenSource.Token.IsCancellationRequested)
+                var token = stoppedTokenSource.Token;
+                while (!token.IsCancellationRequested)
                 {
                     try
                     {
-                        await FetchQueueLengths();
+                        await FetchQueueLengths(token);
 
                         UpdateQueueLengths();
 
-                        await Task.Delay(QueryDelayInterval).ConfigureAwait(false);
+                        await Task.Delay(QueryDelayInterval, token).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // no-op
                     }
                     catch (Exception e)
                     {
@@ -69,7 +74,7 @@
         {
             stoppedTokenSource.Cancel();
 
-            await queryLoop;
+            await poller;
 
             queryExecutor.Dispose();
         }
@@ -96,7 +101,7 @@
             }
         }
 
-        async Task FetchQueueLengths()
+        async Task FetchQueueLengths(CancellationToken token)
         {
             foreach (var endpointQueuePair in endpointQueues)
             {
@@ -114,7 +119,7 @@
                     {
                         Logger.Warn($"Error querying queue length for {queueName}", e);
                     }
-                });
+                }, token);
             }
         }
 
@@ -137,7 +142,7 @@
                 connectionFactory = new ConnectionFactory(connectionConfiguration, null, false, false);
             }
 
-            public async Task Execute(Action<IModel> action)
+            public async Task Execute(Action<IModel> action, CancellationToken token)
             {
                 try
                 {
@@ -149,7 +154,7 @@
                     //Connection implements reconnection logic
                     while (connection.IsOpen == false)
                     {
-                        await Task.Delay(ReconnectionDelay);
+                        await Task.Delay(ReconnectionDelay, token);
                     }
 
                     if (model == null || model.IsClosed)
@@ -160,6 +165,10 @@
                     }
 
                     action(model);
+                }
+                catch (OperationCanceledException)
+                {
+                    // no-op
                 }
                 catch (Exception e)
                 {
@@ -179,7 +188,7 @@
         ConcurrentDictionary<string, int> sizes = new ConcurrentDictionary<string, int>();
 
         CancellationTokenSource stoppedTokenSource = new CancellationTokenSource();
-        Task queryLoop;
+        Task poller;
 
         QueueLengthStore store;
         QueryExecutor queryExecutor;
