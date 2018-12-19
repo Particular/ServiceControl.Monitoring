@@ -9,7 +9,8 @@ namespace ServiceControl.Transports.LegacyAzureServiceBus
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
             var extensions = new TransportExtensions<AzureServiceBusTransport>(settings);
-            extensions.UseEndpointOrientedTopology();
+            var topology = extensions.UseEndpointOrientedTopology();
+            topology.EnableMigrationToForwardingTopology();
 
             return base.Initialize(settings, connectionString);
         }
