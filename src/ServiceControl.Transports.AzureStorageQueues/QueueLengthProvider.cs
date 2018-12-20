@@ -24,7 +24,7 @@
         QueueLengthStore store;
 
         CancellationTokenSource stop = new CancellationTokenSource();
-        Task pooler;
+        Task poller;
 
         public void Initialize(string connectionString, QueueLengthStore store)
         {
@@ -62,17 +62,22 @@
         {
             stop = new CancellationTokenSource();
 
-            pooler = Task.Run(async () =>
+            poller = Task.Run(async () =>
             {
-                while (!stop.Token.IsCancellationRequested)
+                var token = stop.Token;
+                while (!token.IsCancellationRequested)
                 {
                     try
                     {
-                        await FetchQueueSizes().ConfigureAwait(false);
+                        await FetchQueueSizes(token).ConfigureAwait(false);
 
                         UpdateQueueLengthStore();
 
-                        await Task.Delay(QueryDelayInterval);
+                        await Task.Delay(QueryDelayInterval, token).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // no-op
                     }
                     catch (Exception e)
                     {
@@ -88,7 +93,7 @@
         {
             stop.Cancel();
 
-            return pooler;
+            return poller;
         }
 
         void UpdateQueueLengthStore()
@@ -107,16 +112,20 @@
             }
         }
 
-        Task FetchQueueSizes() => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key)));
+        Task FetchQueueSizes(CancellationToken token) => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key, token)));
 
-        async Task FetchLength(CloudQueue queue)
+        async Task FetchLength(CloudQueue queue, CancellationToken token)
         {
             try
             {
-                await queue.FetchAttributesAsync(stop.Token).ConfigureAwait(false);
+                await queue.FetchAttributesAsync(token).ConfigureAwait(false);
                 sizes[queue] = queue.ApproximateMessageCount.GetValueOrDefault();
 
                 problematicQueues.TryRemove(queue, out _);
+            }
+            catch (OperationCanceledException)
+            {
+                // no-op
             }
             catch (Exception ex)
             {

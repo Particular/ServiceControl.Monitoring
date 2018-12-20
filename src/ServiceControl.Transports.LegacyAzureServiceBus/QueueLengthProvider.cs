@@ -22,7 +22,7 @@ namespace ServiceControl.Transports.LegacyAzureServiceBus
         NamespaceManager namespaceManager;
 
         CancellationTokenSource stop = new CancellationTokenSource();
-        Task pooler;
+        Task poller;
 
         public void Initialize(string connectionString, QueueLengthStore store)
         {
@@ -47,10 +47,10 @@ namespace ServiceControl.Transports.LegacyAzureServiceBus
         {
             stop = new CancellationTokenSource();
 
-            pooler = Task.Run(async () =>
+            poller = Task.Run(async () =>
             {
-
-                while (!stop.Token.IsCancellationRequested)
+                var token = stop.Token;
+                while (!token.IsCancellationRequested)
                 {
                     try
                     {
@@ -64,7 +64,11 @@ namespace ServiceControl.Transports.LegacyAzureServiceBus
                         UpdateQueueLengthStore(lookup);
 
                         Logger.Debug("Waiting for next interval");
-                        await Task.Delay(QueryDelayInterval).ConfigureAwait(false);
+                        await Task.Delay(QueryDelayInterval, token).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // no-op
                     }
                     catch (Exception e)
                     {
@@ -105,7 +109,7 @@ namespace ServiceControl.Transports.LegacyAzureServiceBus
         {
             stop.Cancel();
 
-            return pooler;
+            return poller;
         }
 
         static TimeSpan QueryDelayInterval = TimeSpan.FromMilliseconds(200);
