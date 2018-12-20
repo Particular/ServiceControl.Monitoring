@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Amazon.Runtime;
     using Amazon.SQS;
     using Monitoring;
     using Monitoring.Infrastructure;
@@ -24,11 +25,23 @@
         string queueNamePrefix;
         CancellationTokenSource stop = new CancellationTokenSource();
         Task pooler;
+        Func<IAmazonSQS> clientFactory = () => new AmazonSQSClient();
 
 
         public void Initialize(string connectionString, QueueLengthStore store)
         {
             var builder = new DbConnectionStringBuilder { ConnectionString = connectionString };
+            if (builder.ContainsKey("AccessKeyId") || builder.ContainsKey("SecretAccessKey"))
+            {
+                // if the user provided the access key and secret access key they should always be loaded from environment credentials
+                clientFactory = () => new AmazonSQSClient(new EnvironmentVariablesAWSCredentials());
+            }
+            else
+            {
+                //See https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/net-dg-config-creds.html#creds-assign
+                Logger.Info("BasicAWSCredentials have not been supplied in the connection string. Attempting to use existing environment or IAM role credentials.");
+            }
+
             if (builder.TryGetValue("QueueNamePrefix", out var prefix))
             {
                 queueNamePrefix = (string)prefix;
@@ -66,7 +79,7 @@
 
             pooler = Task.Run(async () =>
             {
-                using (var client = new AmazonSQSClient())
+                using (var client = clientFactory())
                 {
                     var cache = new QueueAttributesRequestCache(client);
 

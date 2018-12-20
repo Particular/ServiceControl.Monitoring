@@ -5,7 +5,10 @@ namespace ServiceControl.Transports.AmazonSQS
     using System.Linq;
     using System.Reflection;
     using Amazon;
+    using Amazon.Runtime;
+    using Amazon.SQS;
     using NServiceBus;
+    using NServiceBus.Logging;
     using NServiceBus.Settings;
     using NServiceBus.Transport;
 
@@ -15,8 +18,21 @@ namespace ServiceControl.Transports.AmazonSQS
         {
             var builder = new DbConnectionStringBuilder { ConnectionString = connectionString };
 
-            PromoteEnvironmentVariableFromConnectionString(builder, "AccessKeyId", "AWS_ACCESS_KEY_ID");
-            PromoteEnvironmentVariableFromConnectionString(builder, "SecretAccessKey", "AWS_SECRET_ACCESS_KEY");
+            if (builder.ContainsKey("AccessKeyId") || builder.ContainsKey("SecretAccessKey"))
+            {
+                PromoteEnvironmentVariableFromConnectionString(builder, "AccessKeyId", "AWS_ACCESS_KEY_ID");
+                PromoteEnvironmentVariableFromConnectionString(builder, "SecretAccessKey", "AWS_SECRET_ACCESS_KEY");
+
+                // if the user provided the access key and secret access key they should always be loaded from environment credentials
+                var transport = new TransportExtensions<SqsTransport>(settings);
+                transport.ClientFactory(() => new AmazonSQSClient(new EnvironmentVariablesAWSCredentials()));
+            }
+            else
+            {
+                //See https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/net-dg-config-creds.html#creds-assign
+                log.Info("BasicAWSCredentials have not been supplied in the connection string. Attempting to use existing environment or IAM role credentials.");
+            }
+
             var region = PromoteEnvironmentVariableFromConnectionString(builder, "Region", "AWS_REGION");
 
             var awsRegion = RegionEndpoint.EnumerableAllRegions
@@ -62,5 +78,7 @@ namespace ServiceControl.Transports.AmazonSQS
 
             throw new ArgumentException($"Missing value for '{connectionStringKey}'", connectionStringKey);
         }
+
+        static ILog log = LogManager.GetLogger<ServiceControlSqsTransport>();
     }
 }
