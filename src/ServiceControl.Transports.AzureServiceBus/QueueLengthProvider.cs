@@ -21,7 +21,7 @@ namespace ServiceControl.Transports.AzureServiceBus
         ManagementClient managementClient;
 
         CancellationTokenSource stop = new CancellationTokenSource();
-        Task pooler;
+        Task poller;
 
         public void Initialize(string connectionString, QueueLengthStore store)
         {
@@ -46,23 +46,29 @@ namespace ServiceControl.Transports.AzureServiceBus
         {
             stop = new CancellationTokenSource();
 
-            pooler = Task.Run(async () =>
+            poller = Task.Run(async () =>
             {
-                while (!stop.Token.IsCancellationRequested)
+                var token = stop.Token;
+
+                while (!token.IsCancellationRequested)
                 {
                     try
                     {
                         Logger.Debug("Waiting for next interval");
-                        await Task.Delay(QueryDelayInterval).ConfigureAwait(false);
+                        await Task.Delay(QueryDelayInterval, token).ConfigureAwait(false);
 
                         Logger.DebugFormat("Querying management client.");
 
-                        var queues = await managementClient.GetQueuesAsync().ConfigureAwait(false);
+                        var queues = await managementClient.GetQueuesAsync(cancellationToken: token).ConfigureAwait(false);
                         var lookup = queues.ToLookup(x => x.Path, StringComparer.InvariantCultureIgnoreCase);
 
                         Logger.DebugFormat("Retrieved details of {0} queues", lookup.Count);
 
-                        await UpdateQueueLengthStore(lookup);
+                        await UpdateQueueLengthStore(lookup, token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // no-op
                     }
                     catch (Exception e)
                     {
@@ -74,7 +80,7 @@ namespace ServiceControl.Transports.AzureServiceBus
             return TaskEx.Completed;
         }
 
-        private async Task UpdateQueueLengthStore(ILookup<string, QueueDescription> queueData)
+        async Task UpdateQueueLengthStore(ILookup<string, QueueDescription> queueData, CancellationToken token)
         {
             var timestamp = DateTime.UtcNow.Ticks;
             foreach (var mapping in endpointQueueMappings)
@@ -87,7 +93,7 @@ namespace ServiceControl.Transports.AzureServiceBus
                         new RawMessage.Entry
                         {
                             DateTicks = timestamp,
-                            Value = (await managementClient.GetQueueRuntimeInfoAsync( queue.Path )).MessageCountDetails.ActiveMessageCount
+                            Value = (await managementClient.GetQueueRuntimeInfoAsync(queue.Path, token).ConfigureAwait(false)).MessageCountDetails.ActiveMessageCount
                         }
                     };
                     queueLengthStore.Store(entries, new EndpointInputQueue(mapping.Key.EndpointName, queue.Path));
@@ -102,8 +108,8 @@ namespace ServiceControl.Transports.AzureServiceBus
         public async Task Stop()
         {
             stop.Cancel();
-            await managementClient.CloseAsync();
-            await pooler;
+            await poller.ConfigureAwait(false);
+            await managementClient.CloseAsync().ConfigureAwait(false);
         }
 
         static TimeSpan QueryDelayInterval = TimeSpan.FromMilliseconds(200);
