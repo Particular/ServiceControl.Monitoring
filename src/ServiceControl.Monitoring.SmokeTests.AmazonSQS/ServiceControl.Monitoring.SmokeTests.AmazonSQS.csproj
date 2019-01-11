@@ -51,7 +51,7 @@
       <HintPath>..\packages\NServiceBus.AcceptanceTesting.7.1.6\lib\net452\NServiceBus.AcceptanceTesting.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.AmazonSQS, Version=4.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NServiceBus.AmazonSQS.4.2.0\lib\net452\NServiceBus.AmazonSQS.dll</HintPath>
+      <HintPath>..\packages\NServiceBus.AmazonSQS.4.2.1\lib\net452\NServiceBus.AmazonSQS.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Core, Version=7.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <HintPath>..\packages\NServiceBus.7.1.6\lib\net452\NServiceBus.Core.dll</HintPath>

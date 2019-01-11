@@ -66,7 +66,7 @@
       <HintPath>..\packages\NServiceBus.Newtonsoft.Json.2.2.0\lib\net452\NServiceBus.Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Transport.RabbitMQ, Version=5.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NServiceBus.RabbitMQ.5.0.1\lib\net452\NServiceBus.Transport.RabbitMQ.dll</HintPath>
+      <HintPath>..\packages\NServiceBus.RabbitMQ.5.0.2\lib\net452\NServiceBus.Transport.RabbitMQ.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.10.1\lib\net45\nunit.framework.dll</HintPath>
