@@ -55,7 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NServiceBus.SqlServer">
-      <Version>4.1.0</Version>
+      <Version>4.1.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
