@@ -41,7 +41,7 @@
             var localAddress = metadataReport.LocalAddress;
 
             var sqlTable = SqlTable.Parse(localAddress, defaultSchema);
-            
+
             tableNames.AddOrUpdate(endpointInputQueue, _ => sqlTable, (_, currentSqlTable) =>
             {
                 if (currentSqlTable.Equals(sqlTable) == false)
@@ -59,7 +59,7 @@
         {
             //HINT: Sql server endpoints do not support endpoint level queue length monitoring
         }
-       
+
         public Task Start()
         {
             stop = new CancellationTokenSource();
@@ -110,7 +110,7 @@
                     {
                         DateTicks = nowTicks,
                         Value = tableSizes.TryGetValue(tableNamePair.Value, out var size) ? size : 0
-                    }}, 
+                    }},
                     tableNamePair.Key);
             }
         }
@@ -144,24 +144,25 @@
 
             using (var command = new SqlCommand(query, connection))
             {
-                var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
-
-                foreach (var chunkPair in chunk)
+                using (var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false))
                 {
-                    await reader.ReadAsync(token).ConfigureAwait(false);
-
-                    var queueLength = reader.GetInt32(0);
-
-                    if (queueLength == -1)
+                    foreach (var chunkPair in chunk)
                     {
-                        Logger.Warn($"Table {chunkPair.Key} does not exist.");
-                    }
-                    else
-                    {
-                        tableSizes.TryUpdate(chunkPair.Key, queueLength, chunkPair.Value);
-                    }
+                        await reader.ReadAsync(token).ConfigureAwait(false);
 
-                    await reader.NextResultAsync(token).ConfigureAwait(false);
+                        var queueLength = reader.GetInt32(0);
+
+                        if (queueLength == -1)
+                        {
+                            Logger.Warn($"Table {chunkPair.Key} does not exist.");
+                        }
+                        else
+                        {
+                            tableSizes.TryUpdate(chunkPair.Key, queueLength, chunkPair.Value);
+                        }
+
+                        await reader.NextResultAsync(token).ConfigureAwait(false);
+                    }
                 }
             }
         }
