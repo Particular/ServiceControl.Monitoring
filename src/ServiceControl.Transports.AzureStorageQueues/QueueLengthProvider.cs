@@ -38,22 +38,14 @@
 
             var queueClient = CloudStorageAccount.Parse(connectionString).CreateCloudQueueClient();
 
-            var queueLength = new QueueLengthValue
+            var emptyQueueLength = new QueueLengthValue
             {
                 QueueName = queueName,
                 Length = 0,
                 QueueReference = queueClient.GetQueueReference(queueName)
             };
 
-            queueLengths.AddOrUpdate(endpointInputQueue, _ => queueLength, (_, currentLength) =>
-            {
-                if (currentLength.QueueName.Equals(queueLength.QueueName))
-                {
-                    return currentLength;
-                }
-
-                return queueLength;
-            });
+            queueLengths.AddOrUpdate(endpointInputQueue, _ => emptyQueueLength, (_, existingQueueLength) => existingQueueLength);
         }
 
         public void Process(EndpointInstanceId endpointInstanceId, TaggedLongValueOccurrence metricsReport)
