@@ -16,9 +16,8 @@
 
     public class QueueLengthProvider : IProvideQueueLength
     {
-        ConcurrentDictionary<EndpointInputQueue, CloudQueue> queues = new ConcurrentDictionary<EndpointInputQueue, CloudQueue>();
-        ConcurrentDictionary<CloudQueue, int> sizes = new ConcurrentDictionary<CloudQueue, int>();
-        ConcurrentDictionary<CloudQueue, CloudQueue> problematicQueues = new ConcurrentDictionary<CloudQueue, CloudQueue>();
+        ConcurrentDictionary<EndpointInputQueue, QueueLengthValue> queueLengths = new ConcurrentDictionary<EndpointInputQueue, QueueLengthValue>();
+        ConcurrentDictionary<string, string> problematicQueuesNames = new ConcurrentDictionary<string, string>();
 
         string connectionString;
         QueueLengthStore store;
@@ -38,19 +37,15 @@
             var queueName = QueueNameSanitizer.Sanitize(metadataReport.LocalAddress);
 
             var queueClient = CloudStorageAccount.Parse(connectionString).CreateCloudQueueClient();
-            var queue = queueClient.GetQueueReference(queueName);
 
-            queues.AddOrUpdate(endpointInputQueue, _ => queue, (_, currentQueue) =>
+            var emptyQueueLength = new QueueLengthValue
             {
-                if (currentQueue.Name.Equals(queue.Name) == false)
-                {
-                    sizes.TryRemove(currentQueue, out var _);
-                }
+                QueueName = queueName,
+                Length = 0,
+                QueueReference = queueClient.GetQueueReference(queueName)
+            };
 
-                return queue;
-            });
-
-            sizes.TryAdd(queue, 0);
+            queueLengths.AddOrUpdate(endpointInputQueue, _ => emptyQueueLength, (_, existingQueueLength) => existingQueueLength);
         }
 
         public void Process(EndpointInstanceId endpointInstanceId, TaggedLongValueOccurrence metricsReport)
@@ -100,28 +95,31 @@
         {
             var nowTicks = DateTime.UtcNow.Ticks;
 
-            foreach (var tableNamePair in queues)
+            foreach (var endpointQueueLengthPair in queueLengths)
             {
-                store.Store(
-                    new[]{ new RawMessage.Entry
-                    {
-                        DateTicks = nowTicks,
-                        Value = sizes.TryGetValue(tableNamePair.Value, out var size) ? size : 0
-                    }},
-                    tableNamePair.Key);
+                var queueLengthEntry = new RawMessage.Entry
+                {
+                    DateTicks = nowTicks,
+                    Value = endpointQueueLengthPair.Value.Length
+                };
+
+                store.Store(new[]{ queueLengthEntry }, endpointQueueLengthPair.Key);
             }
         }
 
-        Task FetchQueueSizes(CancellationToken token) => Task.WhenAll(sizes.Select(kvp => FetchLength(kvp.Key, token)));
+        Task FetchQueueSizes(CancellationToken token) => Task.WhenAll(queueLengths.Select(kvp => FetchLength(kvp.Value, token)));
 
-        async Task FetchLength(CloudQueue queue, CancellationToken token)
+        async Task FetchLength(QueueLengthValue queueLength, CancellationToken token)
         {
             try
             {
-                await queue.FetchAttributesAsync(token).ConfigureAwait(false);
-                sizes[queue] = queue.ApproximateMessageCount.GetValueOrDefault();
+                var queueReference = queueLength.QueueReference;
 
-                problematicQueues.TryRemove(queue, out _);
+                await queueReference.FetchAttributesAsync(token).ConfigureAwait(false);
+
+                queueLength.Length = queueReference.ApproximateMessageCount.GetValueOrDefault();
+
+                problematicQueuesNames.TryRemove(queueLength.QueueName, out _);
             }
             catch (OperationCanceledException)
             {
@@ -130,11 +128,18 @@
             catch (Exception ex)
             {
                 // simple "log once" approach to do not flood logs
-                if (problematicQueues.TryAdd(queue, queue))
+                if (problematicQueuesNames.TryAdd(queueLength.QueueName, queueLength.QueueName))
                 {
-                    Logger.Error($"Obtaining Azure Storage Queue count failed for '{queue.Name}'", ex);
+                    Logger.Error($"Obtaining Azure Storage Queue count failed for '{queueLength.QueueName}'", ex);
                 }
             }
+        }
+
+        class QueueLengthValue
+        {
+            public string QueueName;
+            public volatile int Length;
+            public CloudQueue QueueReference;
         }
 
         static TimeSpan QueryDelayInterval = TimeSpan.FromMilliseconds(200);
