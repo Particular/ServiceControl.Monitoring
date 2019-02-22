@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NServiceBus" Version="7.1.6" />
+    <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ServiceControl.Monitoring\ServiceControl.Monitoring.csproj" />
+    <PackageReference Include="NServiceBus" Version="7.1.6" />
   </ItemGroup>
 
 </Project>
