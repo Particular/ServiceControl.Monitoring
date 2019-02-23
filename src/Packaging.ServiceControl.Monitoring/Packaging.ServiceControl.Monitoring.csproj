@@ -2,7 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
+    <Description>Contains ServiceControl.Monitoring zip for Particular Service Control Management to install</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Particular.Packaging" Version="0.2.1" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\zip\*.zip" PackagePath="tools" Visible="false" Link="hidden" />
+  </ItemGroup>
 
   <UsingTask AssemblyFile="..\..\buildsupport\DeploymentZipTask.Dll" TaskName="DeploymentZipTask.AddToZip" />
 
