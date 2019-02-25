@@ -77,6 +77,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{592205FC-8ACB-4FA3-86D0-EA985A926082}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		..\GitVersion.yml = ..\GitVersion.yml
 	EndProjectSection
 EndProject
 Global
