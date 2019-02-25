@@ -5,7 +5,6 @@
     <OutputType>Exe</OutputType>
     <DefineConstants>$(DefineConstants);REGISTRYLICENSESOURCE</DefineConstants>
     <ApplicationIcon>Operations.ico</ApplicationIcon>
-    <OutputPath>..\..\binaries\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
