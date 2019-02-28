@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)\..\platform\servicecontrol\monitoring-instance\**\*" CopyToOutputDirectory="PreserveNewest" Link="platform\servicecontrol\monitoring-instance\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="$(MSBuildThisFileDirectory)\..\platform\servicecontrol\monitoring-instance\**\*" CopyToOutputDirectory="PreserveNewest" Link="platform\servicecontrol\monitoring-instance\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>
