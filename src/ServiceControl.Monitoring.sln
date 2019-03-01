@@ -57,6 +57,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceControl.Monitoring.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceControl.Transports.AzureServiceBus", "ServiceControl.Transports.AzureServiceBus\ServiceControl.Transports.AzureServiceBus.csproj", "{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Particular.PlatformSample.ServiceControl.Monitoring", "Particular.PlatformSample.ServiceControl.Monitoring\Particular.PlatformSample.ServiceControl.Monitoring.csproj", "{2126D4F4-CEA7-4C45-A8CE-691F6A6DB703}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{592205FC-8ACB-4FA3-86D0-EA985A926082}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
@@ -145,6 +147,10 @@ Global
 		{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2126D4F4-CEA7-4C45-A8CE-691F6A6DB703}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2126D4F4-CEA7-4C45-A8CE-691F6A6DB703}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2126D4F4-CEA7-4C45-A8CE-691F6A6DB703}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2126D4F4-CEA7-4C45-A8CE-691F6A6DB703}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -166,6 +172,7 @@ Global
 		{01108727-F41E-4FDF-BECC-65836C68B82A} = {ED6CE213-D704-4695-97AB-3E6EA4859795}
 		{A82A5634-FC28-47FF-BDAA-69ABBE74A6BC} = {81A9662E-CF9A-4C8A-9A2D-023973C7E1A3}
 		{37BAAA9B-A17B-4CB7-8359-D09586CDAAD2} = {ED6CE213-D704-4695-97AB-3E6EA4859795}
+		{2126D4F4-CEA7-4C45-A8CE-691F6A6DB703} = {AC16BCB1-A7CA-4E50-B6BD-11518421382E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		{F98424DA-ECA8-4636-9062-93E058E2C304} = {81A9662E-CF9A-4C8A-9A2D-023973C7E1A3}
