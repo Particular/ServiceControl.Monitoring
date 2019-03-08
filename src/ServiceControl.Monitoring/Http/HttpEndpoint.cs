@@ -7,6 +7,7 @@ namespace ServiceControl.Monitoring.Http
 {
     using System;
     using Autofac;
+    using Nancy.Bootstrapper;
     using Nancy.Bootstrappers.Autofac;
 
     class HttpEndpoint : Feature
@@ -64,6 +65,13 @@ namespace ServiceControl.Monitoring.Http
         class Bootstrapper : AutofacNancyBootstrapper
         {
             readonly ILifetimeScope lifetimeScope;
+
+            protected override void ApplicationStartup(ILifetimeScope container, IPipelines pipelines)
+            {
+                Nancy.Json.JsonSettings.MaxJsonLength = int.MaxValue;
+
+                base.ApplicationStartup(container, pipelines);
+            }
 
             public Bootstrapper(ILifetimeScope lifetimeScope)
             {
