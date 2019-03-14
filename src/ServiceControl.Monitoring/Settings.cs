@@ -48,7 +48,7 @@ namespace ServiceControl.Monitoring
         // debugging or if the entry is removed manually. In those circumstances default to the folder containing the exe
         internal static string DefaultLogLocation()
         {
-            var assemblyLocation = Assembly.GetEntryAssembly().Location;
+            var assemblyLocation = Assembly.GetExecutingAssembly().Location;
             return Path.GetDirectoryName(assemblyLocation);
         }
     }

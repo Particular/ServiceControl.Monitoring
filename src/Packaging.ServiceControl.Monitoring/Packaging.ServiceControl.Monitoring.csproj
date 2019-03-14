@@ -1,63 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B7A9DC11-2199-448F-A51F-049D36003176}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Packaging.ServiceControl.Monitoring</RootNamespace>
-    <AssemblyName>Packaging.ServiceControl.Monitoring</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
+    <TargetFramework>net461</TargetFramework>
+    <Description>Contains ServiceControl.Monitoring zip for Particular Service Control Management to install</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
+
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="NServiceBus.Transport.Msmq" version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.2.1" PrivateAssets="All" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
   <UsingTask AssemblyFile="..\..\buildsupport\DeploymentZipTask.Dll" TaskName="DeploymentZipTask.AddToZip" />
-  <Import Project="..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets'))" />
-    <Error Condition="!Exists('..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets'))" />
-  </Target>
-  <Import Project="..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets')" />
-  <Target Name="ZipTarget" BeforeTargets="BuildPackages">
+
+  <Target Name="ZipTarget" AfterTargets="Build">
     <PropertyGroup>
       <ZipTargetFolder>..\..\zip\</ZipTargetFolder>
       <ZipFile>$(ZipTargetFolder)Particular.ServiceControl.Monitoring-$(GitVersion_MajorMinorPatch).zip</ZipFile>
@@ -70,16 +26,19 @@
     </ItemGroup>
     <Delete Files="@(OldZips)" />
     <!-- Package Transports -->
-    <AddToZip IncludeMask="*.*" ZipFolder="Transports\SQLServer" SourceFolder="..\Packaging.NServiceBus.SQLServer\$(OutputPath)" ZipFileName="$(ZipFile)" />
-    <AddToZip IncludeMask="*.*" ZipFolder="Transports\AzureStorageQueue" SourceFolder="..\Packaging.NServiceBus.AzureStorageQueues\$(OutputPath)" ZipFileName="$(ZipFile)" />
-    <AddToZip IncludeMask="*.*" ZipFolder="Transports\AzureServiceBus" SourceFolder="..\Packaging.NServiceBus.AzureServiceBus\$(OutputPath)" ZipFileName="$(ZipFile)" />
-    <AddToZip IncludeMask="*.*" ZipFolder="Transports\LegacyAzureServiceBus" SourceFolder="..\Packaging.NServiceBus.LegacyAzureServiceBus\$(OutputPath)" ZipFileName="$(ZipFile)" />
-    <AddToZip IncludeMask="*.*" ZipFolder="Transports\RabbitMQ" SourceFolder="..\Packaging.NServiceBus.RabbitMQ\$(OutputPath)" ZipFileName="$(ZipFile)" />
-    <AddToZip IncludeMask="*.*" ZipFolder="Transports\AmazonSQS" SourceFolder="..\Packaging.NServiceBus.AmazonSQS\$(OutputPath)" ZipFileName="$(ZipFile)" />
-    <AddToZip IncludeMask="*.*" ZipFolder="Transports\MSMQ" SourceFolder="..\Packaging.NServiceBus.MSMQ\$(OutputPath)" ZipFileName="$(ZipFile)" />
-    <AddToZip IncludeMask="*.*" ZipFolder="Transports\LearningTransport" SourceFolder="..\Packaging.NServiceBus.LearningTransport\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ExcludeMask="*.config" ZipFolder="Transports\AmazonSQS" SourceFolder="..\ServiceControl.Transports.AmazonSQS\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ExcludeMask="*.config" ZipFolder="Transports\AzureServiceBus" SourceFolder="..\ServiceControl.Transports.AzureServiceBus\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ExcludeMask="*.config" ZipFolder="Transports\AzureStorageQueue" SourceFolder="..\ServiceControl.Transports.AzureStorageQueues\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ExcludeMask="*.config" ZipFolder="Transports\LearningTransport" SourceFolder="..\ServiceControl.Transports.LearningTransport\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ExcludeMask="*.config" ZipFolder="Transports\LegacyAzureServiceBus" SourceFolder="..\ServiceControl.Transports.LegacyAzureServiceBus\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ExcludeMask="*.config" ZipFolder="Transports\RabbitMQ" SourceFolder="..\ServiceControl.Transports.RabbitMQ\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ExcludeMask="*.config" ZipFolder="Transports\SQLServer" SourceFolder="..\ServiceControl.Transports.SQLServer\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ExcludeMask="*.xml" ZipFolder="Transports\MSMQ" SourceFolder="$(NuGetPackageRoot)NServiceBus.Transport.Msmq\%(PackageReference.Version)\lib\net452" ZipFileName="$(ZipFile)" Condition="'%(PackageReference.Identity)' == 'NServiceBus.Transport.Msmq'" />
     <!-- ServiceControl.Monitoring  -->
-    <AddToZip IncludeMask="*.exe" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
-    <AddToZip IncludeMask="*.dll" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\..\binaries" ZipFileName="$(ZipFile)" />
+    <AddToZip IncludeMask="*.*" ExcludeMask="*.config" ZipFolder="ServiceControl.Monitoring" SourceFolder="..\ServiceControl.Monitoring\$(OutputPath)" ZipFileName="$(ZipFile)" />
+    <ItemGroup>
+      <Content Include="$(ZipFile)" PackagePath="tools" />
+    </ItemGroup>
   </Target>
+
 </Project>
